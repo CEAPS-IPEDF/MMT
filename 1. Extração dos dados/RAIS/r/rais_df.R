@@ -1,52 +1,71 @@
-####  CRIANDO OS DEFLATORES ####
+# Carregar pacotes ----
 
-# Configuração inicial ----
-## Carrega pacotes ----
-library(keyring)
-library(dplyr)
 library(odbc)
-library(stringr)
+library(tidyverse)
+library(sidrar)
+library(readxl)
 
-## Carrega arquivos ----
-cbotecnica_nivel_medio = data.table::fread("dados/cbotecnica_nivelmedio.csv", header = TRUE)
-cbotecnica_nivel_superior = data.table::fread("dados/cbotecnica_nivelsuperior.csv", header = TRUE)
-ocupacoes_protegidas = data.table::fread("dados/ocupacoes_protegidas.csv", header = TRUE)
-eixos = lapply(paste0('dados/', dir('dados')[str_detect(dir('dados'), "Eixo[0-9]{1,2}\\.")]), function(x) {data.table::fread(x, encoding = "UTF-8")})
-eixos_superior = lapply(paste0('dados/', dir('dados')[str_detect(dir('dados'), "Eixo[0-9]{1,2}\\_")]), function(x) {data.table::fread(x, encoding = "UTF-8")})
+options(readr.show_col_types = FALSE)
 
-## Colocan omes em eixos
-names(eixos) = vapply(eixos, function(x){names(x)[[2]]}, 'eixo')
-names(eixos_superior) = vapply(eixos_superior, function(x){names(x)[[2]]}, 'eixo')
+# Importação dos dados ----
 
-## Carrega arquivo do inpc do df ----
+ano <- 2021
 
-serie_inpc = readxl::read_excel("dados/serie_inpcDF.xlsx")
+## CBOs técnicas ----
 
-# Conecta a base de dados ----
-## Cria usuário e senha para a conexão ao DB_CODEPLAN, sem deixar registrado a senha de acesso ----
-key_set(service = "usuario", username = "36420")
+cbotecnica_nivel_medio <- read_csv("Dados/cbotecnica_nivelmedio.csv")
+cbotecnica_nivel_superior <- read_csv("Dados/cbotecnica_nivelsuperior.csv")
+ocupacoes_protegidas <- read_csv("Dados/ocupacoes_protegidas.csv")
 
-## Cria conexão com o banco de dados DB_CODEPLAN ----
-db <- DBI::dbConnect(odbc(),'db_codeplan', 
-                     uid = keyring::key_list('usuario')[1,2], 
-                     pwd = keyring::key_get('usuario', username =  '36420'))
+## Eixos ----
 
-## Carrega dados ----
-dados <- DBI::dbGetQuery(db, "SELECT referencia, vinculoativo3112, tipovinculo, escolaridade, sexotrabalhador, racacor, vlremundezembronom, vlremundezembrosm, tiposalario, tempoemprego, qtdhoracontr, vlsalariocontratual, cboocupacao2002, cnae20subclasse, idade, indtrabintermitente  FROM rais_id.Vinc WHERE municipio = 530010 and referencia > 2010 and vinculoativo3112 = 1")
+eixos <- lapply(paste0("Dados/Eixos - nível médio/", dir("Dados/Eixos - nível médio")[str_detect(dir("Dados/Eixos - nível médio"), "Eixo[0-9]{1,2}\\.")]), function(x) {read_delim(x, delim = ";", locale = locale(encoding = "UTF-8"))})
+eixos_superior <- lapply(paste0("Dados/Eixos - nível superior/", dir("Dados/Eixos - nível superior")[str_detect(dir("Dados/Eixos - nível superior"), "Eixo[0-9]{1,2}\\_")]), function(x) {read_delim(x, delim = ";", locale = locale(encoding = "ISO-8859-1"))})
 
-rais2020 <- DBI::dbGetQuery(db,"SELECT referencia, vinculoativo3112, tipovinculo, escolaridade, sexotrabalhador, racacor, vlremundezembronom, vlremundezembrosm, tiposalario, tempoemprego, qtdhoracontr, vlsalariocontratual, cboocupacao2002, cnae20subclasse, idade, indtrabintermitente  FROM rais_id.vinc_2020 WHERE municipio = 530010 and referencia = 2020 and vinculoativo3112 = 1")
+names(eixos) <- vapply(eixos, function(x){names(x)[[2]]}, "eixo")
+names(eixos_superior) <- vapply(eixos_superior, function(x){names(x)[[2]]}, "eixo")
+
+## INPC ----
+
+inpc <- readRDS("Dados/INPC.RDS") |>
+  rbind(get_sidra(api = "/t/7063/n6/5300108/v/44/p/all/c315/7169/d/v44%202") |>
+          select(data = "Mês (Código)",
+                 inpc = "Valor") |>
+          mutate(data = ym(data))) |>
+  mutate(ano_ref = year(data)) |>
+  filter(ano_ref > 2009 & ano_ref < 2022) |>
+  group_by(ano_ref) |>
+  summarise(agreg = prod(1 + inpc)) |>
+  mutate(ipca_anual = rev(cumprod(rev(agreg))))
+
+#'*João*
+inpc <- inpc |> rename(referencia = ano_ref)
+
+## Conexão ao SQL ----
+
+db <- DBI::dbConnect(odbc(),
+                     "db_codeplan", 
+                     uid = Sys.getenv("matricula"), 
+                     pwd = Sys.getenv("senha"))
+
+# === TROCAR ANO QUANDO FOR ATUALIZAR ===
+
+rais <- NULL
+
+for (i in 2011:ano) {
+  
+  temp <- DBI::dbGetQuery(db, paste0("SELECT referencia, vinculoativo3112, tipovinculo, escolaridade_2006_atual as escolaridade, sexotrabalhador, racacor, vlremdeznm as vlremundezembronom, vlremdezsm as vlremundezembrosm, tiposal as tiposalario, tempoemprego, qtdhoracontr, vl_salario_contrato as vlsalariocontratual, cbo2002 as cboocupacao2002, cnae20subclasse, idade, null as indtrabintermitente  FROM DB_CODEPLAN.rais_id.vinc_", i, " WHERE municipio = 530010 and vinculoativo3112 = 1"))
+  rais <- rbind(rais, temp)
+  
+}
+
+#'*João*
+dados <- left_join(rais, inpc, by = "referencia")
+
+
 
 ### Une as rais
 dados = rbind(dados, rais2020)
-
-# Limpeza inpc inicial ----
-serie_inpc = serie_inpc[serie_inpc$ano %in% 2010:2019,]
-
-serie_inpc = aggregate(serie_inpc$inpc, list(referencia = serie_inpc$ano), function(x) (prod(1 + x)))
-
-serie_inpc$inpc_acum = rev(cumprod(rev(serie_inpc$x)))
-
-names(serie_inpc)[[2]] = 'inpc_anual'
 
 # Limpa base ----
 ## Une base com inpc ----
@@ -61,15 +80,15 @@ dados$horas_mensais = qtdhoracontr*4
 dados$salario_hora = salario_dez_defl/horas_mensais
 
 ## Dummys cbos
-dados$cbo_tec_em_complet = ifelse(dados$cboocupacao2002 %in% cbotecnica_nivel_medio$cbo_em & dados$escolaridade %in% c(7:11) & dados$tipovinculo!='55', 1,0)
-dados$cbo_tec_sup = ifelse(dados$cboocupacao2002 %in% cbotecnica_nivel_superior$cbo_superior & dados$escolaridade %in% c(9:11) & dados$tipovinculo!='55', 1,0)
+dados$cbo_tec_em_complet = ifelse(dados$cboocupacao2002 %in% cbotecnica_nivel_medio$cbo_em & dados$escolaridade %in% c(7:11) & dados$tipovinculo!="55", 1,0)
+dados$cbo_tec_sup = ifelse(dados$cboocupacao2002 %in% cbotecnica_nivel_superior$cbo_superior & dados$escolaridade %in% c(9:11) & dados$tipovinculo!="55", 1,0)
 dados$cbo_tec = ifelse(dados$dados$cbo_tec_em_complet == 1 | dados$dados$cbo_tec_sup == 1, 1,0)
 
 ### Dummy vinculo
 
 dados$celetistas = ifelse(dados$tipovinculo %in% c(10,15,20,25,60,65,70,75), 1,0)
 dados$estatutarios = ifelse(dados$tipovinculo %in% c(30,31,35), 1,0)
-dados$aprendiz = ifelse(dados$tipovinculo=='55', 1,0)
+dados$aprendiz = ifelse(dados$tipovinculo=="55", 1,0)
 dados$outros = ifelse(dados$tipovinculo %in% c(40,50,80,90,95,96,97,-1), 1, 0)
 
 ### Dummy escolaridade
@@ -77,7 +96,7 @@ dados$outros = ifelse(dados$tipovinculo %in% c(40,50,80,90,95,96,97,-1), 1, 0)
 dados$medio_incompleto = ifelse(dados$escolaridade %in% c(2,3,4,5,6), 1,0)
 dados$medio_completo = ifelse(dados$escolaridade %in% c(7,8), 1,0)
 dados$superior_completo = ifelse(dados$escolaridade %in% c(9,10,11), 1, 0)
-dados$analfabeto = ifelse(dados$escolaridade=='1', 1,0)
+dados$analfabeto = ifelse(dados$escolaridade=="1", 1,0)
 
 ### retirando da base os vínculos em ocupações protegidas (militares) ###
 
