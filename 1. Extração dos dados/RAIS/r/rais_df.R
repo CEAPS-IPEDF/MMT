@@ -13,9 +13,9 @@ ano <- 2021
 
 ## CBOs técnicas ----
 
-cbotecnica_nivel_medio <- read_csv("Dados/cbotecnica_nivelmedio.csv")
-cbotecnica_nivel_superior <- read_csv("Dados/cbotecnica_nivelsuperior.csv")
-ocupacoes_protegidas <- read_csv("Dados/ocupacoes_protegidas.csv")
+cbotecnica_nivel_medio <- read_csv("Dados/cbotecnica_nivelmedio.csv")[[1]]
+cbotecnica_nivel_superior <- read_csv("Dados/cbotecnica_nivelsuperior.csv")[[1]]
+cbos_protegidas <- read_csv("Dados/ocupacoes_protegidas.csv")[[1]]
 
 ## Eixos ----
 
@@ -27,28 +27,26 @@ names(eixos_superior) <- vapply(eixos_superior, function(x){names(x)[[2]]}, "eix
 
 ## INPC ----
 
-inpc <- readRDS("Dados/INPC.RDS") |>
-  rbind(get_sidra(api = "/t/7063/n6/5300108/v/44/p/all/c315/7169/d/v44%202") |>
-          select(data = "Mês (Código)",
-                 inpc = "Valor") |>
-          mutate(data = ym(data))) |>
-  mutate(ano_ref = year(data)) |>
-  filter(ano_ref > 2009 & ano_ref < 2022) |>
-  group_by(ano_ref) |>
+inpc <- get_sidra(api = "/t/2951/n6/5300108/v/44/p/all/c315/7169/d/v44%202") |>  # Até 2011
+  rbind(get_sidra(api = "/t/1100/n6/5300108/v/44/p/all/c315/7169/d/v44%202")) |> # De 2012 até 2019
+  rbind(get_sidra(api = "/t/7063/n6/5300108/v/44/p/all/c315/7169/d/v44%202")) |> # De 2020 em diante
+  select(data = "Mês (Código)",
+         inpc = "Valor") |>
+  mutate(data = ym(data),
+         inpc = inpc / 100,
+         referencia = year(data)) |>
+  filter(referencia > 2009) |>
+  group_by(referencia) |>
   summarise(agreg = prod(1 + inpc)) |>
-  mutate(ipca_anual = rev(cumprod(rev(agreg))))
+  mutate(inpc_anual = cumprod(agreg),
+         inpc_anual = inpc_anual / nth(inpc_anual, -2))
 
-#'*João*
-inpc <- inpc |> rename(referencia = ano_ref)
-
-## Conexão ao SQL ----
+## RAIS ----
 
 db <- DBI::dbConnect(odbc(),
                      "db_codeplan", 
                      uid = Sys.getenv("matricula"), 
-                     pwd = Sys.getenv("senha"))
-
-# === TROCAR ANO QUANDO FOR ATUALIZAR ===
+                     pwd = Sys.getenv("senha")) 
 
 rais <- NULL
 
@@ -59,101 +57,86 @@ for (i in 2011:ano) {
   
 }
 
-#'*João*
+remove(temp, i)
+
 dados <- left_join(rais, inpc, by = "referencia")
 
+# Tratamento dos dados ----
 
+## Filtros da base ----
 
-### Une as rais
-dados = rbind(dados, rais2020)
+### Salários ----
 
-# Limpa base ----
-## Une base com inpc ----
-dados = merge(dados, serie_inpc, all.x = TRUE)
+dados <- dados |>
+  filter(vlremundezembrosm >= 0.5 & vlremundezembrosm <= 200)
 
-## Filtra base ----
-dados = dados[dados$vlremundezembrosm >= 0.5 & dados$vlremundezembrosm <= 200,]
+### Retirar ocupações protegidas ----
 
-## Calcula novas variaveis ----
-dados$salario_dez_defl = dados$vlremundezembronom * dados$inpc_acum
-dados$horas_mensais = qtdhoracontr*4
-dados$salario_hora = salario_dez_defl/horas_mensais
+dados <- dados |>
+  filter(cboocupacao2002 != cbos_protegidas)
 
-## Dummys cbos
-dados$cbo_tec_em_complet = ifelse(dados$cboocupacao2002 %in% cbotecnica_nivel_medio$cbo_em & dados$escolaridade %in% c(7:11) & dados$tipovinculo!="55", 1,0)
-dados$cbo_tec_sup = ifelse(dados$cboocupacao2002 %in% cbotecnica_nivel_superior$cbo_superior & dados$escolaridade %in% c(9:11) & dados$tipovinculo!="55", 1,0)
-dados$cbo_tec = ifelse(dados$dados$cbo_tec_em_complet == 1 | dados$dados$cbo_tec_sup == 1, 1,0)
+## Cálculo de novas variáveis ----
 
-### Dummy vinculo
+dados <- dados |>
+  mutate(salario_dez_defl = vlremundezembronom * inpc_anual,
+         horas_mensais = qtdhoracontr * 4,
+         salario_hora = salario_dez_defl / horas_mensais)
 
-dados$celetistas = ifelse(dados$tipovinculo %in% c(10,15,20,25,60,65,70,75), 1,0)
-dados$estatutarios = ifelse(dados$tipovinculo %in% c(30,31,35), 1,0)
-dados$aprendiz = ifelse(dados$tipovinculo=="55", 1,0)
-dados$outros = ifelse(dados$tipovinculo %in% c(40,50,80,90,95,96,97,-1), 1, 0)
+## Dummies ----
 
-### Dummy escolaridade
+### CBOs ----
 
-dados$medio_incompleto = ifelse(dados$escolaridade %in% c(2,3,4,5,6), 1,0)
-dados$medio_completo = ifelse(dados$escolaridade %in% c(7,8), 1,0)
-dados$superior_completo = ifelse(dados$escolaridade %in% c(9,10,11), 1, 0)
-dados$analfabeto = ifelse(dados$escolaridade=="1", 1,0)
+dados <- dados |>
+  mutate(cbo_tec_em_complet = case_when(cboocupacao2002 %in% cbotecnica_nivel_medio & escolaridade %in% 7:11 & tipovinculo != 55 ~ 1, TRUE ~ 0),
+         cbo_tec_sup = case_when(cboocupacao2002 %in% cbotecnica_nivel_superior & escolaridade %in% 9:11 & tipovinculo != 55 ~ 1, TRUE ~ 0),
+         cbo_tec = case_when(cbo_tec_em_complet == 1 | cbo_tec_sup == 1 ~ 1, TRUE ~ 0))
 
-### retirando da base os vínculos em ocupações protegidas (militares) ###
+### Tipo vínculo ----
 
-cbos_protegidas = ocupacoes_protegidas$cbo_protegidas[!is.na(ocupacoes_protegidas$cbo_protegidas)]
+dados <- dados |>
+  mutate(tipovinculo = case_when(tipovinculo %in% c(10, 15, 20, 25, 60, 65, 70, 75) ~ 1,  # Celetista - 1
+                                 tipovinculo %in% c(30, 31, 35) ~ 2,                      # Estatutário - 2
+                                 tipovinculo == 55 ~ 3,                                   # Aprendiz - 3
+                                 tipovinculo %in% c(40, 50, 80, 90, 95, 96, 97, -1) ~ 4)) # Outros - 4
 
-cbos_protegidas = formatC(cbos_protegidas, width=6, format = "d", flag="0")
+### Escolaridade ----
 
-dados = dados[!dados$cboocupacao2002 %in% cbos_protegidas,]
+dados <- dados |>
+  mutate(escolaridade = case_when(escolaridade == 1 ~ 1,       # Analfabeto - 1
+                                  escolaridade %in% 2:6 ~ 2,   # Médio incompleto - 2
+                                  escolaridade %in% 7:8 ~ 3,   # Médio completo - 3
+                                  escolaridade %in% 9:11 ~ 4)) # Superior completo - 4
 
-### Dummy eixo ----
-dados$eixo_amb_saude_em = ifelse(dados$cboocupacao2002 %in% eixos$`Eixo de Ambiente e Saúde`$`Eixo de Ambiente e Saúde` & dados$cbo_tec_em_complet == 1, 1,0)
+### Eixos - nível médio ----
 
-dados$eixo_conteprocessos_em = ifelse(dados$cboocupacao2002 %in% eixos$`Eixo de Controle e Processos Industriais`$`Eixo de Controle e Processos Industriais` & dados$cbo_tec_em_complet == 1, 1, 0)
+dados <- dados |>
+  mutate(eixo_amb_saude_em      = case_when(cboocupacao2002 %in% eixos$`Eixo de Ambiente e Saúde`[[2]] & cbo_tec_em_complet == 1 ~ 1, TRUE ~ 0),
+         eixo_conteprocessos_em = case_when(cboocupacao2002 %in% eixos$`Eixo de Controle e Processos Industriais`[[2]] & cbo_tec_em_complet == 1 ~ 1, TRUE ~ 0),
+         eixo_desedusoc_em      = case_when(cboocupacao2002 %in% eixos$`Eixo de Desenvolvimento Educacional e Social`[[2]] & cbo_tec_em_complet == 1 ~ 1, TRUE ~ 0),
+         eixo_negocios_em       = case_when(cboocupacao2002 %in% eixos$`Eixo de Gestão e Negócios`[[2]] & cbo_tec_em_complet == 1 ~ 1, TRUE ~ 0),
+         eixo_infoecomunic_em   = case_when(cboocupacao2002 %in% eixos$`Eixo de Informação e Comunicação`[[2]] & cbo_tec_em_complet == 1 ~ 1, TRUE ~ 0),
+         eixo_infraestrutura_em = case_when(cboocupacao2002 %in% eixos$`Eixo de Infraestrutura`[[2]] & cbo_tec_em_complet == 1 ~ 1, TRUE ~ 0),
+         eixo_prodaliment_em    = case_when(cboocupacao2002 %in% eixos$`Eixo de Produção Alimentícia`[[2]] & cbo_tec_em_complet == 1 ~ 1, TRUE ~ 0),
+         eixo_prodcult_em       = case_when(cboocupacao2002 %in% eixos$`Eixo de Produção Cultural e Design`[[2]] & cbo_tec_em_complet == 1 ~ 1, TRUE ~ 0),
+         eixo_prodindust_em     = case_when(cboocupacao2002 %in% eixos$`Eixo de Produção Industrial`[[2]] & cbo_tec_em_complet == 1 ~ 1, TRUE ~ 0),
+         eixo_recnaturais_em    = case_when(cboocupacao2002 %in% eixos$`Eixo de Recursos Naturais`[[2]] & cbo_tec_em_complet == 1 ~ 1, TRUE ~ 0),
+         eixo_seguranca_em      = case_when(cboocupacao2002 %in% eixos$`Eixo de Segurança`[[2]] & cbo_tec_em_complet == 1 ~ 1, TRUE ~ 0),
+         eixo_hospelazer_em     = case_when(cboocupacao2002 %in% eixos$`Eixo de Turismo, Hospitalidade e Lazer`[[2]] & cbo_tec_em_complet == 1 ~ 1, TRUE ~ 0),
+         eixo_militar_em        = case_when(cboocupacao2002 %in% eixos$`Eixo Militar`[[2]] & cbo_tec_em_complet == 1 ~ 1, TRUE ~ 0))
 
-dados$eixo_desedusoc_em = ifelse(dados$cboocupacao2002 %in% eixos$`Eixo de Desenvolvimento Educacional e Social`$`Eixo de Desenvolvimento Educacional e Social` & dados$cbo_tec_em_complet == 1, 1,0)
+### Eixos - nível superior ----
 
-dados$eixo_negocios_em = ifelse(dados$cboocupacao2002 %in% eixos$`Eixo de Gestão e Negócios`$`Eixo de Gestão e Negócios` & dados$cbo_tec_em_complet == 1,1 ,0)
-
-dados$eixo_infoecomunic_em = ifelse(dados$cboocupacao2002 %in% eixos$`Eixo de Informação e Comunicação`$`Eixo de Informação e Comunicação` & dados$cbo_tec_em_complet == 1, 1, 0)
-
-dados$eixo_infraestrutura_em = ifelse(dados$cboocupacao2002 %in% eixos$`Eixo de Infraestrutura`$`Eixo de Infraestrutura` & dados$cbo_tec_em_complet == 1, 1, 0)
-
-dados$eixo_prodaliment_em = ifelse(dados$cboocupacao2002 %in% eixos$`Eixo de Produção Alimentícia`$`Eixo de Produção Alimentícia` & dados$cbo_tec_em_complet == 1, 1, 0)
-
-dados$eixo_prodcult_em = ifelse(dados$cboocupacao2002 %in% eixos$`Eixo de Produção Cultural e Design`$`Eixo de Produção Cultural e Design` & dados$cbo_tec_em_complet == 1, 1, 0)
-
-dados$eixo_prodindust_em = ifelse(dados$cboocupacao2002 %in% eixos$`Eixo de Produção Industrial`$`Eixo de Produção Industrial` & dados$cbo_tec_em_complet == 1, 1, 0)
-
-dados$eixo_recnaturais_em = ifelse(dados$cboocupacao2002 %in% eixos$`Eixo de Recursos Naturais`$`Eixo de Recursos Naturais` & dados$cbo_tec_em_complet == 1, 1, 0)
-
-eixo_seguranca_em = ifelse(dados$cboocupacao2002 %in% eixos$`Eixo de Segurança`$`Eixo de Segurança` & dados$cbo_tec_em_complet == 1, 1, 0)
-
-eixo_hospelazer_em = ifelse(dados$cboocupacao2002 %in% eixos$`Eixo de Turismo, Hospitalidade e Lazer`$`Eixo de Turismo, Hospitalidade e Lazer` & dados$cbo_tec_em_complet == 1, 1, 0)
-
-eixo_militar_em = ifelse(dados$cboocupacao2002 %in% eixos$`Eixo Militar`$`Eixo Militar` & dados$cbo_tec_em_complet == 1, 1, 0)
-
-### Dummy eixo superior ----
-dados$eixo_ambesaude_sup = ifelse(dados$cboocupacao2002 %in% eixos_superior$`Ambiente_saude`$`Ambiente_saude` & dados$cbo_tec_sup == 1, 1,0)
-
-dados$eixo_conteprocessos_sup = ifelse(dados$cboocupacao2002 %in% eixos_superior$`Controle e Processos Industriais`$`Controle e Processos Industriais` & dados$cbo_tec_sup == 1, 1, 0)
-
-dados$eixo_negocios_sup = ifelse(dados$cboocupacao2002 %in% eixos_superior$`gestao_neg`$`gestao_neg` & dados$cbo_tec_sup == 1,1 ,0)
-
-dados$eixo_infoecomunic_sup = ifelse(dados$cboocupacao2002 %in% eixos_superior$`info_comu`$`info_comu` & dados$cbo_tec_sup == 1, 1, 0)
-
-dados$eixo_infraestrutura_sup = ifelse(dados$cboocupacao2002 %in% eixos_superior$`Infraestrutura`$`Infraestrutura` & dados$cbo_tec_sup == 1, 1, 0)
-
-dados$eixo_prodaliment_sup = ifelse(dados$cboocupacao2002 %in% eixos_superior$`prod_alim`$`prod_alim` & dados$cbo_tec_sup == 1, 1, 0)
-
-dados$eixo_prodcult_sup = ifelse(dados$cboocupacao2002 %in% eixos_superior$`prod_cul_design`$`prod_cul_design` & dados$cbo_tec_sup == 1, 1, 0)
-
-dados$eixo_prodindust_sup = ifelse(dados$cboocupacao2002 %in% eixos_superior$`prod_ind`$`prod_ind` & dados$cbo_tec_sup == 1, 1, 0)
-
-dados$eixo_recnaturais_sup = ifelse(dados$cboocupacao2002 %in% eixos_superior$`Recursos Naturais`$`Recursos Naturais` & dados$cbo_tec_sup == 1, 1, 0)
-
-dados$eixo_seguranca_sup = ifelse(dados$cboocupacao2002 %in% eixos_superior$`seguranca`$`seguranca` & dados$cbo_tec_sup == 1, 1, 0)
-
-dados$eixo_hospelazer_sup = ifelse(dados$cboocupacao2002 %in% eixos_superior$`Tur_hosp_lazer`$`Tur_hosp_lazer` & dados$cbo_tec_sup == 1, 1, 0)
-
-dados$eixo_militar_sup = ifelse(dados$cboocupacao2002 %in% eixos_superior$`Eixo Militar`$`Eixo Militar` & dados$cbo_tec_sup == 1, 1, 0)
+dados <- dados |>
+  mutate(eixo_amb_saude_sup      = case_when(cboocupacao2002 %in% eixos_superior$`Eixo de Ambiente e Saúde`[[2]] & cbo_tec_sup == 1 ~ 1, TRUE ~ 0),
+         eixo_conteprocessos_sup = case_when(cboocupacao2002 %in% eixos_superior$`Eixo de Controle e Processos Industriais`[[2]] & cbo_tec_sup == 1 ~ 1, TRUE ~ 0),
+         eixo_desedusoc_sup      = case_when(cboocupacao2002 %in% eixos_superior$`Eixo de Desenvolvimento Educacional e Social`[[2]] & cbo_tec_sup == 1 ~ 1, TRUE ~ 0),
+         eixo_negocios_sup       = case_when(cboocupacao2002 %in% eixos_superior$`Eixo de Gestão e Negócios`[[2]] & cbo_tec_sup == 1 ~ 1, TRUE ~ 0),
+         eixo_infoecomunic_sup   = case_when(cboocupacao2002 %in% eixos_superior$`Eixo de Informação e Comunicação`[[2]] & cbo_tec_sup == 1 ~ 1, TRUE ~ 0),
+         eixo_infraestrutura_sup = case_when(cboocupacao2002 %in% eixos_superior$`Eixo de Infraestrutura`[[2]] & cbo_tec_sup == 1 ~ 1, TRUE ~ 0),
+         eixo_prodaliment_sup    = case_when(cboocupacao2002 %in% eixos_superior$`Eixo de Produção Alimentícia`[[2]] & cbo_tec_sup == 1 ~ 1, TRUE ~ 0),
+         eixo_prodcult_sup       = case_when(cboocupacao2002 %in% eixos_superior$`Eixo de Produção Cultural e Design`[[2]] & cbo_tec_sup == 1 ~ 1, TRUE ~ 0),
+         eixo_prodindust_sup     = case_when(cboocupacao2002 %in% eixos_superior$`Eixo de Produção Industrial`[[2]] & cbo_tec_sup == 1 ~ 1, TRUE ~ 0),
+         eixo_recnaturais_sup    = case_when(cboocupacao2002 %in% eixos_superior$`Eixo de Recursos Naturais`[[2]] & cbo_tec_sup == 1 ~ 1, TRUE ~ 0),
+         eixo_seguranca_sup      = case_when(cboocupacao2002 %in% eixos_superior$`Eixo de Segurança`[[2]] & cbo_tec_sup == 1 ~ 1, TRUE ~ 0),
+         eixo_hospelazer_sup     = case_when(cboocupacao2002 %in% eixos_superior$`Eixo de Turismo, Hospitalidade e Lazer`[[2]] & cbo_tec_sup == 1 ~ 1, TRUE ~ 0),
+         eixo_militar_sup        = case_when(cboocupacao2002 %in% eixos_superior$`Eixo Militar`[[2]] & cbo_tec_sup == 1 ~ 1, TRUE ~ 0))
