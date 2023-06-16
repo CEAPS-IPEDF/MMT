@@ -1,3 +1,5 @@
+#'*Script que faz a limpeza dos dados da RAIS para o MMT*
+
 # Carregar pacotes ----
 
 library(odbc)
@@ -19,7 +21,7 @@ cbos_protegidas <- read_csv("Dados/ocupacoes_protegidas.csv")[[1]]
 
 ## Eixos ----
 
-eixos <- lapply(paste0("Dados/Eixos - nível médio/", dir("Dados/Eixos - nível médio")[str_detect(dir("Dados/Eixos - nível médio"), "Eixo[0-9]{1,2}\\.")]), function(x) {read_delim(x, delim = ";", locale = locale(encoding = "UTF-8"))})
+eixos <- lapply(paste0("Dados/Eixos - nível médio/", dir("Dados/Eixos - nível médio")[str_detect(dir("Dados/Eixos - nível médio"), "Eixo[0-9]{1,2}//.")]), function(x) {read_delim(x, delim = ";", locale = locale(encoding = "UTF-8"))})
 eixos_superior <- lapply(paste0("Dados/Eixos - nível superior/", dir("Dados/Eixos - nível superior")[str_detect(dir("Dados/Eixos - nível superior"), "Eixo[0-9]{1,2}\\_")]), function(x) {read_delim(x, delim = ";", locale = locale(encoding = "ISO-8859-1"))})
 
 names(eixos) <- vapply(eixos, function(x){names(x)[[2]]}, "eixo")
@@ -140,3 +142,31 @@ dados <- dados |>
          eixo_seguranca_sup      = case_when(cboocupacao2002 %in% eixos_superior$`Eixo de Segurança`[[2]] & cbo_tec_sup == 1 ~ 1, TRUE ~ 0),
          eixo_hospelazer_sup     = case_when(cboocupacao2002 %in% eixos_superior$`Eixo de Turismo, Hospitalidade e Lazer`[[2]] & cbo_tec_sup == 1 ~ 1, TRUE ~ 0),
          eixo_militar_sup        = case_when(cboocupacao2002 %in% eixos_superior$`Eixo Militar`[[2]] & cbo_tec_sup == 1 ~ 1, TRUE ~ 0))
+
+
+#'@João
+`%notin%` <- Negate(`%in%`)
+
+# Base antiga
+teste <- data.table::fread("P:/RECENTES/DIEPS/GEFAPS/GEFAPS/2023/MMT - Legado/dados/rais-panorama-2021.csv")
+
+# Comparações de Vínculos por Ano
+cbind(
+  dados |> group_by(referencia) |> summarise(n_atual = n()),
+  teste |> group_by(referencia) |> summarise(n_antigo = n())|> select(n_antigo)) |>
+  mutate(dif = n_atual - n_antigo)
+
+# CBOs que estão na base nova e não estão na base antiga
+cbos <- data.frame(cbos=unique(dados$cboocupacao2002)) |> 
+  filter(cbos %notin% unique(teste$cboocupacao2002))
+
+dados |> filter(cboocupacao2002 %in% cbos$cbos) |> group_by(referencia) |> summarise(cbos_dif = n()) |> select(cbos_dif)
+
+
+cbind(
+  dados |> group_by(referencia) |> summarise(n_atual = n()),
+  teste |> group_by(referencia) |> summarise(n_antigo = n())|> select(n_antigo)) |>
+  mutate(dif = n_atual - n_antigo) |> 
+  cbind(dados |> filter(cboocupacao2002 %in% cbos$cbos) |> group_by(referencia) |> summarise(cbos_dif = n()) |> select(cbos_dif)) |> 
+  mutate(dif_dif = dif - cbos_dif)
+
