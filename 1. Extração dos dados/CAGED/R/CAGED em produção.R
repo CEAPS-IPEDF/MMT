@@ -139,7 +139,9 @@ rotatividade_rais <- rbind(rais |>
                                   escolaridade == 1 ~ "Analfabeto",
                                   escolaridade == 2 ~ "Médio incompleto",
                                   escolaridade == 3 ~ "Médio completo",
-                                  escolaridade == 4 ~ "Superior completo"))
+                                  escolaridade == 4 ~ "Superior completo")) |>
+  rename(anodeclarado = referencia,
+         cbo2002ocupacao = cboocupacao2002)
 
 ### CAGED ----
 
@@ -161,8 +163,8 @@ rotatividade_rais <- rbind(rais |>
 rotatividade_caged <- caged |>
   filter(salariomensal >= vl_sm * .5 & salariomensal <= vl_sm * 200) |>
   mutate(cbo2002ocupacao = as.character(cbo2002ocupacao),
-         admitidosdesligados = case_when(admitidosdesligados == 1 ~ "Admitidos",
-                                         admitidosdesligados == 2 ~ "Desligados"),
+         admitidosdesligados = case_when(admitidosdesligados == 1 ~ "admitidos",
+                                         admitidosdesligados == 2 ~ "desligados"),
          escolaridade = case_when(grauinstrucao == 1 ~ "Analfabeto",
                                   grauinstrucao %in% 2:6 ~ "Médio incompleto",
                                   grauinstrucao %in% 7:8 ~ "Médio completo",
@@ -181,6 +183,8 @@ rotatividade_caged_antigo <- rbind(rotatividade_caged |>
   pivot_wider(names_from = admitidosdesligados,
               values_from = rotacao) |>
   arrange(anodeclarado, cbo2002ocupacao)
+
+remove(rotatividade_caged)
 
 ### Novo CAGED ----
 
@@ -204,8 +208,8 @@ rotatividade_caged_antigo <- rbind(rotatividade_caged |>
 rotatividade_novo <- novo_caged |>
   filter(salariomensal >= vl_sm * .5 & salariomensal <= vl_sm * 200) |>
   mutate(cbo2002ocupacao = as.character(cbo2002ocupacao),
-         admitidosdesligados = case_when(admitidosdesligados == 1 ~ "Admitidos",
-                                         admitidosdesligados == 2 ~ "Desligados"),
+         admitidosdesligados = case_when(admitidosdesligados == 1 ~ "admitidos",
+                                         admitidosdesligados == 2 ~ "desligados"),
          escolaridade = case_when(grauinstrucao == 1 ~ "Analfabeto",
                                   grauinstrucao %in% 2:6 ~ "Médio incompleto",
                                   grauinstrucao %in% 7:8 ~ "Médio completo",
@@ -217,11 +221,24 @@ rotatividade_caged_novo <- rbind(rotatividade_novo |>
                                    group_by(anodeclarado, cbo2002ocupacao, admitidosdesligados) |>
                                    summarise(rotacao = n(),
                                              escolaridade = "Geral"),
-                                 rotatividade_caged |>
+                                 rotatividade_novo |>
                                    filter(tipomovdesagregado %in% c(10, 20, 25, 31, 32, 35, 43, 45, 90, 97, 98)) |>
                                    group_by(anodeclarado, cbo2002ocupacao, admitidosdesligados, escolaridade) |>
                                    summarise(rotacao = n())) |>
   pivot_wider(names_from = admitidosdesligados,
               values_from = rotacao) |>
   arrange(anodeclarado, cbo2002ocupacao)
+
+remove(rotatividade_novo)
+
+# Merge das bases ----
+
+rotatividade <- merge(rotatividade_rais,
+                      rbind(rotatividade_caged_novo, 
+                            rotatividade_caged_antigo), all.x = TRUE) |>
+  mutate(admitidos = case_when(is.na(admitidos) ~ 0),
+         desligados = case_when(is.na(desligados) ~ 0))
+
+remove(rotatividade_rais, rotatividade_caged_antigo, rotatividade_caged_novo)
+
 
