@@ -48,3 +48,7 @@ po/*~
 # RStudio Connect folder
 rsconnect/
 1. Extração dos dados/RAIS/dados/rais-panorama.csv
+1. Extração dos dados/RAIS/Dados/RAIS.RDS
+1. Extração dos dados/RAIS/Dados/rais-panorama-2021.csv
+1. Extração dos dados/RAIS/Dados/rais-panorama-2021.RDS
+1. Extração dos dados/CAGED/Dados/RAIS.RDS

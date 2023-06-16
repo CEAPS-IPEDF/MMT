@@ -7,6 +7,7 @@ library(tidyverse)
 library(sidrar)
 library(readxl)
 
+`%notin%` <- Negate(`%in%`)
 options(readr.show_col_types = FALSE)
 
 # Importação dos dados ----
@@ -15,13 +16,13 @@ ano <- 2021
 
 ## CBOs técnicas ----
 
-cbotecnica_nivel_medio <- read_csv("Dados/cbotecnica_nivelmedio.csv")[[1]]
-cbotecnica_nivel_superior <- read_csv("Dados/cbotecnica_nivelsuperior.csv")[[1]]
-cbos_protegidas <- read_csv("Dados/ocupacoes_protegidas.csv")[[1]]
+cbotecnica_nivel_medio <- as.character(read_csv("Dados/cbotecnica_nivelmedio.csv")[[1]])
+cbotecnica_nivel_superior <- as.character(read_csv("Dados/cbotecnica_nivelsuperior.csv")[[1]])
+cbos_protegidas <- as.character(read_csv("Dados/ocupacoes_protegidas.csv")[[1]])
 
 ## Eixos ----
 
-eixos <- lapply(paste0("Dados/Eixos - nível médio/", dir("Dados/Eixos - nível médio")[str_detect(dir("Dados/Eixos - nível médio"), "Eixo[0-9]{1,2}//.")]), function(x) {read_delim(x, delim = ";", locale = locale(encoding = "UTF-8"))})
+eixos <- lapply(paste0("Dados/Eixos - nível médio/", dir("Dados/Eixos - nível médio")[str_detect(dir("Dados/Eixos - nível médio"), "Eixo[0-9]{1,2}\\.")]), function(x) {read_delim(x, delim = ";", locale = locale(encoding = "UTF-8"))})
 eixos_superior <- lapply(paste0("Dados/Eixos - nível superior/", dir("Dados/Eixos - nível superior")[str_detect(dir("Dados/Eixos - nível superior"), "Eixo[0-9]{1,2}\\_")]), function(x) {read_delim(x, delim = ";", locale = locale(encoding = "ISO-8859-1"))})
 
 names(eixos) <- vapply(eixos, function(x){names(x)[[2]]}, "eixo")
@@ -57,8 +58,11 @@ for (i in 2011:ano) {
   temp <- DBI::dbGetQuery(db, paste0("SELECT referencia, vinculoativo3112, tipovinculo, escolaridade_2006_atual as escolaridade, sexotrabalhador, racacor, vlremdeznm as vlremundezembronom, vlremdezsm as vlremundezembrosm, tiposal as tiposalario, tempoemprego, qtdhoracontr, vl_salario_contrato as vlsalariocontratual, cbo2002 as cboocupacao2002, cnae20subclasse, idade, null as indtrabintermitente  FROM DB_CODEPLAN.rais_id.vinc_", i, " WHERE municipio = 530010 and vinculoativo3112 = 1"))
   rais <- rbind(rais, temp)
   
+  print(i)
+  
 }
 
+dbDisconnect(db)
 remove(temp, i)
 
 dados <- left_join(rais, inpc, by = "referencia")
@@ -67,22 +71,33 @@ dados <- left_join(rais, inpc, by = "referencia")
 
 ## Filtros da base ----
 
+### Idade ----
+
+dados <- dados |>
+  filter(idade >= 18)
+
 ### Salários ----
 
 dados <- dados |>
   filter(vlremundezembrosm >= 0.5 & vlremundezembrosm <= 200)
 
+### Horas trabalhadas na semana ----
+
+dados <- dados |>
+  filter(qtdhoracontr > 10)
+
 ### Retirar ocupações protegidas ----
 
 dados <- dados |>
-  filter(cboocupacao2002 != cbos_protegidas)
+  filter(cboocupacao2002 %notin% cbos_protegidas)
 
 ## Cálculo de novas variáveis ----
 
 dados <- dados |>
   mutate(salario_dez_defl = vlremundezembronom * inpc_anual,
          horas_mensais = qtdhoracontr * 4,
-         salario_hora = salario_dez_defl / horas_mensais)
+         salario_hora = case_when(horas_mensais == 0 ~ NA,
+                                  TRUE ~ salario_dez_defl / horas_mensais))
 
 ## Dummies ----
 
@@ -143,30 +158,6 @@ dados <- dados |>
          eixo_hospelazer_sup     = case_when(cboocupacao2002 %in% eixos_superior$`Eixo de Turismo, Hospitalidade e Lazer`[[2]] & cbo_tec_sup == 1 ~ 1, TRUE ~ 0),
          eixo_militar_sup        = case_when(cboocupacao2002 %in% eixos_superior$`Eixo Militar`[[2]] & cbo_tec_sup == 1 ~ 1, TRUE ~ 0))
 
+# Exportar RDS ----
 
-#'@João
-`%notin%` <- Negate(`%in%`)
-
-# Base antiga
-teste <- data.table::fread("P:/RECENTES/DIEPS/GEFAPS/GEFAPS/2023/MMT - Legado/dados/rais-panorama-2021.csv")
-
-# Comparações de Vínculos por Ano
-cbind(
-  dados |> group_by(referencia) |> summarise(n_atual = n()),
-  teste |> group_by(referencia) |> summarise(n_antigo = n())|> select(n_antigo)) |>
-  mutate(dif = n_atual - n_antigo)
-
-# CBOs que estão na base nova e não estão na base antiga
-cbos <- data.frame(cbos=unique(dados$cboocupacao2002)) |> 
-  filter(cbos %notin% unique(teste$cboocupacao2002))
-
-dados |> filter(cboocupacao2002 %in% cbos$cbos) |> group_by(referencia) |> summarise(cbos_dif = n()) |> select(cbos_dif)
-
-
-cbind(
-  dados |> group_by(referencia) |> summarise(n_atual = n()),
-  teste |> group_by(referencia) |> summarise(n_antigo = n())|> select(n_antigo)) |>
-  mutate(dif = n_atual - n_antigo) |> 
-  cbind(dados |> filter(cboocupacao2002 %in% cbos$cbos) |> group_by(referencia) |> summarise(cbos_dif = n()) |> select(cbos_dif)) |> 
-  mutate(dif_dif = dif - cbos_dif)
-
+saveRDS(dados, file = "Dados/RAIS.RDS")
