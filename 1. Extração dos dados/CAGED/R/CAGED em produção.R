@@ -241,4 +241,41 @@ rotatividade <- merge(rotatividade_rais,
 
 remove(rotatividade_rais, rotatividade_caged_antigo, rotatividade_caged_novo)
 
+## Criação dos lags ----
+
+rotatividade <- rotatividade |>
+  group_by(cbo2002ocupacao, escolaridade) |>
+  mutate(admitidos_anterior = lag(admitidos),
+         desligados_anterior = lag(desligados))
+
+## Cálculo da rotatividade ----
+
+rotatividade <- rotatividade |>
+  mutate(rotatividade = case_when(admitidos_anterior > desligados_anterior ~ desligados_anterior,
+                                  TRUE ~ admitidos_anterior) / n_trabalhadores)
+
+## CBOs técnicas ----
+
+rotatividade <- rotatividade |>
+  mutate(cbo_tecnica = case_when(cbo2002ocupacao %in% cbotec_em ~ "tec_em",
+                                 cbo2002ocupacao %in% cbotec_sup ~ "tec_sup",
+                                 TRUE ~ "nao_tec"),
+         tipo = case_when(escolaridade == "Geral" & cbo_tecnica %in% c("tec_em", "tec_sup") ~ "Média dos trabalhadores técnicos",
+                          escolaridade == "Geral" & cbo_tecnica == "nao_tec" ~ "Média dos trabalhadores não técnicos",
+                          escolaridade %in% c("Analfabeto", "Médio incompleto", "Médio completo", "Superior completo") & cbo_tecnica == "tec_em" ~ "Técnicos de nível médio",
+                          escolaridade %in% c("Analfabeto", "Médio incompleto", "Médio completo", "Superior completo") & cbo_tecnica == "tec_sup" ~ "Técnicos de nível superior",
+                          escolaridade %in% c("Analfabeto", "Médio incompleto") & cbo_tecnica == "nao_tec" ~ "Até fundamental completo",
+                          escolaridade == "Médio completo" & cbo_tecnica == "nao_tec" ~ "Médio completo",
+                          escolaridade == "Superior completo" & cbo_tecnica == "nao_tec" ~ "Superior completo"),
+         filtro = case_when(cbo_tecnica %in% c("tec_em", "tec_sup") ~ "Técnico",
+                            TRUE ~ "Não técnico"),
+         geral = case_when(escolaridade == "Geral" ~ "Geral",
+                           TRUE ~ "Subgrupo"))
+
+## Rotatividade média ----
+
+rotatividade_media <- rotatividade %>% 
+  group_by(anodeclarado, tipo, filtro, geral) %>% 
+  summarise(rotatividade_media = mean(rotatividade, na.rm = T))
+
 
