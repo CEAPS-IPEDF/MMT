@@ -1,335 +1,302 @@
-# Script que gera base de rotatividade para o MMT
+#'*Script que faz a limpeza dos dados do CAGED para o MMT*
 
-# Limpa Diretório
-rm(list=ls(all=T))
-# Dados sem notação científica
-options(scipen=100)
+# Carregar pacotes ----
 
-# Carregando pacotes ----
-library(easypackages)
-libraries("dplyr", "data.table","tidyverse","DBI","odbc","RODBC")
+library(odbc)
+library(tidyverse)
+library(readxl)
 
+`%notin%` <- Negate(`%in%`)
+options(readr.show_col_types = FALSE)
 
-# Extende Número de Linhas das visualizações
-rstudioapi::writeRStudioPreference("data_viewer_max_columns", 300L)
+# Importação dos dados ----
 
-# Conexão ao banco de dados ----
-# DBI e odbc exibem conexões na aba Environment, mas não funcional para CAGED antigo
-#db <- DBI::dbConnect(odbc::odbc(), "db_codeplan",uid=('codeplan'),pwd=('codeplan'))
-db <- RODBC::odbcConnect("db_codeplan",uid=('codeplan'),pwd=('codeplan'))
+db <- DBI::dbConnect(odbc(),
+                     "db_codeplan", 
+                     uid = Sys.getenv("matricula"), 
+                     pwd = Sys.getenv("senha")) 
 
-# Bases
-## Salario Mínimo ----
-vl_sm <- data.frame(anodeclarado = c(2011:2022),
-                    vl_sm = c(545,622,678,724,788,880,937,954,998,1045,1100,1212))
-
-## Bases CAGED ----
 ### Novo CAGED ----
-# Programação SQL Novo CAGED Dentro e Fora do prazo
-#novo_caged_sql <- 
-#  "select
-#cast(substring(cast(competencia as varchar(6)),1,4) as int) as anodeclarado,
-#cast(substring(cast(competencia as varchar(6)),5,2) as int) as mesdeclarado,
-#competencia,
-#cbo2002ocupacao,
-#graudeinstrucao as grauinstrucao,
-#racacor,
-#sexo,
-#idade,
-#indtrabintermitente,
-#indicadoraprendiz as indaprendiz,
-#--vl_sm,
-#cast(replace(valorsalariofixo ,',','.') as float) as salariomensal,
-#tipomovimentacao as tipomovdesagregado,
-#case when saldo = 1 then 1 else 2 end as admitidosdesligados,
-#saldo as saldomov,
-#tipo = 'dp'
-#from caged.caged_202001_atual_MOV where UF = 53"
 
-
-novo_caged_sql <- 
-"select
-cast(substring(cast(competencia as varchar(6)),1,4) as int) as anodeclarado,
-cast(substring(cast(competencia as varchar(6)),5,2) as int) as mesdeclarado,
-competencia,
-cbo2002ocupacao,
-graudeinstrucao as grauinstrucao,
-racacor,
-sexo,
-idade,
-indtrabintermitente,
-indicadoraprendiz as indaprendiz,
---vl_sm,
-cast(replace(valorsalariofixo ,',','.') as float) as salariomensal,
-tipomovimentacao as tipomovdesagregado,
-case when saldo = 1 then 1 else 2 end as admitidosdesligados,
-saldo as saldomov,
-tipo = 'dp'
-from caged.caged_202001_atual_MOV where UF = 53
-union all
-select
-cast(substring(cast(competencia as varchar(6)),1,4) as int) as anodeclarado,
-cast(substring(cast(competencia as varchar(6)),5,2) as int) as mesdeclarado,
-competencia,
-cbo2002ocupacao,
-graudeinstrucao as grauinstrucao,
-racacor,
-sexo,
-idade,
-indtrabintermitente,
-indicadoraprendiz as indaprendiz,
---vl_sm,
-cast(replace(valorsalariofixo ,',','.') as float) as salariomensal,
-tipomovimentacao as tipomovdesagregado,
-case when saldo = 1 then 1 else 2 end as admitidosdesligados,
-saldo as saldomov,
-tipo = 'fp'
-from caged.caged_202002_atual_FOR where UF = 53"
-
-# base novo caged
-novo_caged <- RODBC::sqlQuery(db, novo_caged_sql)
-
-novo_caged <- novo_caged %>%
-  #converte variavel de salário em número (alterando vírgulas para pontos antes da conversão)
-  #mutate(salariomensal = as.numeric(sub(",", ".",novo_caged$salariomensal, fixed = TRUE))) %>%
-  #une base de salario mínimo 
-  left_join(vl_sm, by = "anodeclarado")
-
-#saveRDS(novo_caged, "dados/novo_caged.RDS")
-
-### CAGED Antigo ----
-# Programação SQL CAGED antigo Dentro do Prazo e Fora do Prazo
-caged_sql <- 
+novo_caged <- DBI::dbGetQuery(db, 
 "SELECT
-cast(substring(cast(competenciadeclarada as varchar(6)),1,4) as int) as anodeclarado,
-cast(substring(cast(competenciadeclarada as varchar(6)),5,2) as int) as mesdeclarado,
-competenciadeclarada as competencia,
-cbo2002ocupacao,
-grauinstrucao,
-racacor,
-sexo,
-idade,
-indtrabintermitente,
-indaprendiz,
-salariomensal,
-tipomovdesagregado,
-admitidosdesligados,
-saldomov,
-tipo = 'dp'
-FROM caged_200701_atual_DP WHERE UF = 53 and anodeclarado > 2010
-union all
-SELECT 
-cast(substring(cast(competenciamovimentacao  as varchar(6)),1,4) as int) as anodeclarado,
-cast(substring(cast(competenciamovimentacao as varchar(6)),5,2) as int) as mesdeclarado,
-competenciamovimentacao as competencia,
-cbo2002ocupacao,
-grauinstrucao,
-cast(null as int) as racacor,
-sexo,
-idade,
-indtrabintermitente,
-indaprendiz,
-salariomensal,
-tipomovdesagregado,
-admitidosdesligados,
-saldomov,
-tipo = 'fp'
-FROM caged_200701_atual_fp WHERE UF = 53 and cast(substring(cast(competenciamovimentacao as varchar(6)),1,4) as int) > 2010"
+  CAST(SUBSTRING(CAST(competencia AS CHAR(6)), 1, 4) AS INT) AS anodeclarado,
+  CAST(SUBSTRING(CAST(competencia AS CHAR(6)), 5, 2) AS INT) AS mesdeclarado,
+  competencia,
+  cbo2002ocupacao,
+  graudeinstrucao AS grauinstrucao,
+  racacor,
+  sexo,
+  idade,
+  indtrabintermitente,
+  indicadoraprendiz AS indaprendiz,
+  CAST(REPLACE(valorsalariofixo, ',', '.') AS FLOAT) AS salariomensal,
+  tipomovimentacao AS tipomovdesagregado,
+  CASE WHEN saldo = 1 THEN 1 ELSE 2 END AS admitidosdesligados,
+  saldo AS saldomov,
+  'dp' AS tipo
+FROM
+  caged.caged_202001_atual_MOV
+WHERE
+  UF = 53
+UNION ALL
+SELECT
+  CAST(SUBSTRING(CAST(competencia AS CHAR(6)), 1, 4) AS INT) AS anodeclarado,
+  CAST(SUBSTRING(CAST(competencia AS CHAR(6)), 5, 2) AS INT) AS mesdeclarado,
+  competencia,
+  cbo2002ocupacao,
+  graudeinstrucao AS grauinstrucao,
+  racacor,
+  sexo,
+  idade,
+  indtrabintermitente,
+  indicadoraprendiz AS indaprendiz,
+  CAST(REPLACE(valorsalariofixo, ',', '.') AS FLOAT) AS salariomensal,
+  tipomovimentacao AS tipomovdesagregado,
+  CASE WHEN saldo = 1 THEN 1 ELSE 2 END AS admitidosdesligados,
+  saldo AS saldomov,
+  'fp' AS tipo
+FROM
+  caged.caged_202002_atual_FOR
+WHERE
+  UF = 53") |>
+  left_join(data.frame(anodeclarado = c(2011:2023),
+                       vl_sm = c(545, 622, 678, 724, 788, 880, 937, 954, 998, 1045, 1100, 1212, 1320)))
 
+### CAGED ----
 
+caged <- DBI::dbGetQuery(db, 
+"SELECT
+  CAST(SUBSTRING(CAST(competenciadeclarada AS CHAR(6)), 1, 4) AS INT) AS anodeclarado,
+  CAST(SUBSTRING(CAST(competenciadeclarada AS CHAR(6)), 5, 2) AS INT) AS mesdeclarado,
+  competenciadeclarada AS competencia,
+  cbo2002ocupacao,
+  grauinstrucao,
+  racacor,
+  sexo,
+  idade,
+  indtrabintermitente,
+  indaprendiz,
+  salariomensal,
+  tipomovdesagregado,
+  admitidosdesligados,
+  saldomov,
+  'dp' AS tipo
+FROM
+  caged.caged_200701_atual_DP
+WHERE
+  UF = 53 AND competenciadeclarada > 201001
+UNION ALL
+SELECT
+  CAST(SUBSTRING(CAST(competenciamovimentacao AS CHAR(6)), 1, 4) AS INT) AS anodeclarado,
+  CAST(SUBSTRING(CAST(competenciamovimentacao AS CHAR(6)), 5, 2) AS INT) AS mesdeclarado,
+  competenciamovimentacao AS competencia,
+  cbo2002ocupacao,
+  grauinstrucao,
+  CAST(NULL AS INT) AS racacor,
+  sexo,
+  idade,
+  indtrabintermitente,
+  indaprendiz,
+  salariomensal,
+  tipomovdesagregado,
+  admitidosdesligados,
+  saldomov,
+  'fp' AS tipo
+FROM
+  caged.caged_200701_atual_fp
+WHERE
+  UF = 53 AND competenciamovimentacao >= 201001") |>
+  left_join(data.frame(anodeclarado = c(2011:2023),
+                       vl_sm = c(545, 622, 678, 724, 788, 880, 937, 954, 998, 1045, 1100, 1212, 1320)))
 
-# base caged dp
-caged <- RODBC::sqlQuery(db, caged_sql)
+dbDisconnect(db)
 
-caged <- caged %>% 
-  #une base de salario mínimo 
-  left_join(vl_sm, by = "anodeclarado")
+### RAIS ----
 
-## Conferindo Saldo CAGED ----
-caged %>% filter(tipo == "dp") %>% select(saldomov) %>% sum()
-caged %>% filter(tipo == "fp") %>% select(saldomov) %>% sum()
+rais <- readRDS("Dados/RAIS.RDS") |>
+  mutate(escolaridade = case_when(escolaridade == 1 ~ "Analfabeto",
+                                  escolaridade == 2 ~ "Médio incompleto",
+                                  escolaridade == 3 ~ "Médio completo",
+                                  escolaridade == 4 ~ "Superior completo"))
 
-novo_caged %>% filter(anodeclarado == "2020",tipo == "dp") %>% select(saldomov) %>% sum()
-novo_caged %>% filter(anodeclarado == "2020",tipo == "fp") %>% select(saldomov) %>% sum()
+### CBOs técnicas ----
 
-## RAIS ----
-rais = data.table::fread('dados/rais-panorama-2021.csv',encoding = "Latin-1")
+cbotec_em <- as.character(read_csv("Dados/cbotecnica_nivelmedio.csv")[[1]])
+cbotec_sup <- as.character(read_csv("Dados/cbotecnica_nivelsuperior.csv")[[1]])
 
-## CBOs Tec ----
-cbotec_em = data.table::fread("dados/cbotecnica_nivelmedio.csv", header = TRUE)
-cbotec_sup = data.table::fread("dados/cbotecnica_nivelsuperior.csv", header = TRUE)
+# Tratamento dos dados ----
 
+## Rotatividade ----
 
-# Limpeza ----
-## RAIS ----
-# criandovariavel de escolaridade
-rais <- rais %>% 
-  mutate(escolaridade_rotatividade = fcase(escolaridade  == 1,'analfabeto',
-                                           escolaridade  %in% c(2:6), 'em_incompleto', 
-                                           escolaridade   %in% c(7,8), 'em_completo', 
-                                           escolaridade  <= 11, 'sup_completo'))
-# base rais para rotatividade
-## geral
-rais_rotatividade = rbind(
-  rais %>% 
-    group_by(referencia,cboocupacao2002) %>% 
-    summarise(n_trabalhadores = n(),
-              escolaridade_rotatividade = "geral"),
-## por escolaridade
-  rais %>% 
-    group_by(referencia,cboocupacao2002, escolaridade_rotatividade) %>% 
-    summarise(n_trabalhadores = n())
-)
+### RAIS ----
 
-rais_rotatividade$cboocupacao2002 <- as.character(rais_rotatividade$cboocupacao2002)
+rotatividade_rais <- rbind(rais |>
+                             group_by(referencia, cboocupacao2002) |>
+                             summarise(n_trabalhadores = n(),
+                                       escolaridade = "Geral"),
+                           rais |>
+                             group_by(referencia, cboocupacao2002, escolaridade) |>
+                             summarise(n_trabalhadores = n())) |>
+  mutate(cboocupacao2002 = as.character(cboocupacao2002)) |>
+  rename(anodeclarado = referencia,
+         cbo2002ocupacao = cboocupacao2002)
 
-## Caged Antigo ----
-# Limpeza 
-rotatividade_caged <- caged %>%
-  # filtrando Salários muito altos ou muito baixos (0,5 Salários Mínimos ou mais de 200 Salários Mínimos)
-  filter(salariomensal >= vl_sm * .5 & salariomensal <= vl_sm*200) %>%
-  # montando coluna de admitidos e desligados e grau de escolaridade
-  mutate(admitidosdesligados = ifelse(admitidosdesligados == 1, "admitidos", "desligados"),
-         escolaridade_rotatividade = fcase(grauinstrucao == 1,'analfabeto',
-                                           grauinstrucao %in% c(2:6),'em_incompleto',
-                                           grauinstrucao  %in% c(7,8),'em_completo',
-                                           grauinstrucao  <= 11,'sup_completo',
-                                           grauinstrucao == 99, NA_character_))
-# Base inicial 
-rotatividade_caged_antigo <- rbind(
-  rotatividade_caged %>% 
-    # Filtrando para desligamentos e admissões adequados
-    # 1	Admissão por primeiro emprego
-    # 2	Admissão por reemprego
-    # 25	Admissão por contrato trabalho prazo determinado
-    # 4	Desligamento por demissão sem justa causa
-    # 5	Desligamento por demissão com justa causa
-    # 10	Admissão por reintegração
-    # 43	Término contrato trabalho prazo determinado
-    # 11	Desligamento por Término de contrato
-    # 90	Desligamento por Acordo entre empregado e empregador
-    filter(tipomovdesagregado %in% c(1, 2, 4, 5, 10, 11, 25, 43, 90)) %>%
-    # Agrupando por ano, CBO e Admitidos
-    group_by(anodeclarado, cbo2002ocupacao, admitidosdesligados) %>% 
-    summarise(rotacao = n(),
-              escolaridade_rotatividade = "geral"),
-  rotatividade_caged %>%
-    # Filtrando para desligamentos e admissões adequados
-    filter(tipomovdesagregado %in% c(1, 2, 4, 5, 10, 11, 25, 43, 90)) %>%
-    # Agrupando por ano, CBO e Admitidos
-    group_by(anodeclarado, cbo2002ocupacao, admitidosdesligados, escolaridade_rotatividade) %>% 
-    summarise(rotacao = n()))
+### CAGED ----
 
-# Reorganização dos dados para coluna de admitidos e desligados por ano, escolaridade e e CBO
-rotatividade_caged_antigo = dcast(rotatividade_caged_antigo, anodeclarado + cbo2002ocupacao + escolaridade_rotatividade ~ admitidosdesligados,
-                                  value.var = 'rotacao')
+#' Admissão e desligamentos:
+#' 1 - Admitidos
+#' 2 - Desligados
 
-## Novo CAGED ----
-rotatividade_novo <- novo_caged %>%
-  filter(salariomensal >= vl_sm*0.5 & salariomensal <= vl_sm*200) %>% 
-  # montando coluna de admitidos e desligados e grau de escolaridade
-  mutate(admitidosdesligados = ifelse(admitidosdesligados == 1, "admitidos", "desligados"),
-         escolaridade_rotatividade = fcase(grauinstrucao == 1,'analfabeto',
-                                           grauinstrucao %in% c(2:6),'em_incompleto',
-                                           grauinstrucao  %in% c(7,8),'em_completo',
-                                           grauinstrucao  <= 11,'sup_completo',
-                                           grauinstrucao == 99, NA_character_))
+#' Tipo de movimento:
+#' 1 - Admissão por primeiro emprego
+#' 2 - Admissão por reemprego
+#' 4 - Desligamento por demissão sem justa causa
+#' 5 - Desligamento por demissão com justa causa
+#' 10 - Admissão por reintegraçao
+#' 11 - Desligamento por término de contrato
+#' 25 - Contrato trabalho prazo determinado
+#' 43 - Término contrato trabalho prazo determinado
+#' 90 - Desliamento por acordo empregado e empregador
 
+rotatividade_caged <- caged |>
+  filter(salariomensal >= vl_sm * .5 & salariomensal <= vl_sm * 200) |>
+  mutate(cbo2002ocupacao = as.character(cbo2002ocupacao),
+         admitidosdesligados = case_when(admitidosdesligados == 1 ~ "admitidos",
+                                         admitidosdesligados == 2 ~ "desligados"),
+         escolaridade = case_when(grauinstrucao == 1 ~ "Analfabeto",
+                                  grauinstrucao %in% 2:6 ~ "Médio incompleto",
+                                  grauinstrucao %in% 7:8 ~ "Médio completo",
+                                  grauinstrucao %in% 9:11 ~ "Superior completo",
+                                  grauinstrucao == 99 ~ NA))
 
-rotatividade_caged_novo <- rbind(
-  rotatividade_novo %>% 
-    #Filtrando para desligamentos e admissões adequados
-    # 10	Admissão por primeiro emprego
-    # 20	Admissão por reemprego
-    # 25	Admissão por contrato trabalho prazo determinado
-    # 31	Desligamento por demissão sem justa causa
-    # 32	Desligamento por demissão com justa causa
-    # 35	Admissão por reintegração
-    # 43	Término contrato trabalho prazo determinado
-    # 45	Desligamento por Término de contrato
-    # 90	Desligamento por Acordo entre empregado e empregador
-    # 97	Admissão de Tipo Ignorado
-    # 98	Desligamento de Tipo Ignorado
-    filter(tipomovdesagregado %in% c(10,20, 25, 31, 32, 35, 43,45,90,97,98)) %>%
-    # Agrupando por ano, CBO e Admitidos
-    group_by(anodeclarado, cbo2002ocupacao, admitidosdesligados) %>% 
-    summarise(rotacao = n(),
-              escolaridade_rotatividade = "geral"),
-  rotatividade_novo %>%
-    # Filtrando para desligamentos e admissões adequados
-    filter(tipomovdesagregado %in% c(10,20, 25, 31, 32, 35, 43,45,90,97,98)) %>%
-    # Agrupando por ano, CBO e Admitidos
-    group_by(anodeclarado, cbo2002ocupacao, admitidosdesligados, escolaridade_rotatividade) %>% 
-    summarise(rotacao = n())) #%>% 
-  # eliminando escolaridades com NAs
-  #filter(!is.na(escolaridade_rotatividade))
+rotatividade_caged_antigo <- rbind(rotatividade_caged |>
+                                     filter(tipomovdesagregado %in% c(1, 2, 4, 5, 10, 11, 25, 43, 90)) |>
+                                     group_by(anodeclarado, cbo2002ocupacao, admitidosdesligados) |>
+                                     summarise(rotacao = n(),
+                                               escolaridade = "Geral"),
+                                   rotatividade_caged |>
+                                     filter(tipomovdesagregado %in% c(1, 2, 4, 5, 10, 11, 25, 43, 90)) |>
+                                     group_by(anodeclarado, cbo2002ocupacao, admitidosdesligados, escolaridade) |>
+                                     summarise(rotacao = n())) |>
+  pivot_wider(names_from = admitidosdesligados,
+              values_from = rotacao) |>
+  arrange(anodeclarado, cbo2002ocupacao)
 
-rotatividade_caged_novo$cbo2002ocupacao <- as.character(rotatividade_caged_novo$cbo2002ocupacao)
+remove(rotatividade_caged)
 
-# Reorganização dos dados para coluna de admitidos e desligados por ano, escolaridade e e CBO
-rotatividade_caged_novo = data.table::dcast(rotatividade_caged_novo, anodeclarado + cbo2002ocupacao + escolaridade_rotatividade ~ admitidosdesligados, 
-                                value.var = 'rotacao')
+### Novo CAGED ----
 
-# Unindo bases ----
-# Nomes Base RAIS
-names(rais_rotatividade) = c('anodeclarado', 'cbo2002ocupacao', 'n_trabalhadores', 'escolaridade_rotatividade')
+#' Admissão e desligamentos:
+#' 1 - Admitidos
+#' 2 - Desligados
 
-# Bases Empilhadas
-rotatividade = merge(
-  #Rais
-  rais_rotatividade,
-  #Caged
-  rbind(rotatividade_caged_novo, 
-        rotatividade_caged_antigo), all.x = TRUE) %>% 
-  mutate(admitidos = ifelse(is.na(admitidos), 0, admitidos),
-         desligados = ifelse(is.na(desligados), 0, desligados))
+#' Tipo de movimento:
+#' 10 - Admissão por primeiro emprego
+#' 20 - Admissão por reemprego
+#' 25 - Admissão por contrato trabalho prazo determinado
+#' 31 - Desligamento por demissão sem justa causa
+#' 32 - Desligamento por demissão com justa causa
+#' 35 - Admissão por reintegração
+#' 43 - Término contrato trabalho prazo determinado
+#' 45 - Desligamento por término de contrato
+#' 90 - Desligamento por acordo entre empregado e empregador
+#' 97 - Admissão de tipo Ignorado
+#' 98 - Desligamento de tipo Ignorado
 
-# Rotatividade ----
-# Transforma base em formato aceito pelo data.table para criar lags com a função shift()
-rotatividade <- as.data.table(rotatividade)
+rotatividade_novo <- novo_caged |>
+  filter(salariomensal >= vl_sm * .5 & salariomensal <= vl_sm * 200) |>
+  mutate(cbo2002ocupacao = as.character(cbo2002ocupacao),
+         admitidosdesligados = case_when(admitidosdesligados == 1 ~ "admitidos",
+                                         admitidosdesligados == 2 ~ "desligados"),
+         escolaridade = case_when(grauinstrucao == 1 ~ "Analfabeto",
+                                  grauinstrucao %in% 2:6 ~ "Médio incompleto",
+                                  grauinstrucao %in% 7:8 ~ "Médio completo",
+                                  grauinstrucao %in% 9:11 ~ "Superior completo",
+                                  grauinstrucao == 99 ~ NA))
 
-# Ciando Lags
-rotatividade_lags = rotatividade[, c('admitidos_anterior', 'desligados_anterior') := shift(.SD, 1, type = 'lag'),
-                            .SDcols = c('admitidos', 'desligados'),
-                            by = .(cbo2002ocupacao, escolaridade_rotatividade)]
+rotatividade_caged_novo <- rbind(rotatividade_novo |>
+                                   filter(tipomovdesagregado %in% c(10, 20, 25, 31, 32, 35, 43, 45, 90, 97, 98)) |>
+                                   group_by(anodeclarado, cbo2002ocupacao, admitidosdesligados) |>
+                                   summarise(rotacao = n(),
+                                             escolaridade = "Geral"),
+                                 rotatividade_novo |>
+                                   filter(tipomovdesagregado %in% c(10, 20, 25, 31, 32, 35, 43, 45, 90, 97, 98)) |>
+                                   group_by(anodeclarado, cbo2002ocupacao, admitidosdesligados, escolaridade) |>
+                                   summarise(rotacao = n())) |>
+  pivot_wider(names_from = admitidosdesligados, 
+              values_from = rotacao,
+              names_glue = "{admitidosdesligados}") |>
+  arrange(anodeclarado, cbo2002ocupacao)
 
-# Cálculo da Rotatividade
-rotatividade_calculo <- rotatividade_lags[, rotatividade := ifelse(admitidos_anterior > desligados_anterior, 
-                                                                        desligados_anterior, 
-                                                                        admitidos_anterior)/n_trabalhadores]
+remove(rotatividade_novo)
 
-# Variáveis de CBOS Tec
-rotatividade_calculo[, cbo_tecnica := fcase(cbo2002ocupacao %in% cbotec_em$cbo_em, 'tec_em', 
-                                            cbo2002ocupacao %in% cbotec_sup$cbo_superior, "tec_sup", 
-                                            default = "nao_tec")]
+# Merge das bases ----
 
-rotatividade_calculo[, `:=`(tipo = fcase(escolaridade_rotatividade == "geral" & cbo_tecnica %in% c("tec_em","tec_sup"),"Média dos trabalhadores técnicos",
-                                 escolaridade_rotatividade == "geral" & cbo_tecnica == "nao_tec","Média dos trabalhadores não técnicos",
-                                 escolaridade_rotatividade %in% c("analfabeto","em_incompleto","em_completo","sup_completo") & cbo_tecnica == "tec_em", "Técnicos de nível médio",
-                                 escolaridade_rotatividade %in% c("analfabeto","em_incompleto","em_completo","sup_completo") & cbo_tecnica == "tec_sup", "Técnicos de nível superior",
-                                 escolaridade_rotatividade %in% c("analfabeto","em_incompleto") & cbo_tecnica == "nao_tec", "Até fundamental completo",
-                                 escolaridade_rotatividade == "em_completo"  & cbo_tecnica == "nao_tec","Médio completo",
-                                 escolaridade_rotatividade == "sup_completo"  & cbo_tecnica == "nao_tec","Superior completo"),
-                    filtro = ifelse(cbo_tecnica %in% c("tec_em","tec_sup"),"Técnico","Não Técnico"),
-                    geral = ifelse(escolaridade_rotatividade %in% c("geral"),"Geral","Subgrupo"))]
+rotatividade <- merge(rotatividade_rais,
+                      rbind(rotatividade_caged_novo, 
+                            rotatividade_caged_antigo), all.x = TRUE) |>
+  mutate(admitidos = case_when(is.na(admitidos) ~ 0,
+                               TRUE ~ admitidos),
+         desligados = case_when(is.na(desligados) ~ 0,
+                                TRUE ~ desligados))
 
-rotatidade_geral <- rotatividade_calculo
+remove(rotatividade_rais, rotatividade_caged_antigo, rotatividade_caged_novo)
 
-rotatividade_media <- rotatividade_calculo %>% 
+## Criação dos lags ----
+
+rotatividade <- rotatividade |>
+  group_by(cbo2002ocupacao, escolaridade) |>
+  mutate(admitidos_anterior = lag(admitidos),
+         desligados_anterior = lag(desligados))
+
+## Cálculo da rotatividade ----
+
+rotatividade <- rotatividade |>
+  mutate(rotatividade = case_when(admitidos_anterior > desligados_anterior ~ desligados_anterior,
+                                  TRUE ~ admitidos_anterior) / n_trabalhadores)
+
+## CBOs técnicas ----
+
+rotatividade <- rotatividade |>
+  mutate(cbo_tecnica = case_when(cbo2002ocupacao %in% cbotec_em ~ "tec_em",
+                                 cbo2002ocupacao %in% cbotec_sup ~ "tec_sup",
+                                 TRUE ~ "nao_tec"),
+         tipo = case_when(escolaridade == "Geral" & cbo_tecnica %in% c("tec_em", "tec_sup") ~ "Média dos trabalhadores técnicos",
+                          escolaridade == "Geral" & cbo_tecnica == "nao_tec" ~ "Média dos trabalhadores não técnicos",
+                          escolaridade %in% c("Analfabeto", "Médio incompleto", "Médio completo", "Superior completo") & cbo_tecnica == "tec_em" ~ "Técnicos de nível médio",
+                          escolaridade %in% c("Analfabeto", "Médio incompleto", "Médio completo", "Superior completo") & cbo_tecnica == "tec_sup" ~ "Técnicos de nível superior",
+                          escolaridade %in% c("Analfabeto", "Médio incompleto") & cbo_tecnica == "nao_tec" ~ "Até fundamental completo",
+                          escolaridade == "Médio completo" & cbo_tecnica == "nao_tec" ~ "Médio completo",
+                          escolaridade == "Superior completo" & cbo_tecnica == "nao_tec" ~ "Superior completo"),
+         filtro = case_when(cbo_tecnica %in% c("tec_em", "tec_sup") ~ "Técnico",
+                            TRUE ~ "Não técnico"),
+         geral = case_when(escolaridade == "Geral" ~ "Geral",
+                           TRUE ~ "Subgrupo"))
+
+## Rotatividade média ----
+
+rotatividade_media <- rotatividade %>% 
   group_by(anodeclarado, tipo, filtro, geral) %>% 
-  summarise(rotatividade_media = mean(rotatividade, na.rm = T))
+  summarise(rotatividade_media = mean(rotatividade, na.rm = T)) |>
+  filter(anodeclarado > 2011)
 
-readr::write_excel_csv2(rotatividade_media, "produto/csv/base-rotatividade-media-escolaridade.csv")
-
-
-rotatividade_media %>% filter(anodeclarado != 2011) %>%
+rotatividade_media |>
   ggplot(aes(x = anodeclarado, y = rotatividade_media, col = tipo)) +
-  geom_line(linewidth = 1) + geom_point(size = 2) + theme_classic() + 
+  geom_line(linewidth = 1) + 
+  geom_point(size = 2) + 
   scale_color_manual(values = c("#46a462","#3e9974","#2e818d","#2b7398", "#2960a7","#2b597a","#f2cb64","#a6a6a6")) +
-  labs(title = "Rotatividade no Distrito Federal (Todos)", x = "", 
-       y = "Taxa de Rotatividade (%) ", col = "") +
+  labs(x = "", 
+       y = "Taxa de Rotatividade (%)",
+       col = "",
+       title = "Rotatividade no Distrito Federal (Todos)", ) +
   scale_y_continuous(label = scales::percent,
                      breaks = seq(0, .7, by = .1)) +
   scale_x_continuous(breaks = seq(2011, 2021, by = 1), expand = c(0.01,0.01)) +
-  theme(legend.position = "bottom")
-  
+  theme(legend.position = "bottom") +
+  theme_classic()
+
+# Exportar CSV ----
+
+write_excel_csv2(rotatividade_media, "Dados/Rotatividade.csv")
+
