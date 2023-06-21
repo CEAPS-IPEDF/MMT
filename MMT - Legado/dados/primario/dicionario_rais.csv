@@ -1,0 +1,342 @@
+id_tabela;nome_coluna;chave;cobertura_temporal;valor
+microdados_vinculos;tipo_vinculo;1;1985(1)1993;CLT
+microdados_vinculos;tipo_vinculo;2;1985(1)1993;ESTATUTÁRIO
+microdados_vinculos;tipo_vinculo;3;1985(1)1993;TRABALHADOR AVULSO
+microdados_vinculos;tipo_vinculo;4;1985(1)1993;TRABALHADOR TEMP
+microdados_vinculos;tipo_vinculo;5;1985(1)1993;OUTROS
+microdados_vinculos;tipo_vinculo;;1985(1)1993;NÃO CLASSIFICADO
+microdados_vinculos;tipo_vinculo;10;1994(1);CLT U/PJ IND
+microdados_vinculos;tipo_vinculo;15;1994(1);CLT U/PF IND
+microdados_vinculos;tipo_vinculo;20;1994(1);CLT R/PJ IND
+microdados_vinculos;tipo_vinculo;25;1994(1);CLT R/PF IND
+microdados_vinculos;tipo_vinculo;30;1994(1);ESTATUTARIO
+microdados_vinculos;tipo_vinculo;31;1994(1);ESTAT RGPS
+microdados_vinculos;tipo_vinculo;35;1994(1);ESTAT N/EFET
+microdados_vinculos;tipo_vinculo;40;1994(1);AVULSO
+microdados_vinculos;tipo_vinculo;50;1994(1)2002, 2016(1)2018;TEMPORARIO
+microdados_vinculos;tipo_vinculo;50;2003(1)2015;TEMPORARIO/FIXO
+microdados_vinculos;tipo_vinculo;55;1994(1);APREND CONTR
+microdados_vinculos;tipo_vinculo;60;1994(1);CLT U/PJ DET
+microdados_vinculos;tipo_vinculo;65;1994(1);CLT U/PF DET
+microdados_vinculos;tipo_vinculo;70;1994(1);CLT R/PJ DET
+microdados_vinculos;tipo_vinculo;75;1994(1);CLT R/PF DET
+microdados_vinculos;tipo_vinculo;80;1994(1);DIRETOR
+microdados_vinculos;tipo_vinculo;90;1994(1);CONT PRZ DET
+microdados_vinculos;tipo_vinculo;95;1994(1);CONT TMP DET
+microdados_vinculos;tipo_vinculo;96;1994(1);CONT LEI EST
+microdados_vinculos;tipo_vinculo;97;1994(1);CONT LEI MUN
+microdados_vinculos;tipo_vinculo;-1;1994(1);IGNORADO
+microdados_vinculos;vinculo_ativo_3112;0;-1;Não
+microdados_vinculos;vinculo_ativo_3112;1;-1;Sim
+microdados_vinculos;tipo_admissao;0;1997(1);NAO ADM ANO
+microdados_vinculos;tipo_admissao;1;1997(1);PRIM EMPREGO
+microdados_vinculos;tipo_admissao;2;1997(1);REEMPREGO
+microdados_vinculos;tipo_admissao;3;1997(1);TRANS C/ONUS
+microdados_vinculos;tipo_admissao;4;1997(1);TRANS S/ONUS
+microdados_vinculos;tipo_admissao;5;1997(1);OUTROS
+microdados_vinculos;tipo_admissao;6;1997(1);REINTEGRACAO
+microdados_vinculos;tipo_admissao;7;1997(1);RECONDUCAO
+microdados_vinculos;tipo_admissao;8;1997(1);REVERSAO
+microdados_vinculos;tipo_admissao;9;1997(1);EXERC PROVIS
+microdados_vinculos;tipo_admissao;10;1997(1);REQUISICAO
+microdados_vinculos;tipo_admissao;-1;1997(1);IGNORADO
+microdados_vinculos;motivo_desligamento;0;-1;NAO DESL ANO
+microdados_vinculos;motivo_desligamento;10;-1;DEM COM JC
+microdados_vinculos;motivo_desligamento;11;-1;DEM SEM JC
+microdados_vinculos;motivo_desligamento;12;-1;TERM CONTR
+microdados_vinculos;motivo_desligamento;20;-1;DESL COM JC
+microdados_vinculos;motivo_desligamento;21;-1;DESL SEM JC
+microdados_vinculos;motivo_desligamento;22;-1;POSS OUT CAR
+microdados_vinculos;motivo_desligamento;30;-1;TRANS C/ONUS
+microdados_vinculos;motivo_desligamento;31;-1;TRANS S/ONUS
+microdados_vinculos;motivo_desligamento;32;-1;READAP/REDIS
+microdados_vinculos;motivo_desligamento;33;-1;CESSAO
+microdados_vinculos;motivo_desligamento;34;2011(1);REDISTRIBUIÇÃO
+microdados_vinculos;motivo_desligamento;40;-1;MUD. REGIME
+microdados_vinculos;motivo_desligamento;50;-1;REFORMA
+microdados_vinculos;motivo_desligamento;60;-1;FALECIMENTO
+microdados_vinculos;motivo_desligamento;62;-1;FALEC AC TRB
+microdados_vinculos;motivo_desligamento;63;-1;FALEC AC TIP
+microdados_vinculos;motivo_desligamento;64;-1;FALEC D PROF
+microdados_vinculos;motivo_desligamento;70;-1;APOS TS CRES
+microdados_vinculos;motivo_desligamento;71;-1;APOS TS SRES
+microdados_vinculos;motivo_desligamento;72;-1;APOS ID CRES
+microdados_vinculos;motivo_desligamento;73;-1;APOS IN ACID
+microdados_vinculos;motivo_desligamento;74;-1;APOS IN DOEN
+microdados_vinculos;motivo_desligamento;75;-1;APOS COMPULS
+microdados_vinculos;motivo_desligamento;76;-1;APOS IN OUTR
+microdados_vinculos;motivo_desligamento;78;-1;APOS ID SRES
+microdados_vinculos;motivo_desligamento;79;-1;APOS ESP CRE
+microdados_vinculos;motivo_desligamento;80;-1;APOS ESP SRE
+microdados_vinculos;motivo_desligamento;-1;-1;IGNORADO
+microdados_vinculos;causa_desligamento_1;10;2002(1);ACI TRB TIP
+microdados_vinculos;causa_desligamento_1;20;2002(1);ACI TRB TJT
+microdados_vinculos;causa_desligamento_1;30;2002(1);DOEN REL TR
+microdados_vinculos;causa_desligamento_1;40;2002(1);DOEN NREL TR
+microdados_vinculos;causa_desligamento_1;50;2002(1);LIC MATERNID
+microdados_vinculos;causa_desligamento_1;60;2002(1);SERV MILITAR
+microdados_vinculos;causa_desligamento_1;70;2002(1);LIC SEM VENC
+microdados_vinculos;causa_desligamento_1;99;2002(1);SEM AFASTAMENTOS
+microdados_vinculos;causa_desligamento_1;-1;2002(1);IGNORADO
+microdados_vinculos;causa_desligamento_2;10;2002(1);ACI TRB TIP
+microdados_vinculos;causa_desligamento_2;20;2002(1);ACI TRB TJT
+microdados_vinculos;causa_desligamento_2;30;2002(1);DOEN REL TR
+microdados_vinculos;causa_desligamento_2;40;2002(1);DOEN NREL TR
+microdados_vinculos;causa_desligamento_2;50;2002(1);LIC MATERNID
+microdados_vinculos;causa_desligamento_2;60;2002(1);SERV MILITAR
+microdados_vinculos;causa_desligamento_2;70;2002(1);LIC SEM VENC
+microdados_vinculos;causa_desligamento_2;99;2002(1);SEM AFASTAMENTOS
+microdados_vinculos;causa_desligamento_2;-1;2002(1);IGNORADO
+microdados_vinculos;causa_desligamento_3;10;2002(1);ACI TRB TIP
+microdados_vinculos;causa_desligamento_3;20;2002(1);ACI TRB TJT
+microdados_vinculos;causa_desligamento_3;30;2002(1);DOEN REL TR
+microdados_vinculos;causa_desligamento_3;40;2002(1);DOEN NREL TR
+microdados_vinculos;causa_desligamento_3;50;2002(1);LIC MATERNID
+microdados_vinculos;causa_desligamento_3;60;2002(1);SERV MILITAR
+microdados_vinculos;causa_desligamento_3;70;2002(1);LIC SEM VENC
+microdados_vinculos;causa_desligamento_3;99;2002(1);SEM AFASTAMENTOS
+microdados_vinculos;causa_desligamento_3;-1;2002(1);IGNORADO
+microdados_vinculos;faixa_horas_contratadas;1;1994(1);Até 12 horas
+microdados_vinculos;faixa_horas_contratadas;2;1994(1);13 a 15 horas
+microdados_vinculos;faixa_horas_contratadas;3;1994(1);16 a 20 horas
+microdados_vinculos;faixa_horas_contratadas;4;1994(1);21 a 30 horas
+microdados_vinculos;faixa_horas_contratadas;5;1994(1);31 a 40 horas
+microdados_vinculos;faixa_horas_contratadas;6;1994(1);41 a 44 horas
+microdados_vinculos;indicador_cei_vinculado;0;1999(1);Não
+microdados_vinculos;indicador_cei_vinculado;1;1999(1);Sim
+microdados_vinculos;indicador_trabalho_parcial;0;2017(1);Não
+microdados_vinculos;indicador_trabalho_parcial;1;2017(1);Sim
+microdados_vinculos;indicador_trabalho_intermitente;0;2017(1);Não
+microdados_vinculos;indicador_trabalho_intermitente;1;2017(1);Sim
+microdados_vinculos;faixa_remuneracao_media_sm;0;-1;Até 0,50 salários mínimos
+microdados_vinculos;faixa_remuneracao_media_sm;1;-1;0,51 a 1,00 salários mínimos
+microdados_vinculos;faixa_remuneracao_media_sm;2;-1;1,01 a 1,50 salários mínimos
+microdados_vinculos;faixa_remuneracao_media_sm;3;-1;1,51 a 2,00 salários mínimos
+microdados_vinculos;faixa_remuneracao_media_sm;4;-1;2,01 a 3,00 salários mínimos
+microdados_vinculos;faixa_remuneracao_media_sm;5;-1;3,01 a 4,00 salários mínimos
+microdados_vinculos;faixa_remuneracao_media_sm;6;-1;4,01 a 5,00 salários mínimos
+microdados_vinculos;faixa_remuneracao_media_sm;7;-1;5,01 a 7,00 salários mínimos
+microdados_vinculos;faixa_remuneracao_media_sm;8;-1;7,01 a 10,00 salários mínimos
+microdados_vinculos;faixa_remuneracao_media_sm;9;-1;10,01 a 15,00 salários mínimos
+microdados_vinculos;faixa_remuneracao_media_sm;10;-1;15,01 a 20,00 salários mínimos
+microdados_vinculos;faixa_remuneracao_media_sm;11;-1;Mais de 20,00 salários mínimos
+microdados_vinculos;faixa_remuneracao_dezembro_sm;1;-1;Até 0,50 salários mínimos
+microdados_vinculos;faixa_remuneracao_dezembro_sm;2;-1;0,51 a 1,00 salários mínimos
+microdados_vinculos;faixa_remuneracao_dezembro_sm;3;-1;1,01 a 1,50 salários mínimos
+microdados_vinculos;faixa_remuneracao_dezembro_sm;4;-1;1,51 a 2,00 salários mínimos
+microdados_vinculos;faixa_remuneracao_dezembro_sm;5;-1;2,01 a 3,00 salários mínimos
+microdados_vinculos;faixa_remuneracao_dezembro_sm;6;-1;3,01 a 4,00 salários mínimos
+microdados_vinculos;faixa_remuneracao_dezembro_sm;7;-1;4,01 a 5,00 salários mínimos
+microdados_vinculos;faixa_remuneracao_dezembro_sm;8;-1;5,01 a 7,00 salários mínimos
+microdados_vinculos;faixa_remuneracao_dezembro_sm;9;-1;7,01 a 10,00 salários mínimos
+microdados_vinculos;faixa_remuneracao_dezembro_sm;10;-1;10,01 a 15,00 salários mínimos
+microdados_vinculos;faixa_remuneracao_dezembro_sm;11;-1;15,01 a 20,00 salários mínimos
+microdados_vinculos;faixa_remuneracao_dezembro_sm;12;-1;Mais de 20,00 salários mínimos
+microdados_vinculos;tipo_salario;1;2018(1);MENSAL
+microdados_vinculos;tipo_salario;2;2018(1);QUINZENAL
+microdados_vinculos;tipo_salario;3;2018(1);SEMANAL
+microdados_vinculos;tipo_salario;4;2018(1);DIÁRIO
+microdados_vinculos;tipo_salario;5;2018(1);HORÁRIO
+microdados_vinculos;tipo_salario;6;2018(1);TAREFA
+microdados_vinculos;tipo_salario;7;2018(1);OUTROS
+microdados_vinculos;tipo_salario;-1;2018(1);IGNORADO
+microdados_vinculos;faixa_etaria;1;-1;10 a 14 anos
+microdados_vinculos;faixa_etaria;2;-1;15 a 17 anos
+microdados_vinculos;faixa_etaria;3;-1;18 a 24 anos
+microdados_vinculos;faixa_etaria;4;-1;25 a 29 anos
+microdados_vinculos;faixa_etaria;5;-1;30 a 39 anos
+microdados_vinculos;faixa_etaria;6;-1;40 a 49 anos
+microdados_vinculos;faixa_etaria;7;-1;50 a 64 anos
+microdados_vinculos;faixa_etaria;8;-1;65 anos ou mais
+microdados_vinculos;grau_instrucao_1985_2005;1;1985(1)2005;ANALFABETO
+microdados_vinculos;grau_instrucao_1985_2005;2;1985(1)2005;ATE 5.A INC
+microdados_vinculos;grau_instrucao_1985_2005;3;1985(1)2005;5.A CO FUND
+microdados_vinculos;grau_instrucao_1985_2005;4;1985(1)2005;6. A 9. FUND
+microdados_vinculos;grau_instrucao_1985_2005;5;1985(1)2005;FUND COMPL
+microdados_vinculos;grau_instrucao_1985_2005;6;1985(1)2005;MEDIO INCOMP
+microdados_vinculos;grau_instrucao_1985_2005;7;1985(1)2005;MEDIO COMPL
+microdados_vinculos;grau_instrucao_1985_2005;8;1985(1)2005;SUP. INCOMP
+microdados_vinculos;grau_instrucao_1985_2005;9;1985(1)2005;SUP. COMP
+microdados_vinculos;grau_instrucao_1985_2005;10;1985(1)2005;MESTRADO
+microdados_vinculos;grau_instrucao_1985_2005;11;1985(1)2005;DOUTORADO
+microdados_vinculos;grau_instrucao_1985_2005;-1;1985(1)2005;IGNORADO
+microdados_vinculos;grau_instrucao_apos_2005;1;2005(1);ANALFABETO
+microdados_vinculos;grau_instrucao_apos_2005;2;2005(1);ATE 5.A INC
+microdados_vinculos;grau_instrucao_apos_2005;3;2005(1);5.A CO FUND
+microdados_vinculos;grau_instrucao_apos_2005;4;2005(1);6. A 9. FUND
+microdados_vinculos;grau_instrucao_apos_2005;5;2005(1);FUND COMPL
+microdados_vinculos;grau_instrucao_apos_2005;6;2005(1);MEDIO INCOMP
+microdados_vinculos;grau_instrucao_apos_2005;7;2005(1);MEDIO COMPL
+microdados_vinculos;grau_instrucao_apos_2005;8;2005(1);SUP. INCOMP
+microdados_vinculos;grau_instrucao_apos_2005;9;2005(1);SUP. COMP
+microdados_vinculos;grau_instrucao_apos_2005;10;2005(1);MESTRADO
+microdados_vinculos;grau_instrucao_apos_2005;11;2005(1);DOUTORADO
+microdados_vinculos;grau_instrucao_apos_2005;-1;2005(1);IGNORADO
+microdados_vinculos;nacionalidade;10;-1;Brasileira
+microdados_vinculos;nacionalidade;20;-1;Naturalidade Brasileira
+microdados_vinculos;nacionalidade;21;-1;Argentina
+microdados_vinculos;nacionalidade;22;-1;Boliviana
+microdados_vinculos;nacionalidade;23;-1;Chilena
+microdados_vinculos;nacionalidade;24;-1;Paraguaia
+microdados_vinculos;nacionalidade;25;-1;Uruguaia
+microdados_vinculos;nacionalidade;26;2011(1);Venezuelano
+microdados_vinculos;nacionalidade;27;2011(1);Colombiano
+microdados_vinculos;nacionalidade;28;2011(1);Peruano
+microdados_vinculos;nacionalidade;29;2011(1);Equatoriano
+microdados_vinculos;nacionalidade;30;-1;Alemã
+microdados_vinculos;nacionalidade;31;-1;Belga
+microdados_vinculos;nacionalidade;32;-1;Britânica
+microdados_vinculos;nacionalidade;34;-1;Canadense
+microdados_vinculos;nacionalidade;35;-1;Espanhola
+microdados_vinculos;nacionalidade;36;-1;Norte-Americana
+microdados_vinculos;nacionalidade;37;-1;Francesa
+microdados_vinculos;nacionalidade;38;-1;Suíça
+microdados_vinculos;nacionalidade;39;-1;Italiana
+microdados_vinculos;nacionalidade;40;-1;Haitiano
+microdados_vinculos;nacionalidade;41;-1;Japonesa
+microdados_vinculos;nacionalidade;42;-1;Chinesa
+microdados_vinculos;nacionalidade;43;-1;Coreana
+microdados_vinculos;nacionalidade;44;-1;Russo
+microdados_vinculos;nacionalidade;45;-1;Portuguesa
+microdados_vinculos;nacionalidade;46;2011(1);Paquistanês
+microdados_vinculos;nacionalidade;47;2011(1);Indiano
+microdados_vinculos;nacionalidade;48;-1;Outras Latino-Americanas
+microdados_vinculos;nacionalidade;49;-1;Outras Asiáticas
+microdados_vinculos;nacionalidade;50;-1;Outras Nacionalidades
+microdados_vinculos;nacionalidade;51;-1;Outros Europeus
+microdados_vinculos;nacionalidade;59;2014(1);Bengalesa
+microdados_vinculos;nacionalidade;60;2014(1);Angolano
+microdados_vinculos;nacionalidade;61;2014(1);Congolês
+microdados_vinculos;nacionalidade;62;2014(1);Sul-Africano
+microdados_vinculos;nacionalidade;63;2014(1);Ganesa
+microdados_vinculos;nacionalidade;64;2014(1);Senegalesa
+microdados_vinculos;nacionalidade;70;2014(1);Outros Africanos
+microdados_vinculos;nacionalidade;80;2014(1);Outros
+microdados_vinculos;nacionalidade;-1;-1;Ignorado
+microdados_vinculos;sexo;1;-1;Masculino
+microdados_vinculos;sexo;2;-1;Feminino
+microdados_vinculos;sexo;-1;-1;Ignorado
+microdados_vinculos;raca_cor;1;2006(1);Indígena
+microdados_vinculos;raca_cor;2;2006(1);Branca
+microdados_vinculos;raca_cor;4;2006(1);Preta
+microdados_vinculos;raca_cor;6;2006(1);Amarela
+microdados_vinculos;raca_cor;8;2006(1);Parda
+microdados_vinculos;raca_cor;9;2006(1);Não identificado
+microdados_vinculos;raca_cor;-1;2006(1);Ignorado
+microdados_vinculos;indicador_portador_deficiencia;0;2007(1);Não
+microdados_vinculos;indicador_portador_deficiencia;1;2007(1);Sim
+microdados_vinculos;tipo_deficiencia;1;2007(1);Física
+microdados_vinculos;tipo_deficiencia;2;2007(1);Auditiva
+microdados_vinculos;tipo_deficiencia;3;2007(1);Visual
+microdados_vinculos;tipo_deficiencia;4;2007(1);Mental
+microdados_vinculos;tipo_deficiencia;5;2007(1);Múltipla
+microdados_vinculos;tipo_deficiencia;6;2007(1);Reabilitado
+microdados_vinculos;tipo_deficiencia;0;2007(1);Não deficiente
+microdados_vinculos;tipo_deficiencia;-1;2007(1);Ignorado
+microdados_vinculos;tamanho_estabelecimento;1;-1;Zero
+microdados_vinculos;tamanho_estabelecimento;2;-1;Até 4
+microdados_vinculos;tamanho_estabelecimento;3;-1;De 5 a 9
+microdados_vinculos;tamanho_estabelecimento;4;-1;De 10 a 19
+microdados_vinculos;tamanho_estabelecimento;5;-1;De 20 a 49
+microdados_vinculos;tamanho_estabelecimento;6;-1;De 50 a 99
+microdados_vinculos;tamanho_estabelecimento;7;-1;De 100 a 249
+microdados_vinculos;tamanho_estabelecimento;8;-1;De 250 a 499
+microdados_vinculos;tamanho_estabelecimento;9;-1;De 500 a 999
+microdados_vinculos;tamanho_estabelecimento;10;-1;1000 ou mais
+microdados_vinculos;tamanho_estabelecimento;-1;-1;Ignorado
+microdados_vinculos;tipo_estabelecimento;1;-1;CNPJ
+microdados_vinculos;tipo_estabelecimento;2;2018(1);CAEPF
+microdados_vinculos;tipo_estabelecimento;3;-1;CEI
+microdados_vinculos;tipo_estabelecimento;9;-1;Não identificado
+microdados_vinculos;tipo_estabelecimento;-1;-1;Ignorado
+microdados_vinculos;indicador_simples;0;-1;Não
+microdados_vinculos;indicador_simples;1;-1;Sim
+microdados_estabelecimentos;natureza;10;1994;AUTONOMOS
+microdados_estabelecimentos;natureza;20;1994;EMP PRIV
+microdados_estabelecimentos;natureza;30;1994;FUND PRIV
+microdados_estabelecimentos;natureza;35;1994;FUND PUB
+microdados_estabelecimentos;natureza;40;1994;ECON MISTA
+microdados_estabelecimentos;natureza;50;1994;EMP PUB
+microdados_estabelecimentos;natureza;60;1994;ORG DIR PUB
+microdados_estabelecimentos;natureza;70;1994;AUTARQUIAS
+microdados_estabelecimentos;natureza;80;1994;ADM PUB DIR
+microdados_estabelecimentos;natureza;90;1994;CARTORIO
+microdados_estabelecimentos;natureza;-1;1994;IGNORADO
+microdados_estabelecimentos;tamanho;0;1985(1)2001;ZERO
+microdados_estabelecimentos;tamanho;1;2002(1)2018;ZERO
+microdados_estabelecimentos;tamanho;1;1985(1)2001;ATE 4
+microdados_estabelecimentos;tamanho;2;2002(1)2018;ATE 4
+microdados_estabelecimentos;tamanho;2;1985(1)2001;DE 5 A 9
+microdados_estabelecimentos;tamanho;3;2002(1)2018;DE 5 A 9
+microdados_estabelecimentos;tamanho;3;1985(1)2001;DE 10 A 19
+microdados_estabelecimentos;tamanho;4;2002(1)2018;DE 10 A 19
+microdados_estabelecimentos;tamanho;4;1985(1)2001;DE 20 A 49
+microdados_estabelecimentos;tamanho;5;2002(1)2018;DE 20 A 49
+microdados_estabelecimentos;tamanho;5;1985(1)2001;DE 50 A 99
+microdados_estabelecimentos;tamanho;6;2002(1)2018;DE 50 A 99
+microdados_estabelecimentos;tamanho;6;1985(1)2001;DE 100 A 249
+microdados_estabelecimentos;tamanho;7;2002(1)2018;DE 100 A 249
+microdados_estabelecimentos;tamanho;7;1985(1)2001;DE 250 A 499
+microdados_estabelecimentos;tamanho;8;2002(1)2018;DE 250 A 499
+microdados_estabelecimentos;tamanho;8;1985(1)2001;DE 500 A 999
+microdados_estabelecimentos;tamanho;9;2002(1)2018;DE 500 A 999
+microdados_estabelecimentos;tamanho;9;1985(1)2001;1000 OU MAIS
+microdados_estabelecimentos;tamanho;10;2002(1)2018;1000 OU MAIS
+microdados_estabelecimentos;tamanho;-1;1985(1)2018;IGNORADO
+microdados_estabelecimentos;tipo;1;-1;CNPJ
+microdados_estabelecimentos;tipo;2;2018(1);CAEPF
+microdados_estabelecimentos;tipo;3;-1;CEI
+microdados_estabelecimentos;tipo;9;-1;NAO IDENTIF
+microdados_estabelecimentos;tipo;-1;-1;IGNORADO
+microdados_estabelecimentos;subsetor_ibge;1;2013(1)2018;Extrativa mineral
+microdados_estabelecimentos;subsetor_ibge;EXTR MINERAL;1985(1)2012;Extrativa mineral
+microdados_estabelecimentos;subsetor_ibge;2;2013(1)2018;Indústria de produtos minerais nao metálicos
+microdados_estabelecimentos;subsetor_ibge;MIN NAO MET;1985(1)2012;Indústria de produtos minerais nao metálicos
+microdados_estabelecimentos;subsetor_ibge;3;2013(1)2018;Indústria metalúrgica
+microdados_estabelecimentos;subsetor_ibge;IND METALURG;1985(1)2012;Indústria metalúrgica
+microdados_estabelecimentos;subsetor_ibge;4;2013(1)2018;Indústria mecânica
+microdados_estabelecimentos;subsetor_ibge;IND MECANICA;1985(1)2012;Indústria mecânica
+microdados_estabelecimentos;subsetor_ibge;5;2013(1)2018;Indústria do material elétrico e de comunicaçoes
+microdados_estabelecimentos;subsetor_ibge;ELET E COMUN;1985(1)2012;Indústria do material elétrico e de comunicaçoes
+microdados_estabelecimentos;subsetor_ibge;6;2013(1)2018;Indústria do material de transporte
+microdados_estabelecimentos;subsetor_ibge;MAT TRANSP;1985(1)2012;Indústria do material de transporte
+microdados_estabelecimentos;subsetor_ibge;7;2013(1)2018;Indústria da madeira e do mobiliário
+microdados_estabelecimentos;subsetor_ibge;MAD E MOBIL;1985(1)2012;Indústria da madeira e do mobiliário
+microdados_estabelecimentos;subsetor_ibge;8;2013(1)2018;Indústria do papel, papelao, editorial e gráfica
+microdados_estabelecimentos;subsetor_ibge;PAPEL E GRAF;1985(1)2012;Indústria do papel, papelao, editorial e gráfica
+microdados_estabelecimentos;subsetor_ibge;9;2013(1)2018;Ind. da borracha, fumo, couros, peles, similares, ind. diversas
+microdados_estabelecimentos;subsetor_ibge;BOR FUM COUR;1985(1)2012;Ind. da borracha, fumo, couros, peles, similares, ind. diversas
+microdados_estabelecimentos;subsetor_ibge;10;2013(1)2018;Ind. química de produtos farmacêuticos, veterinários, perfumaria
+microdados_estabelecimentos;subsetor_ibge;IND QUIMICA;1985(1)2012;Ind. química de produtos farmacêuticos, veterinários, perfumaria
+microdados_estabelecimentos;subsetor_ibge;11;2013(1)2018;Indústria têxtil do vestuário e artefatos de tecidos
+microdados_estabelecimentos;subsetor_ibge;IND TEXTIL;1985(1)2012;Indústria têxtil do vestuário e artefatos de tecidos
+microdados_estabelecimentos;subsetor_ibge;12;2013(1)2018;Indústria de calçados
+microdados_estabelecimentos;subsetor_ibge;IND CALCADOS;1985(1)2012;Indústria de calçados
+microdados_estabelecimentos;subsetor_ibge;13;2013(1)2018;Indústria de produtos alimentícios, bebidas e álcool etílico
+microdados_estabelecimentos;subsetor_ibge;ALIM E BEB;1985(1)2012;Indústria de produtos alimentícios, bebidas e álcool etílico
+microdados_estabelecimentos;subsetor_ibge;14;2013(1)2018;Serviços industriais de utilidade pública
+microdados_estabelecimentos;subsetor_ibge;SER UTIL PUB;1985(1)2012;Serviços industriais de utilidade pública
+microdados_estabelecimentos;subsetor_ibge;15;2013(1)2018;Construçao civil
+microdados_estabelecimentos;subsetor_ibge;CONSTR CIVIL;1985(1)2012;Construçao civil
+microdados_estabelecimentos;subsetor_ibge;16;2013(1)2018;Comércio varejista
+microdados_estabelecimentos;subsetor_ibge;COM VAREJ;1985(1)2012;Comércio varejista
+microdados_estabelecimentos;subsetor_ibge;17;2013(1)2018;Comércio atacadista
+microdados_estabelecimentos;subsetor_ibge;COM ATACAD;1985(1)2012;Comércio atacadista
+microdados_estabelecimentos;subsetor_ibge;18;2013(1)2018;Instituiçoes de crédito, seguros e capitalizaçao
+microdados_estabelecimentos;subsetor_ibge;INST FINANC;1985(1)2012;Instituiçoes de crédito, seguros e capitalizaçao
+microdados_estabelecimentos;subsetor_ibge;19;2013(1)2018;Com. e administraçao de imóveis, valores mobiliários, serv. Técnico
+microdados_estabelecimentos;subsetor_ibge;ADM TEC PROF;1985(1)2012;Com. e administraçao de imóveis, valores mobiliários, serv. Técnico
+microdados_estabelecimentos;subsetor_ibge;20;2013(1)2018;Transportes e comunicaçoes
+microdados_estabelecimentos;subsetor_ibge;TRAN E COMUN;1985(1)2012;Transportes e comunicaçoes
+microdados_estabelecimentos;subsetor_ibge;21;2013(1)2018;Serv. de alojamento, alimentaçao, reparaçao, manutençao, redaçao
+microdados_estabelecimentos;subsetor_ibge;ALOJ COMUNIC;1985(1)2012;Serv. de alojamento, alimentaçao, reparaçao, manutençao, redaçao
+microdados_estabelecimentos;subsetor_ibge;22;2013(1)2018;Serviços médicos, odontológicos e veterinários
+microdados_estabelecimentos;subsetor_ibge;MED ODON VET;1985(1)2012;Serviços médicos, odontológicos e veterinários
+microdados_estabelecimentos;subsetor_ibge;23;2013(1)2018;Ensino
+microdados_estabelecimentos;subsetor_ibge;ENSINO;1985(1)2012;Ensino
+microdados_estabelecimentos;subsetor_ibge;24;2013(1)2018;Administraçao pública direta e autárquica
+microdados_estabelecimentos;subsetor_ibge;ADM PUBLICA;1985(1)2012;Administraçao pública direta e autárquica
+microdados_estabelecimentos;subsetor_ibge;25;2013(1)2018;Agricultura, silvicultura, criaçao de animais, extrativismo vegetal
+microdados_estabelecimentos;subsetor_ibge;AGRICULTURA;1985(1)2012;Agricultura, silvicultura, criaçao de animais, extrativismo vegetal
+microdados_estabelecimentos;subsetor_ibge;-1;2013(1)2018;Ignorado
+microdados_estabelecimentos;subsetor_ibge;OUTR/IGN;1985(1)2012;Ignorado

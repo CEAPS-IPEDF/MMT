@@ -18,7 +18,7 @@ db <- DBI::dbConnect(odbc(),
 
 ### Novo CAGED ----
 
-novo_caged <- DBI::dbGetQuery(db, 
+novo_caged_1 <- DBI::dbGetQuery(db, 
 "SELECT
   CAST(SUBSTRING(CAST(competencia AS CHAR(6)), 1, 4) AS INT) AS anodeclarado,
   CAST(SUBSTRING(CAST(competencia AS CHAR(6)), 5, 2) AS INT) AS mesdeclarado,
@@ -114,7 +114,11 @@ dbDisconnect(db)
 
 ### RAIS ----
 
-rais <- readRDS("Dados/RAIS.RDS")
+rais <- readRDS("Dados/RAIS.RDS") |>
+  mutate(escolaridade = case_when(escolaridade == 1 ~ "Analfabeto",
+                                  escolaridade %in% 2:6 ~ "Médio incompleto",
+                                  escolaridade %in% 7:8 ~ "Médio completo",
+                                  escolaridade <= 11 ~ "Superior completo"))
 
 ### CBOs técnicas ----
 
@@ -130,16 +134,11 @@ cbotec_sup <- as.character(read_csv("Dados/cbotecnica_nivelsuperior.csv")[[1]])
 rotatividade_rais <- rbind(rais |>
                              group_by(referencia, cboocupacao2002) |>
                              summarise(n_trabalhadores = n(),
-                                       escolaridade = 0),
+                                       escolaridade = "Geral"),
                            rais |>
                              group_by(referencia, cboocupacao2002, escolaridade) |>
                              summarise(n_trabalhadores = n())) |>
-  mutate(cboocupacao2002 = as.character(cboocupacao2002),
-         escolaridade = case_when(escolaridade == 0 ~ "Geral",
-                                  escolaridade == 1 ~ "Analfabeto",
-                                  escolaridade == 2 ~ "Médio incompleto",
-                                  escolaridade == 3 ~ "Médio completo",
-                                  escolaridade == 4 ~ "Superior completo")) |>
+  mutate(cboocupacao2002 = as.character(cboocupacao2002)) |>
   rename(anodeclarado = referencia,
          cbo2002ocupacao = cboocupacao2002)
 
@@ -225,8 +224,9 @@ rotatividade_caged_novo <- rbind(rotatividade_novo |>
                                    filter(tipomovdesagregado %in% c(10, 20, 25, 31, 32, 35, 43, 45, 90, 97, 98)) |>
                                    group_by(anodeclarado, cbo2002ocupacao, admitidosdesligados, escolaridade) |>
                                    summarise(rotacao = n())) |>
-  pivot_wider(names_from = admitidosdesligados,
-              values_from = rotacao) |>
+  pivot_wider(names_from = admitidosdesligados, 
+              values_from = rotacao,
+              names_glue = "{admitidosdesligados}") |>
   arrange(anodeclarado, cbo2002ocupacao)
 
 remove(rotatividade_novo)

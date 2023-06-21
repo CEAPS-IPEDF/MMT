@@ -2,33 +2,34 @@
 
 # Carregar pacotes ----
 
-library(odbc)
-library(tidyverse)
-library(sidrar)
-library(readxl)
+library(odbc) # Conexão ao Banco de Dados
+library(tidyverse) # Manipulação dos dados
+library(sidrar) # Extração de dados do INPC
+library(readxl) # Leitura de Arquivos em .xlsx
 
-`%notin%` <- Negate(`%in%`)
-options(readr.show_col_types = FALSE)
+`%notin%` <- Negate(`%in%`) # Função de filtro
+options(readr.show_col_types = FALSE) # Omitir formato das variáveis na visualização
 
 # Importação dos dados ----
 
-ano <- 2021
+ano <- 2021 #'[Inserir aqui o ano da última RAIS disponível]
 
 ## CBOs técnicas ----
 
-cbotecnica_nivel_medio <- as.character(read_csv("Dados/cbotecnica_nivelmedio.csv")[[1]])
-cbotecnica_nivel_superior <- as.character(read_csv("Dados/cbotecnica_nivelsuperior.csv")[[1]])
-cbos_protegidas <- as.character(read_csv("Dados/ocupacoes_protegidas.csv")[[1]])
+cbotecnica_nivel_medio <- as.character(read_csv("Dados/cbotecnica_nivelmedio.csv")[[1]]) # Lista de CBOs de nível médio
+cbotecnica_nivel_superior <- as.character(read_csv("Dados/cbotecnica_nivelsuperior.csv")[[1]]) # Lista de CBOs de nível superior
+cbos_protegidas <- as.character(read_csv("Dados/ocupacoes_protegidas.csv")[[1]]) # Lista de CBOs Protegidas (Militares)
 
-## Eixos ----
-
+## Eixos Técnológicos ----
+### Leitura
 eixos <- lapply(paste0("Dados/Eixos - nível médio/", dir("Dados/Eixos - nível médio")[str_detect(dir("Dados/Eixos - nível médio"), "Eixo[0-9]{1,2}\\.")]), function(x) {read_delim(x, delim = ";", locale = locale(encoding = "UTF-8"))})
 eixos_superior <- lapply(paste0("Dados/Eixos - nível superior/", dir("Dados/Eixos - nível superior")[str_detect(dir("Dados/Eixos - nível superior"), "Eixo[0-9]{1,2}\\_")]), function(x) {read_delim(x, delim = ";", locale = locale(encoding = "ISO-8859-1"))})
 
+### Padronização dos nomes
 names(eixos) <- vapply(eixos, function(x){names(x)[[2]]}, "eixo")
 names(eixos_superior) <- vapply(eixos_superior, function(x){names(x)[[2]]}, "eixo")
 
-## INPC ----
+## INPC (Para Deflacionar salários) ----
 
 inpc <- get_sidra(api = "/t/2951/n6/5300108/v/44/p/all/c315/7169/d/v44%202") |>  # Até 2011
   rbind(get_sidra(api = "/t/1100/n6/5300108/v/44/p/all/c315/7169/d/v44%202")) |> # De 2012 até 2019
@@ -46,13 +47,16 @@ inpc <- get_sidra(api = "/t/2951/n6/5300108/v/44/p/all/c315/7169/d/v44%202") |> 
 
 ## RAIS ----
 
+### Conexão ao Banco de Dados
 db <- DBI::dbConnect(odbc(),
                      "db_codeplan", 
-                     uid = Sys.getenv("matricula"), 
+                     uid = Sys.getenv("matricula"),
                      pwd = Sys.getenv("senha")) 
 
+### Objeto Rais para o loop
 rais <- NULL
 
+### Loop que extrai e empilha os dados
 for (i in 2011:ano) {
   
   temp <- DBI::dbGetQuery(db, paste0("SELECT referencia, vinculoativo3112, tipovinculo, escolaridade_2006_atual as escolaridade, sexotrabalhador, racacor, vlremdeznm as vlremundezembronom, vlremdezsm as vlremundezembrosm, tiposal as tiposalario, tempoemprego, qtdhoracontr, vl_salario_contrato as vlsalariocontratual, cbo2002 as cboocupacao2002, cnae20subclasse, idade, null as indtrabintermitente  FROM DB_CODEPLAN.rais_id.vinc_", i, " WHERE municipio = 530010 and vinculoativo3112 = 1"))
@@ -62,6 +66,7 @@ for (i in 2011:ano) {
   
 }
 
+# Fecha conexão com o Banco de Dados
 dbDisconnect(db)
 remove(temp, i)
 
