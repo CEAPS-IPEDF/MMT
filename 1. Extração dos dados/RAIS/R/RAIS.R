@@ -2,12 +2,12 @@
 
 # Carregar pacotes ----
 
-library(odbc) # Conexão ao Banco de Dados
+library(odbc)      # Conexão ao Banco de Dados
 library(tidyverse) # Manipulação dos dados
-library(sidrar) # Extração de dados do INPC
-library(readxl) # Leitura de Arquivos em .xlsx
+library(sidrar)    # Extração de dados do INPC
+library(readxl)    # Leitura de Arquivos em .xlsx
 
-`%notin%` <- Negate(`%in%`) # Função de filtro
+`%notin%` <- Negate(`%in%`)           # Função de filtro
 options(readr.show_col_types = FALSE) # Omitir formato das variáveis na visualização
 
 # Importação dos dados ----

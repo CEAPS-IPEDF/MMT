@@ -1,4 +1,4 @@
-#'*Script que faz a limpeza dos dados do CAGED para o MMT*
+#'*Script que faz a limpeza dos dados do CAGED para o MMTe calcula rotatividade das ocupações*
 
 # Carregar pacotes ----
 
@@ -7,7 +7,7 @@ library(tidyverse) # Manipulação dos dados
 library(readxl)    # Leitura de Arquivos em .xlsx
 
 `%notin%` <- Negate(`%in%`)           # Função de filtro
-options(readr.show_col_types = FALSE) # Omitir formato das variáveis na visualização
+options(readr.show_col_types = FALSE) # Omitir formato das colunas no console
 
 # Importação dos dados ----
 
