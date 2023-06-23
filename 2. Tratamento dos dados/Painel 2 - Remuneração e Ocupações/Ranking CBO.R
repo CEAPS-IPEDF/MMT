@@ -3,13 +3,19 @@
 # Carregar pacotes ----
 
 library(tidyverse) # Manipulação dos dados
+library(imputeTS) # SUbstituir NA's
 
 `%notin%` <- Negate(`%in%`)           # Função de filtro
 options(readr.show_col_types = FALSE) # Omitir formato das colunas no console
 
 # Importação dos dados ----
 
-rais <- readRDS("../1. Extração dos dados/RAIS/Dados/RAIS.RDS")
+rais <- readRDS("../1. Extração dos dados/RAIS/Dados/RAIS.RDS") |>
+  mutate(tipo_emprego = case_when(tipovinculo == 1 ~ "Celetista",
+                                  TRUE ~ NA))
+estrutura_cbo <- readRDS("../1. Extração dos dados/RDS/Dicionário CBO.RDS") |>
+  select(cboocupacao2002, nome_cbo_ocupacao, 
+         cbo_subgrupo_principal, nome_cbo_subgrupo_principal)
 
 # Tratamento dos dados ----
 
@@ -30,6 +36,17 @@ dados_recente <- rais |>
             media_rendimento_recente = mean(salario_dez_defl, na.rm = TRUE), # Salário médio
             media_salario_hora_recente = mean(salario_hora, na.rm = TRUE))   # Hora de trabalho média
 
+## Dados do ano base ----
+
+dados_base <- rais %>%
+  filter(tipovinculo == 1,
+         referencia == 2012) %>%
+  group_by(cboocupacao2002) %>%
+  summarise(vinculos_base = n(),
+            media_rendimento_base = mean(salario_dez_defl, na.rm = TRUE),  # Salário médio
+            media_salario_hora_base = mean(salario_hora, na.rm = TRUE)) |> # Hora de trabalho média
+  mutate_if(is.integer, as.numeric)
+
 ## Dados históricos ----
 
 salario_vinculo_cbo <- rais |>
@@ -37,7 +54,7 @@ salario_vinculo_cbo <- rais |>
   group_by(cboocupacao2002, referencia) %>%
   summarise(vinculos = n(),
             media_rendimento = mean(salario_dez_defl, na.rm = TRUE), # Salário médio
-            media_salario_hora = mean(salario_hora, na.rm = TRUE))   # Hora de trabalho média
+            media_salario_hora = mean(salario_hora, na.rm = TRUE))   # Hora de trabalho médio
 
 ## Mediana do histórico ----
 
@@ -46,88 +63,43 @@ dados_historico <- salario_vinculo_cbo |>
   summarise(mediana_vinculos_historico = median(vinculos),           # Mediana de vínculos histórico
             mediana_rendimento_historico = median(media_rendimento)) # Mediana de rendimentos histórico
 
-dados <- dados_recente |>
-  left_join(dados_historico, by = "cboocupacao2002") |>
-  mutate(#Variação 2012 - 2021 dos sqlários
-         variacao_rendimento2012_2020 = (media_rendimento_2020/
-                                           mediana_rendimento2012_2021) -1,
-         #Variação 2012 - 2021 dos vínculos
-         variacao_vinculos2012_2020 = (vinculos_2020/
-                                         mediana_vinculos2012_2021) - 1,
-         #Variação 2012 - 2021 dos salários
-         variacao_rendimento2012_2021 = (media_rendimento_2021/
-                                           mediana_rendimento2012_2021) -1,
-         #Variação 2012 - 2020 dos vínculos
-         variacao_vinculos2012_2021 = (vinculos_2021/
-                                         mediana_vinculos2012_2021) - 1)
+## Merge das bases ----
 
-cria_base_filtro <- function(base,filtro,nome) {
-  dados_2020 <- base %>%
-    #filtrar para 2020
-    filter(tipo_emprego %in% filtro,
-           referencia == 2020) %>%
-    #agrupando por CBO
-    group_by(cboocupacao2002) %>%
-    summarise(vinculos_2020 = n(), #Vínculos no ano
-              media_rendimento_2020 = mean(salario_dez_defl, na.rm = TRUE)) #Salário médio
-  
-  #### Dados 2021 Geral ----
-  dados_2021 <- base %>%
-    #filtrar para 2021
-    filter(tipo_emprego %in% filtro,
-           referencia == 2021) %>%
-    #agrupando por CBO
-    group_by(cboocupacao2002) %>%
-    summarise(vinculos_2021 = n(), #Vínculos no ano
-              media_rendimento_2021 = mean(salario_dez_defl, na.rm = TRUE),
-              media_salario_hora_2021 = mean(salario_hora, na.rm = TRUE)) #Salário médio
-  
-  #### Dados 2012 Geral ----
-  dados_2012 <- base %>%
-    #filtrar para 2012
-    filter(tipo_emprego %in% filtro,
-           referencia == 2012) %>%
-    #agrupando por CBO
-    group_by(cboocupacao2002) %>%
-    summarise(vinculos_2012 = n(),#Vínculos no ano
-              media_rendimento_2012 = mean(salario_dez_defl, na.rm = TRUE),
-              media_salario_hora_2012 = mean(salario_hora, na.rm = TRUE)) #Salário médio
-  
-  #### Dados 2012-2021 (Geral) ----  
-  salario_vinculo_cbo <- base %>%
-    filter(tipo_emprego %in% filtro) %>% 
-    #agrupando por CBO e por ano
-    group_by(cboocupacao2002, referencia) %>%
-    summarise(vinculos = n(),
-              media_rendimento = mean(salario_dez_defl, na.rm = TRUE),
-              media_salario_hora = mean(salario_hora, na.rm = TRUE)) 
-  
-  ### Medianas (geral)----
-  #### Mediana 2012-2021 ----
-  dados_periodo2012_2021 <- salario_vinculo_cbo %>%
-    #agrupando por CBO
-    group_by(cboocupacao2002) %>%
-    summarise(mediana_vinculos2012_2021 = median(vinculos), #mediana de vínculos 2012 - 2021 
-              mediana_rendimento2012_2021 = median(media_rendimento)) #mediana de rendimentos 2012 - 2021
-  
-  ### Unindo dados (geral) ----
-  dados <- left_join(dados_2012,left_join(dados_2020, dados_2021), by = "cboocupacao2002") %>%
-    left_join(dados_periodo2012_2021, by = "cboocupacao2002")
-  
-  ### Calculando variação dados  ----
-  dados <- dados %>%
-    mutate(tipo = nome, # Técnicas e Não Técnicas
-           #Variação 2012 - 2021 dos sqlários
-           variacao_rendimento2012_2020 = (media_rendimento_2020/
-                                             mediana_rendimento2012_2021) -1,
-           #Variação 2012 - 2021 dos vínculos
-           variacao_vinculos2012_2020 = (vinculos_2020/
-                                           mediana_vinculos2012_2021) - 1,
-           #Variação 2012 - 2021 dos salários
-           variacao_rendimento2012_2021 = (media_rendimento_2021/
-                                             mediana_rendimento2012_2021) -1,
-           #Variação 2012 - 2020 dos vínculos
-           variacao_vinculos2012_2021 = (vinculos_2021/
-                                           mediana_vinculos2012_2021) - 1)
-  return(dados)
-}
+dados <- dados_base |>
+  left_join(dados_recente, by = "cboocupacao2002") %>%
+  left_join(dados_historico, by = "cboocupacao2002") |>
+  mutate(variacao_rendimento = (media_rendimento_recente / mediana_rendimento_historico) - 1,
+         variacao_vinculos = (vinculos_recente / mediana_vinculos_historico) - 1)
+
+dados <- dados %>%
+  left_join(estrutura_cbo, by = "cboocupacao2002") %>%
+  na_replace(.,"null")%>%
+  #replace(is.na(.), "null") %>%
+  #mutate_at(vars(cboocupacao2002, cbo_subgrupo_principal), ~ paste0('"', ., '"'))%>%
+  select(cboocupacao2002, 
+         nome_cbo_ocupacao,
+         mediana_vinculos = mediana_vinculos_historico,
+         mediana_rendimentos = mediana_rendimento_historico,
+         vinculos_ultimo_ano = vinculos_recente,
+         media_rendimento_ultimo_ano = media_rendimento_recente,
+         media_salario_hora_ultimo_ano = media_salario_hora_recente,
+         vinculos_primeiro_ano = vinculos_base,                     # Informações de 2012, discutir a inclusão na reunião
+         media_rendimento_primeiro_ano = media_rendimento_base,     # Informações de 2012, discutir a inclusão na reunião
+         media_salario_hora_primeiro_ano = media_salario_hora_base, # Informações de 2012, discutir a inclusão na reunião
+         variacao_rendimentos = variacao_rendimento,
+         variacao_vinculos = variacao_vinculos,
+         cbo = nome_cbo_subgrupo_principal,
+         codigo_cbo = cbo_subgrupo_principal) |>
+  arrange(desc(variacao_rendimentos))
+
+(dados |> 
+  arrange(desc(variacao_vinculos)) |> 
+  select(cbo = nome_cbo_ocupacao, var = variacao_vinculos) |> 
+  head() |> 
+  as.data.frame() |> 
+  ggplot(aes(x = reorder(cbo,var),y = var)) +
+  geom_bar(stat = "identity",fill = "#0f6bb5") + 
+  coord_flip() + theme_minimal(15) +
+  labs(x = "",y = "", fill = "CBOs com ganho salarial")) |> plotly::ggplotly()
+
+# Exportação dos
