@@ -9,7 +9,7 @@ options(readr.show_col_types = FALSE) # Omitir formato das colunas no console
 
 # Importação dos dados ----
 
-rais <- readRDS("../../1. Extração dos dados/RAIS/Dados/RAIS.RDS")
+rais <- readRDS("../1. Extração dos dados/RAIS/Dados/RAIS.RDS")
 
 # Tratamento dos dados ----
 
@@ -45,6 +45,21 @@ dados_historico <- salario_vinculo_cbo |>
   group_by(cboocupacao2002) |>
   summarise(mediana_vinculos_historico = median(vinculos),           # Mediana de vínculos histórico
             mediana_rendimento_historico = median(media_rendimento)) # Mediana de rendimentos histórico
+
+dados <- dados_recente |>
+  left_join(dados_historico, by = "cboocupacao2002") |>
+  mutate(#Variação 2012 - 2021 dos sqlários
+         variacao_rendimento2012_2020 = (media_rendimento_2020/
+                                           mediana_rendimento2012_2021) -1,
+         #Variação 2012 - 2021 dos vínculos
+         variacao_vinculos2012_2020 = (vinculos_2020/
+                                         mediana_vinculos2012_2021) - 1,
+         #Variação 2012 - 2021 dos salários
+         variacao_rendimento2012_2021 = (media_rendimento_2021/
+                                           mediana_rendimento2012_2021) -1,
+         #Variação 2012 - 2020 dos vínculos
+         variacao_vinculos2012_2021 = (vinculos_2021/
+                                         mediana_vinculos2012_2021) - 1)
 
 cria_base_filtro <- function(base,filtro,nome) {
   dados_2020 <- base %>%
@@ -101,7 +116,7 @@ cria_base_filtro <- function(base,filtro,nome) {
   
   ### Calculando variação dados  ----
   dados <- dados %>%
-    mutate(tipo_emprego = nome, # Técnicas e Não Técnicas
+    mutate(tipo = nome, # Técnicas e Não Técnicas
            #Variação 2012 - 2021 dos sqlários
            variacao_rendimento2012_2020 = (media_rendimento_2020/
                                              mediana_rendimento2012_2021) -1,

@@ -296,6 +296,8 @@ rotatividade_media |>
   theme(legend.position = "bottom") +
   theme_classic()
 
+paleta_mmt <- c("#d92335","#bd3928","#f87d28","#064471","#2b597a","#0a78c7","#fb8e80")
+
 # Exportar CSV ----
 
 write_excel_csv2(rotatividade_media, "Dados/Rotatividade.csv")
