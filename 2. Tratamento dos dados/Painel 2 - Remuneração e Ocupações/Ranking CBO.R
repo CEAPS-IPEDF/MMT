@@ -25,6 +25,32 @@ rais <- rais |>
   filter(referencia != 2011,
          !is.na(cboocupacao2002))
 
+rais |>
+  filter(tipovinculo == 1,
+         cboocupacao2002 == "515310") |>
+  group_by(referencia) |>
+  summarise(n = n())
+
+cbos_variacao <- dados |>
+  filter(variacao_vinculos > 2) |>
+  pull(cboocupacao2002)
+
+cbos_problema <- data.frame(cbo = NULL,
+                            ano = NULL,
+                            vinculos = NULL)
+
+for (i in cbos_variacao) {
+  
+  cbos_problema |>
+    rbind(rais |>
+    filter(tipovinculo == 1,
+           cboocupacao2002 == i) |>
+    group_by(referencia) |>
+    summarise(n = n(),
+              cbo = estrutura_cbo$nome_cbo_ocupacao[i]))
+  
+}
+
 ## Dados do ano mais recente ----
 
 dados_recente <- rais |>
@@ -60,22 +86,23 @@ salario_vinculo_cbo <- rais |>
 
 dados_historico <- salario_vinculo_cbo |>
   group_by(cboocupacao2002) |>
-  summarise(mediana_vinculos_historico = median(vinculos),           # Mediana de vínculos histórico
-            mediana_rendimento_historico = median(media_rendimento)) # Mediana de rendimentos histórico
+  summarise(mediana_vinculos_historico = median(vinculos),            # Mediana de vínculos histórico
+            mediana_rendimento_historico = median(media_rendimento))  # Mediana de rendimentos histórico
 
 ## Merge das bases ----
 
 dados <- dados_base |>
-  left_join(dados_recente, by = "cboocupacao2002") %>%
+  left_join(dados_recente, by = "cboocupacao2002") |>
   left_join(dados_historico, by = "cboocupacao2002") |>
+  #filter(mediana_vinculos_historico > 12) |>
   mutate(variacao_rendimento = (media_rendimento_recente / mediana_rendimento_historico) - 1,
          variacao_vinculos = (vinculos_recente / mediana_vinculos_historico) - 1)
 
 dados <- dados %>%
   left_join(estrutura_cbo, by = "cboocupacao2002") %>%
-  na_replace(.,"null")%>%
+  #na_replace(.,"null") %>%
   #replace(is.na(.), "null") %>%
-  #mutate_at(vars(cboocupacao2002, cbo_subgrupo_principal), ~ paste0('"', ., '"'))%>%
+  #mutate_at(vars(cboocupacao2002, cbo_subgrupo_principal), ~ paste0('"', ., '"')) %>%
   select(cboocupacao2002, 
          nome_cbo_ocupacao,
          mediana_vinculos = mediana_vinculos_historico,
@@ -89,8 +116,7 @@ dados <- dados %>%
          variacao_rendimentos = variacao_rendimento,
          variacao_vinculos = variacao_vinculos,
          cbo = nome_cbo_subgrupo_principal,
-         codigo_cbo = cbo_subgrupo_principal) |>
-  arrange(desc(variacao_rendimentos))
+         codigo_cbo = cbo_subgrupo_principal)
 
 (dados |> 
   arrange(desc(variacao_vinculos)) |> 

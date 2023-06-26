@@ -19,3 +19,5 @@ base_variacao_final |>
   mutate(dados = case_when(is.na(nome_cbo_ocupacao) ~ "não", TRUE ~ "sim")) |>
   count(dados)
   
+
+summary(dados) == summary(dados_1)

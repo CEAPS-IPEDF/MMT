@@ -5,11 +5,15 @@ library(data.table)
 library(dplyr)
 library("imputeTS")
 
-rstudioapi::writeRStudioPreference("data_viewer_max_columns", 300L)
+#rstudioapi::writeRStudioPreference("data_viewer_max_columns", 300L)
 
 # Carregando dados ----
 # rais
-rais = data.table::fread('dados/rais-panorama-2021.csv',encoding = "Latin-1")
+#rais = data.table::fread('dados/rais-panorama-2021.csv',encoding = "Latin-1")
+rais <- data.table::fread("P:/RECENTES/DIEPS/GEFAPS/GEFAPS/2023/MMT/MMT - Legado/dados/rais-panorama-2021.csv", encoding = "Latin-1")
+#rais <- readRDS("../1. Extração dos dados/RAIS/Dados/RAIS.RDS") |>
+#  mutate(tipo_emprego = case_when(tipovinculo == 1 ~ "Celetista",
+#                                  TRUE ~ NA))
 
 # Limpeza ----
 ## Limpando CBO ----
@@ -89,23 +93,32 @@ return(dados)
 }
 
 # Base Geral ----
-base_variacao <-  rbind(cria_base_filtro(base = rais,
-                                         filtro = c("Estatutário","Celetista","Outros"),
-                                         nome = "Geral"),
-                        cria_base_filtro(base = rais,
-                                        filtro = "Estatutário", 
-                                        nome = "Estatutário"),
-                        cria_base_filtro(base = rais,
-                                        filtro = "Celetista", 
-                                        nome = "Celetista"))
+#base_variacao <-  rbind(cria_base_filtro(base = rais,
+#                                         filtro = c("Estatutário","Celetista","Outros"),
+#                                         nome = "Geral"),
+#                        cria_base_filtro(base = rais,
+#                                        filtro = "Estatutário", 
+#                                        nome = "Estatutário"),
+#                        cria_base_filtro(base = rais,
+#                                        filtro = "Celetista", 
+#                                        nome = "Celetista"))
+
+base_variacao <- cria_base_filtro(base = rais,
+                                  filtro = "Celetista",
+                                  nome = "Celetista")
+
 # Adicionando os nomes de CBOs ----
 # nomes cbos
-estrutura_cbo <- readRDS('produto/rds/estrutura-cbo.rds') %>% 
+#estrutura_cbo <- readRDS('produto/rds/estrutura-cbo.rds') %>% 
+#  select(cboocupacao2002, nome_cbo_ocupacao, 
+#         cbo_subgrupo_principal, nome_cbo_subgrupo_principal)
+
+estrutura_cbo <- readRDS("../1. Extração dos dados/RDS/Dicionário CBO.RDS") |>
   select(cboocupacao2002, nome_cbo_ocupacao, 
          cbo_subgrupo_principal, nome_cbo_subgrupo_principal)
 
 base_variacao_final <- left_join(base_variacao,estrutura_cbo, by = "cboocupacao2002") %>%
-  na_replace("null") %>%
+  #na_replace("null") %>%
   mutate(cboocupacao2002 = paste0('"',cboocupacao2002,'"'),
          cbo_subgrupo_principal = paste0('"',cbo_subgrupo_principal,'"')) %>% 
   select(cboocupacao2002, nome_cbo_ocupacao,
@@ -121,7 +134,8 @@ base_variacao_final <- left_join(base_variacao,estrutura_cbo, by = "cboocupacao2
          variacao_vinculos = variacao_vinculos2012_2021,
          codigo_cbo = cbo_subgrupo_principal,
          cbo = nome_cbo_subgrupo_principal,
-         tipo_emprego)
+         tipo_emprego) |>
+  filter(mediana_vinculos_historico > 12)
 
-readr::write_excel_csv2(base_variacao_final, 'produto/csv/base-ranking-cbo.csv')
+#readr::write_excel_csv2(base_variacao_final, 'produto/csv/base-ranking-cbo.csv')
 # readr::write_excel_csv2(base_variacao_CLT, 'produto/csv/base-ranking-cbo-clt.csv')
