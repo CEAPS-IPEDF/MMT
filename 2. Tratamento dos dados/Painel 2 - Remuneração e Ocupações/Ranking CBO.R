@@ -23,33 +23,11 @@ estrutura_cbo <- readRDS("../1. Extração dos dados/RDS/Dicionário CBO.RDS") |
 
 rais <- rais |>
   filter(referencia != 2011,
-         !is.na(cboocupacao2002))
-
-rais |>
+         !is.na(cboocupacao2002))rais |>
   filter(tipovinculo == 1,
-         cboocupacao2002 == "515310") |>
+         cboocupacao2002 == "342520") |>
   group_by(referencia) |>
   summarise(n = n())
-
-cbos_variacao <- dados |>
-  filter(variacao_vinculos > 2) |>
-  pull(cboocupacao2002)
-
-cbos_problema <- data.frame(cbo = NULL,
-                            ano = NULL,
-                            vinculos = NULL)
-
-for (i in cbos_variacao) {
-  
-  cbos_problema |>
-    rbind(rais |>
-    filter(tipovinculo == 1,
-           cboocupacao2002 == i) |>
-    group_by(referencia) |>
-    summarise(n = n(),
-              cbo = estrutura_cbo$nome_cbo_ocupacao[i]))
-  
-}
 
 ## Dados do ano mais recente ----
 
