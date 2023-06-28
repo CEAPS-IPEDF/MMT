@@ -1,4 +1,4 @@
-#'*Script que calcula o ranking de média salarial por CBO*
+#'*Script que calcula a remuneração média por hora trabalhada*
 
 # Carregar pacotes ----
 
@@ -10,9 +10,8 @@ options(readr.show_col_types = FALSE) # Omitir formato das colunas no console
 
 # Importação dos dados ----
 
-rais <- readRDS("../1. Extração dos dados/RAIS/Dados/RAIS.RDS") |>
-  mutate(tipo_emprego = case_when(tipovinculo == 1 ~ "Celetista",
-                                  TRUE ~ NA))
+rais <- readRDS("../1. Extração dos dados/RAIS/Dados/RAIS.RDS")
+
 estrutura_cbo <- readRDS("../1. Extração dos dados/RDS/Dicionário CBO.RDS") |>
   select(cboocupacao2002, nome_cbo_ocupacao, 
          cbo_subgrupo_principal, nome_cbo_subgrupo_principal)

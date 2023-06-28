@@ -303,6 +303,7 @@ rotatividade_media <- rotatividade %>%
           panel.grid.major = element_blank())) |> 
   plotly::ggplotly() |> 
   plotly::layout(legend = list(x = 0.5, y = -0.2, orientation = 'h'))
+
 # Exportar CSV ----
 
 write_excel_csv2(rotatividade_media, "Dados/Rotatividade.csv")
