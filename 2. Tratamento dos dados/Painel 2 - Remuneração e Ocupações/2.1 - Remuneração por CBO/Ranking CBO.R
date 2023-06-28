@@ -23,11 +23,13 @@ estrutura_cbo <- readRDS("../1. Extração dos dados/RDS/Dicionário CBO.RDS") |
 
 rais <- rais |>
   filter(referencia != 2011,
-         !is.na(cboocupacao2002))rais |>
-  filter(tipovinculo == 1,
-         cboocupacao2002 == "342520") |>
-  group_by(referencia) |>
-  summarise(n = n())
+         !is.na(cboocupacao2002))
+
+# rais |>
+#   filter(tipovinculo == 1,
+#          cboocupacao2002 == "342520") |>
+#   group_by(referencia) |>
+#   summarise(n = n())
 
 ## Dados do ano mais recente ----
 
@@ -96,14 +98,98 @@ dados <- dados %>%
          cbo = nome_cbo_subgrupo_principal,
          codigo_cbo = cbo_subgrupo_principal)
 
-(dados |> 
-  arrange(desc(variacao_vinculos)) |> 
-  select(cbo = nome_cbo_ocupacao, var = variacao_vinculos) |> 
-  head() |> 
-  as.data.frame() |> 
-  ggplot(aes(x = reorder(cbo,var),y = var)) +
-  geom_bar(stat = "identity",fill = "#0f6bb5") + 
-  coord_flip() + theme_minimal(15) +
-  labs(x = "",y = "", fill = "CBOs com ganho salarial")) |> plotly::ggplotly()
 
-# Exportação dos
+
+
+# Gráficos de Exemplo
+graf <- dados
+
+quebra <- function(coluna, numPalavras) {
+  colunaNova <- character(length(coluna))  # Vetor vazio para armazenar os valores da coluna modificada
+  
+  for (i in seq_along(coluna)) {
+    palavras <- strsplit(coluna[i], " ")[[1]]  # Dividir a célula da coluna em palavras
+    resultado <- character(0)  # Vetor vazio para armazenar as palavras
+    
+    for (j in seq_along(palavras)) {
+      resultado <- c(resultado, palavras[j])  # Adicionar cada palavra ao vetor resultado
+      
+      if (j %% numPalavras == 0 && j != length(palavras)) {
+        resultado <- c(resultado, "\n")  # Inserir quebra de linha a cada numPalavras palavras
+      }
+    }
+    
+    colunaNova[i] <- paste(resultado, collapse = " ")  # Combinar as palavras novamente em uma única string e atribuir à coluna modificada
+  }
+  
+  return(colunaNova)
+}
+formata <- function(x){paste0(format(round(x,3)*100,decimal.mark = ",",nsmall = 1),"%")}
+
+graf$nome_cbo_ocupacao <- quebra(graf$nome_cbo_ocupacao,4)
+
+(graf |> 
+    # Filtros: Remover NA's, remover CBOS de Vínculos Baixos
+    filter(!is.na(variacao_vinculos)) |> 
+    # variáveis de interesse
+    select(cbo = nome_cbo_ocupacao, var = variacao_vinculos) |>
+    # Transformação da varável de Variação
+    mutate(var = var/100) |> 
+    # rankeamento
+    arrange(desc(var)) |>
+    # recorte
+    slice(1:10) %>%
+    # gráfico
+    ggplot(aes(x = reorder(cbo,var), y = var)) +
+    # barras
+    geom_col(fill = "#0f6bb5", width = 0.8) +
+    # rótulos
+    geom_text(aes(x = reorder(cbo,var), y = .06, 
+              label = scales::percent(round(var,3)), fontface = "bold"), 
+              show.legend = F, 
+              col = "white") +
+    # título
+    labs(title = "RANKING - GANHO VÍNCULOS", x = "", y = "") +
+    # eixo y
+    scale_y_continuous(label = scales::percent) +
+    # inverter eixos e remover eixos
+    coord_flip() + theme_minimal(base_size = 15) +
+    # fontes do gráfico
+    theme(text=element_text(size=17,family = "Arial"),
+          panel.grid.major = element_blank())+ 
+    # remover linhas de grade
+    theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())) |> plotly::ggplotly()
+
+(graf |> 
+    # Filtros: Remover NA's, remover CBOS de Vínculos Baixos
+    filter(!is.na(variacao_vinculos)) |> 
+    # variáveis de interesse
+    select(cbo = nome_cbo_ocupacao, var = variacao_vinculos) |>
+    # Transformação da varável de Variação
+    mutate(var = var) |> 
+    # rankeamento
+    arrange(var) |>
+    # recorte
+    slice(1:10) %>%
+    # gráfico
+    ggplot(aes(x = reorder(cbo,-var), y = var)) +
+    # barras
+    geom_col(fill = "#f04933", width = 0.8) +
+    # rótulos
+    geom_text(aes(x = reorder(cbo,var), y = var+.09, 
+                  label = scales::percent(round(var,3)), fontface = "bold"), 
+              show.legend = F, 
+              col = "white",
+              hjust = "left") +
+    # título
+    labs(title = "RANKING - PERDA VÍNCULOS", x = "", y = "") +
+    # eixo y
+    scale_y_continuous(label = scales::percent) +
+    # inverter eixos e remover eixos
+    coord_flip() + theme_minimal(base_size = 15) +
+    # fontes do gráfico
+    theme(text=element_text(size=17,family = "Arial"),
+          panel.grid.major = element_blank())+ 
+    # remover linhas de grade
+    theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())) |> plotly::ggplotly()
+
