@@ -42,9 +42,9 @@ inpc <- get_sidra(api = "/t/2951/n6/5300108/v/44/p/all/c315/7169/d/v44%202") |> 
          referencia = year(data)) |>
   filter(referencia > 2009) |>
   group_by(referencia) |>
-  summarise(agreg = prod(1 + inpc)) |>
-  mutate(inpc_anual = cumprod(agreg),
-         inpc_anual = inpc_anual / nth(inpc_anual, -2))
+  summarise(inpc_anual = prod(1 + inpc)) |>
+  mutate(inpc_acumulado = cumprod(inpc_anual),
+         deflator = inpc_acumulado / nth(inpc_acumulado, -2))
 
 ## RAIS ----
 
@@ -109,10 +109,9 @@ dados <- dados |>
 ## Cálculo de novas variáveis ----
 
 dados <- dados |>
-  mutate(salario_dez_defl = vlremundezembronom * inpc_anual,
+  mutate(salario_dez_defl = vlremundezembronom / deflator,
          horas_mensais = qtdhoracontr * 4,
-         salario_hora = case_when(horas_mensais == 0 ~ NA,
-                                  TRUE ~ salario_dez_defl / horas_mensais))
+         salario_hora = salario_dez_defl / horas_mensais)
 
 ## Dummies ----
 

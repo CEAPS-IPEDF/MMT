@@ -37,3 +37,7 @@ cbo_diff <- dados |>
               rename(antigo = n)) |>
   mutate(diff = atual - antigo) |>
   filter(diff != 0)
+
+all.equal(dados$horas_mensais, teste$horas_mensais)
+summary(dados$salario_hora)
+summary(teste$salario_hora)
