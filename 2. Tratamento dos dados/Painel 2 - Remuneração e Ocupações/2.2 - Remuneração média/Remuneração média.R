@@ -28,7 +28,7 @@ rais <- readRDS("../1. Extração dos dados/RAIS/Dados/RAIS.RDS") |>
 
 ### Empregos técnicos ----
 
-base_tec <- rais |>
+base_tec_mean <- rais |>
   filter(tec == 1,
          salario_hora > 0,
          horas > 0) |> 
@@ -45,7 +45,7 @@ base_tec <- rais |>
           group_by(ano) |> 
           summarise(salario_hora = mean(salario_hora, na.rm = T), 
                     salario_mes = mean(salario_dez_defl, na.rm = T),
-                    tipo = "Média dos trabalhadores técnicos",
+                    tipo = "Trabalhadores técnicos",
                     filtro = "Técnico"))
 
 ### Empregos não técnicos ----
@@ -54,28 +54,30 @@ base_nao_tec <- rais |>
   filter(tec == 0,
          salario_hora > 0,
          horas > 0) |>
-  mutate(tipo = case_when(escolaridade == 1 ~"Até fundamental completo",
+  mutate(tipo = case_when(escolaridade == 1 ~"Analfabeto",
                           escolaridade == 2 ~"Até fundamental completo",
-                          escolaridade == 3 ~"Médio completo",
-                          escolaridade == 4 ~"Superior completo")) |> 
+                          escolaridade == 3 ~"Até médio completo",
+                          escolaridade == 4 ~"Superior completo*")) |> 
   group_by(ano, tipo) |> 
   summarise(filtro = "Não técnico",
-            salario_hora = mean(salario_hora, na.rm = T), 
-            salario_mes = mean(salario_dez_defl, na.rm = T)) |> 
+            salario_hora = median(salario_hora, na.rm = T), 
+            salario_mes = median(salario_dez_defl, na.rm = T)) |> 
   rbind(rais |> 
           filter(tec == 0,
                  salario_hora > 0,
                  horas > 0) |> 
           group_by(ano) |> 
-          summarise(tipo =  "Média dos trabalhadores não técnicos",
+          summarise(tipo =  "Trabalhadores não técnicos",
                     filtro = "Não técnico",
-                    salario_hora = mean(salario_hora, na.rm = T), salario_mes = mean(salario_dez_defl, na.rm = T)))
+                    salario_hora = median(salario_hora, na.rm = T), 
+                    salario_mes = median(salario_dez_defl, na.rm = T)))
 
 ### Merge das bases ----
 
 base_tipo_emprego <- rbind(base_tec, base_nao_tec) |>
-  mutate(geral = case_when(tipo %in% c("Média dos trabalhadores técnicos", "Média dos trabalhadores não técnicos") ~ "Geral",
-                           TRUE ~ "Subgrupo"))
+  mutate(geral = case_when(tipo %in% c("Trabalhadores técnicos", "Trabalhadores não técnicos") ~ "Geral",
+                           TRUE ~ "Subgrupo")) |>
+  arrange(tipo, ano)
 
 # Exportar CSV ----
 

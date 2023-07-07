@@ -1,0 +1,17 @@
+---
+output: html_document
+---
+
+```{r include=FALSE}
+library( tidyverse )
+df <- data_frame( x=1:5, y=1:5 )
+```
+
+```{r}
+f <- function(df) {
+  gg <- ggplot(df, aes(x,y)) + geom_point()
+  list( result=df, plot=plotly::ggplotly(gg) )
+}
+res <- f(df)
+res$plot
+```

@@ -1,0 +1,162 @@
+---
+title: "MMT"
+date: "Julho de 2023"
+output:
+  prettydoc::html_pretty:
+    theme: cayman
+    highlight: github
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(plotly)
+library(htmltools)
+
+ranking <- read.csv2("Dados/Ranking.csv")
+remun <- read.csv2("Dados/Remuneração média.csv")
+rotatividade <- read.csv2("Dados/Rotatividade.csv")
+quebra <- function(coluna, numPalavras) {
+  colunaNova <- character(length(coluna))  # Vetor vazio para armazenar os valores da coluna modificada
+  
+  for (i in seq_along(coluna)) {
+    palavras <- strsplit(coluna[i], " ")[[1]]  # Dividir a célula da coluna em palavras
+    resultado <- character(0)  # Vetor vazio para armazenar as palavras
+    
+    for (j in seq_along(palavras)) {
+      resultado <- c(resultado, palavras[j])  # Adicionar cada palavra ao vetor resultado
+      
+      if (j %% numPalavras == 0 && j != length(palavras)) {
+        resultado <- c(resultado, "\n")  # Inserir quebra de linha a cada numPalavras palavras
+      }
+    }
+    
+    colunaNova[i] <- paste(resultado, collapse = " ")  # Combinar as palavras novamente em uma única string e atribuir à coluna modificada
+  }
+  
+  return(colunaNova)
+}
+formata <- function(x){paste0(format(round(x,3)*100,decimal.mark = ",",nsmall = 1),"%")}
+
+```
+
+
+```{r ranking, include=TRUE,echo=FALSE,warning=FALSE,results='asis',fig.align = 'center',fig.dim=c(10,6)}
+
+
+ranking$nome_cbo_ocupacao <- quebra(ranking$nome_cbo_ocupacao,4)
+
+graf_ranking_vinc <- ranking |> 
+    filter(!is.na(variacao_vinculos)) |> 
+    select(cbo = nome_cbo_ocupacao, var = variacao_vinculos) |>
+    mutate(var = var/100) |> 
+    arrange(desc(var)) |>
+    slice(1:10) %>%
+    ggplot(aes(x = reorder(cbo,var), y = var)) +
+    geom_col(fill = "#0f6bb5", width = 0.8) +
+    geom_text(aes(x = reorder(cbo,var), y = .06, 
+              label = scales::percent(round(var,3)), fontface = "bold"), 
+              show.legend = F, 
+              col = "white") +
+    labs(title = "RANKING - GANHO VÍNCULOS", x = "", y = "") +
+    scale_y_continuous(label = scales::percent) +
+    coord_flip() + theme_minimal(base_size = 10) +
+    theme(text=element_text(size=15,family = "Arial"),
+          panel.grid.major = element_blank())+ 
+    theme(panel.grid.major = element_blank(), 
+          panel.grid.minor = element_blank())
+
+plotly::ggplotly(graf_ranking_vinc)
+
+graf_ranking_vinc <- ranking |>
+    filter(!is.na(variacao_vinculos)) |> 
+    select(cbo = nome_cbo_ocupacao, var = variacao_vinculos) |>
+    mutate(var = var) |> 
+    arrange(var) |>
+    slice(1:10) %>%
+    ggplot(aes(x = reorder(cbo,-var), y = var)) +
+    geom_col(fill = "#f04933", width = 0.8) +
+    geom_text(aes(x = reorder(cbo,var), y = var+.09, 
+                  label = scales::percent(round(var,3)), fontface = "bold"), 
+              show.legend = F, 
+              col = "white",
+              hjust = "left") +
+    labs(title = "RANKING - PERDA VÍNCULOS", x = "", y = "") +
+    scale_y_continuous(label = scales::percent) +
+    coord_flip() + theme_minimal(base_size = 15) +
+    theme(text=element_text(size=17,family = "Arial"),
+          panel.grid.major = element_blank())+ 
+    theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
+
+plotly::ggplotly(graf_ranking_vinc)
+
+```
+
+
+```{r salario, include=TRUE,echo=FALSE,warning=FALSE,results='asis',fig.align = 'center',fig.dim=c(10,6)}
+
+graf_remun <- remun |>
+  filter(geral == "Geral") |> 
+  ggplot(aes(x = factor(ano),y = salario_hora,fill= tipo)) +
+  geom_bar(stat = "identity",position = position_dodge2(0.9)) +
+  scale_fill_manual(values = c("#bd3928","#064471"))+
+  scale_y_continuous(breaks = seq(0, 40, by = 5))+
+  labs(title = "REMUNERAÇÃO MÉDIA POR HORA TRABALHADA NO DISTRITO FEDERAL", 
+       x = "", y = "Remuneração média/hora (R$)",
+       fill = "") +
+  # inverter eixos e remover eixos
+  theme_minimal(base_size = 15) +
+  # fontes do gráfico
+  theme(text=element_text(size=17,family = "Arial"),
+        panel.grid.major.x = element_blank(),
+        panel.grid.minor = element_blank())
+
+plotly::ggplotly(graf_remun)|> 
+  plotly::layout(legend = list(x = 0.5, y = -0.2, orientation = 'h'))
+
+graf_remun <- remun |>
+    ggplot(aes(x = factor(ano),y = salario_hora,fill= tipo)) +
+    geom_bar(stat = "identity",position = position_dodge2(0.9)) +
+    scale_fill_manual(values = c("#d92335","#bd3928","#064471","#f87d28","#fb8e80","#0a78c7","#2b597a"))+
+    scale_y_continuous(breaks = seq(0, 120, by = 20))+
+    labs(title = "REMUNERAÇÃO MÉDIA POR HORA TRABALHADA NO DISTRITO FEDERAL", 
+         x = "", y = "Remuneração média/hora (R$)",
+         fill = "") +
+    # inverter eixos e remover eixos
+    theme_minimal(base_size = 15) +
+    # fontes do gráfico
+    theme(text=element_text(size=17,family = "Arial"),
+          panel.grid.major.x = element_blank(),
+          panel.grid.minor = element_blank())
+
+plotly::ggplotly(graf_remun)|> 
+  plotly::layout(legend = list(x = 0.5, y = -0.2, orientation = 'h'))
+
+```
+
+```{r rotatividade, include=TRUE,echo=FALSE,warning=FALSE,results='asis',fig.align = 'center',fig.dim=c(15,6)}
+
+rotatividade <- rotatividade |>
+  ggplot(aes(x = anodeclarado, y = rotatividade_media, col = tipo)) +
+  geom_line(linewidth = 1) + 
+  geom_point(size = 3.5) + 
+  scale_color_manual(values = c("#d92335","#bd3928","#064471","#f87d28","#0a78c7","#fb8e80","#2b597a")) +
+  labs(x = "", 
+       y = "Taxa de Rotatividade (%)",
+       col = "",
+       title = "PAINEL SOBRE TAXA DE ROTATIVIDADE NO DISTRITO FEDERAL", ) +
+  scale_y_continuous(label = scales::percent,
+                     breaks = seq(0, .7, by = .05)) +
+  scale_x_continuous(breaks = seq(2011, 2021, by = 1), expand = c(0.01,0.01)) +
+  theme_minimal(10)+
+    theme(legend.position = 'bottom',
+          legend.direction = "horizontal",  # Define a orientação como horizontal
+          legend.box = "horizontal",  # Permite que a legenda fique em várias linhas ou colunas
+          legend.box.just = "center",  # Centraliza a legenda horizontalmente
+          legend.spacing = unit(0.3, "cm"),
+          text=element_text(size=17,family = "Arial"),
+          panel.grid.major = element_blank())
+ 
+  plotly::ggplotly(rotatividade) |> 
+  plotly::layout(legend = list(x = 0.5, y = -0.2, orientation = 'h'))
+
+```

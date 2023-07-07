@@ -2,8 +2,9 @@
 
 # Carregar pacotes ----
 
-library(tidyverse) # Manipulação dos dados
+library(tidyverse)# Manipulação dos dados
 library(imputeTS) # SUbstituir NA's
+library(readxl)   # Leitura de Arquivos em .xlsx
 
 `%notin%` <- Negate(`%in%`)           # Função de filtro
 options(readr.show_col_types = FALSE) # Omitir formato das colunas no console
@@ -12,7 +13,7 @@ options(readr.show_col_types = FALSE) # Omitir formato das colunas no console
 
 rais <- readRDS("../1. Extração dos dados/RAIS/Dados/RAIS.RDS")
 
-estrutura_cbo <- readRDS("../1. Extração dos dados/RDS/Dicionário CBO.RDS") |>
+estrutura_cbo <- readRDS("../1. Extração dos dados/Dicionários/Dicionário CBO.RDS") |>
   select(cboocupacao2002, nome_cbo_ocupacao, 
          cbo_subgrupo_principal, nome_cbo_subgrupo_principal)
 
@@ -98,7 +99,7 @@ dados <- dados %>%
          codigo_cbo = cbo_subgrupo_principal)
 
 
-
+write_excel_csv2(dados, "W:/GEFAPS/2023/MMT/3. Gráficos/Dados/Ranking.csv")
 
 # Gráficos de Exemplo
 graf <- dados

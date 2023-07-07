@@ -172,6 +172,10 @@ dados <- dados |>
          eixo_hospelazer_sup     = case_when(cboocupacao2002 %in% eixos_superior$`Eixo de Turismo, Hospitalidade e Lazer`[[2]] & cbo_tec_sup == 1 ~ 1, TRUE ~ 0),
          eixo_militar_sup        = case_when(cboocupacao2002 %in% eixos_superior$`Eixo Militar`[[2]] & cbo_tec_sup == 1 ~ 1, TRUE ~ 0))
 
-# Exportar RDS ----
+### Conversão formato dados CNAE ----
 
+dados <- dados |>
+  mutate(cnae20subclasse = as.character(cnae20subclasse))
+
+# Exportar RDS ----
 saveRDS(dados, file = "Dados/RAIS.RDS")
