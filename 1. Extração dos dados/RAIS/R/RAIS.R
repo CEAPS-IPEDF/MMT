@@ -93,8 +93,8 @@ dados <- dados |>
 
 ### Salários ----
 
-dados <- dados |>
-  filter(vlremundezembrosm >= 0.5 & vlremundezembrosm <= 200)
+#dados <- dados |>
+#  filter(vlremundezembrosm >= 0.5 & vlremundezembrosm <= 200)
 
 ### Horas trabalhadas na semana ----
 
