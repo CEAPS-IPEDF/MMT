@@ -12,7 +12,7 @@ options(readr.show_col_types = FALSE) # Omitir formato das colunas no console
 
 ## RAIS ----
 
-rais <- readRDS("../1. Extração dos dados/RAIS/Dados/RAIS.RDS") |>
+rais <- readRDS("../1. Extração dos dados/Dados/RAIS.RDS") |>
   filter(tipovinculo == 1,       # Celetista
          #referencia != 2011,
          !is.na(cboocupacao2002)) |>
@@ -87,48 +87,6 @@ base_tipo_emprego |>
   theme(panel.grid = element_blank(),
         legend.position = "bottom")
 
-base_tipo_emprego |>
-  filter(tipo != "Total") |>
-  ggplot(aes(x = ano, y = vinculos, color = tipo, label = format(vinculos, big.mark = ".", decimal.mark = ","))) +
-  geom_line(position = position_dodge()) +
-  geom_point() +
-  #geom_hline(yintercept = 0) +
-  geom_text(vjust = -1) +
-  labs(title = "Variação anual do número de vínculos",
-       x = "",
-       y = "",
-       color = "") +
-  scale_y_continuous(labels = scales::comma,
-                     n.breaks = 15) +
-  scale_x_continuous(n.breaks = 9) +
-  theme_minimal(base_size = 15) +
-  theme(panel.grid = element_blank(),
-        legend.position = "bottom")
-
-cnaes <- unique(estrutura_cnae$nome_cnae_divisao)
-
-base_tipo_emprego |>
-  filter(tipo == "Trabalhadores não técnicos",
-         nome_cnae_divisao == "Atividades de atenção à saúde humana") |>
-  group_by(nome_cnae_divisao, ano) |>
-  summarise(vinculos = sum(vinculos)) |>
-  ggplot(aes(x = ano, y = vinculos, color = nome_cnae_divisao, label = format(vinculos, big.mark = ".", decimal.mark = ","))) +
-  geom_line(position = position_dodge(width = 1)) +
-  geom_point() +
-  #geom_hline(yintercept = 0) +
-  geom_text(vjust = -1,
-            check_overlap = TRUE) +
-  labs(title = "Variação anual do número de vínculos",
-       x = "",
-       y = "",
-       color = "") +
-  scale_y_continuous(labels = scales::comma,
-                     n.breaks = 15) +
-  scale_x_continuous(n.breaks = 9) +
-  theme_minimal(base_size = 15) +
-  theme(panel.grid = element_blank(),
-        legend.position = "bottom")
-
 # Exportar CSV ----
 
-#write_excel_csv2(base_tipo_emprego, "Painel 2 - Remuneração e Ocupações/Resultados/2.2 - Remuneração média.csv")
+write_excel_csv2(base_tipo_emprego, "Painel 2 - Remuneração e Ocupações/Resultados/2.2 - Remuneração média.csv")

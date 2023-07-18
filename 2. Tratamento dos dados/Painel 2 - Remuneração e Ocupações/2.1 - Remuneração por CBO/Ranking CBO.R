@@ -11,7 +11,7 @@ options(readr.show_col_types = FALSE) # Omitir formato das colunas no console
 
 # Importação dos dados ----
 
-rais <- readRDS("../1. Extração dos dados/RAIS/Dados/RAIS.RDS")
+rais <- readRDS("../1. Extração dos dados/Dados/RAIS.RDS")
 
 estrutura_cbo <- readRDS("../1. Extração dos dados/Dicionários/Dicionário CBO.RDS") |>
   select(cboocupacao2002, nome_cbo_ocupacao, 
@@ -128,20 +128,25 @@ remove(dados_base_salarios, dados_base_vinculos)
 dados <- dados_base |>
   left_join(dados_recente, by = "cbo_familia") |>
   left_join(estrutura_cbo |>
-              select(cbo_familia, nome_cbo_familia)) |>
+              select(cbo_familia, nome_cbo_familia),
+            by = "cbo_familia") |>
   mutate(variacao_rendimento = (mediana_rendimento_recente / mediana_rendimento_base) - 1,
          variacao_vinculos = (vinculos_recente / vinculos_base) - 1) |>
   distinct_all()
 
 dados |>
-  arrange(desc(variacao_vinculos)) |>
+  arrange(variacao_rendimento) |>
   slice(1:10) |>
-  ggplot(aes(x = reorder(nome_cbo_familia, variacao_vinculos), y = variacao_vinculos)) +
-  geom_col(fill = "#0f6bb5", width = 0.8) +
-  geom_text(aes(x = reorder(nome_cbo_familia,variacao_vinculos), y = .06, 
-                label = scales::percent(round(variacao_vinculos,3)), fontface = "bold"), 
+  ggplot(aes(x = reorder(nome_cbo_familia, variacao_rendimento),
+             y = variacao_rendimento)) +
+  geom_col(fill = "#0f6bb5",
+           width = 0.8) +
+  geom_text(aes(x = reorder(nome_cbo_familia,variacao_rendimento),
+                y = .06, 
+                label = scales::percent(round(variacao_rendimento,3)),
+                fontface = "bold"), 
             show.legend = F,
-            hjust = "left") +
+            hjust = "right") +
   labs(x = "",
        y = "") +
   scale_y_continuous(label = scales::percent) +

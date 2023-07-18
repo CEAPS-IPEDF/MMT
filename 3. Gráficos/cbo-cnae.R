@@ -57,7 +57,73 @@ rais[rais$cnae20subclasse ==9609206, "cnae20subclasse"] <-9609299
 rais[rais$cnae20subclasse ==9609207, "cnae20subclasse"] <-9609203
 rais[rais$cnae20subclasse ==9609208, "cnae20subclasse"] <-9609203
 rais[rais$cnae20subclasse ==4713004, "cnae20subclasse"] <-4713001
+#=========================================================
 
+base <- rais |> 
+   select(referencia,cboocupacao2002,cnae20subclasse) |>  
+   left_join(estrutura_cbo,by = "cboocupacao2002") |> 
+   left_join(estrutura_cnae,by = "cnae20subclasse")
+
+# base |>
+#    filter(nome_cnae_divisao =="Atividades de atenção à saúde humana") |> 
+#    group_by(referencia) |> 
+#    summarise(vinc = n())
+# 
+
+base_saude <- base |>
+   filter(cnae_divisao == "86")
+
+base_saude |>
+   filter(nome_cbo_grandegrupo == "PROFISSIONAIS DAS CIÊNCIAS E DAS ARTES",
+          grepl("édic",nome_cbo_ocupacao)) |> 
+   group_by(referencia,nome_cbo_ocupacao) |> 
+   summarise(vinc= n()) |>
+   filter(vinc >50) |> 
+   ggplot(aes(x = referencia,y = vinc,col = nome_cbo_ocupacao))+
+   geom_line()+geom_point()+theme_classic()
+   
+rais_medicos <- rais |>
+   left_join(estrutura_cbo,by = "cboocupacao2002") |> 
+   left_join(estrutura_cnae,by = "cnae20subclasse") |> 
+   filter(nome_cbo_ocupacao %in% c("Médico clínico","Biomédico"))
+
+rais |>
+   left_join(estrutura_cbo,by = "cboocupacao2002") |> 
+   left_join(estrutura_cnae,by = "cnae20subclasse") |> 
+   group_by(referencia,nome_cnae_divisao) |> 
+   summarise(vinc= n()) |>
+   filter(vinc >1000) |> 
+   ggplot(aes(x = referencia,y = vinc,col = nome_cnae_divisao))+
+   geom_line()+geom_point()+theme_classic()
+
+rais <- rais |>
+   left_join(estrutura_cbo,by = "cboocupacao2002") |> 
+   left_join(estrutura_cnae,by = "cnae20subclasse")
+   
+rais |>
+   filter(cnae_divisao == "86") |> 
+   group_by(referencia,tempoemprego) |> 
+   summarise(vinc= n()) |>
+   ggplot(aes(x = referencia,y = vinc,col = factor(tempoemprego)))+
+   geom_line()+geom_point()+ 
+   #(label = scales::number_format(vinc))+ 
+   theme_bw()+ggtitle("Atividades de atenção à saúde humana")
+
+
+ rais_medicos |> 
+   group_by(referencia) |> 
+   summarise(vinc= n()) |>
+   ggplot(aes(x = referencia,y = vinc))+
+   geom_line()+geom_point()+theme_classic()
+
+rais_medicos |>  
+   group_by(referencia,tipovinculo) |> 
+   summarise(vinc= n()) |>
+   ggplot(aes(x = referencia,y = vinc,col = factor(tipovinculo)))+
+   geom_line()+geom_point()+theme_classic()
+
+
+#=========================================================
 ## Rais 2021 Técnicos
 rais_tec <- rais  |>
    mutate(cnae20subclasse = as.character(cnae20subclasse)) |> 

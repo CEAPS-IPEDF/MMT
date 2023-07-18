@@ -114,7 +114,7 @@ dbDisconnect(db)
 
 ### RAIS ----
 
-rais <- readRDS("Dados/RAIS.RDS") |>
+rais <- readRDS("../1. Extração dos dados/Dados/RAIS.RDS") |>
   mutate(escolaridade = case_when(escolaridade == 1 ~ "Analfabeto",
                                   escolaridade == 2 ~ "Médio incompleto",
                                   escolaridade == 3 ~ "Médio completo",
@@ -122,8 +122,8 @@ rais <- readRDS("Dados/RAIS.RDS") |>
 
 ### CBOs técnicas ----
 
-cbotec_em <- as.character(read_csv("Dados/cbotecnica_nivelmedio.csv")[[1]])
-cbotec_sup <- as.character(read_csv("Dados/cbotecnica_nivelsuperior.csv")[[1]])
+cbotec_em <- as.character(read_csv("../1. Extração dos dados/Dados/CBO Técnica - Nível médio.csv")[[1]])
+cbotec_sup <- as.character(read_csv("../1. Extração dos dados/Dados/CBO Técnica - Nível superior.csv")[[1]])
 
 # Tratamento dos dados ----
 
@@ -160,7 +160,6 @@ rotatividade_rais <- rbind(rais |>
 #' 90 - Desliamento por acordo empregado e empregador
 
 rotatividade_caged <- caged |>
-  filter(salariomensal >= vl_sm * .5 & salariomensal <= vl_sm * 200) |>
   mutate(cbo2002ocupacao = as.character(cbo2002ocupacao),
          admitidosdesligados = case_when(admitidosdesligados == 1 ~ "admitidos",
                                          admitidosdesligados == 2 ~ "desligados"),
@@ -205,7 +204,6 @@ remove(rotatividade_caged)
 #' 98 - Desligamento de tipo Ignorado
 
 rotatividade_novo <- novo_caged |>
-  filter(salariomensal >= vl_sm * .5 & salariomensal <= vl_sm * 200) |>
   mutate(cbo2002ocupacao = as.character(cbo2002ocupacao),
          admitidosdesligados = case_when(admitidosdesligados == 1 ~ "admitidos",
                                          admitidosdesligados == 2 ~ "desligados"),
@@ -239,27 +237,8 @@ rotatividade <- merge(rotatividade_rais,
   mutate(admitidos = case_when(is.na(admitidos) ~ 0,
                                TRUE ~ admitidos),
          desligados = case_when(is.na(desligados) ~ 0,
-                                TRUE ~ desligados))
-
-remove(rotatividade_rais, rotatividade_caged_antigo, rotatividade_caged_novo)
-
-## Criação dos lags ----
-
-rotatividade <- rotatividade |>
-  group_by(cbo2002ocupacao, escolaridade) |>
-  mutate(admitidos_anterior = lag(admitidos),
-         desligados_anterior = lag(desligados))
-
-## Cálculo da rotatividade ----
-
-rotatividade <- rotatividade |>
-  mutate(rotatividade = case_when(admitidos_anterior > desligados_anterior ~ desligados_anterior,
-                                  TRUE ~ admitidos_anterior) / n_trabalhadores)
-
-## CBOs técnicas ----
-
-rotatividade <- rotatividade |>
-  mutate(cbo_tecnica = case_when(cbo2002ocupacao %in% cbotec_em ~ "tec_em",
+                                TRUE ~ desligados),
+         cbo_tecnica = case_when(cbo2002ocupacao %in% cbotec_em ~ "tec_em",
                                  cbo2002ocupacao %in% cbotec_sup ~ "tec_sup",
                                  TRUE ~ "nao_tec"),
          tipo = case_when(escolaridade == "Geral" & cbo_tecnica %in% c("tec_em", "tec_sup") ~ "Média dos trabalhadores técnicos",
@@ -270,9 +249,57 @@ rotatividade <- rotatividade |>
                           escolaridade == "Médio completo" & cbo_tecnica == "nao_tec" ~ "Médio completo",
                           escolaridade == "Superior completo" & cbo_tecnica == "nao_tec" ~ "Superior completo"),
          filtro = case_when(cbo_tecnica %in% c("tec_em", "tec_sup") ~ "Técnico",
-                            TRUE ~ "Não técnico"),
-         geral = case_when(escolaridade == "Geral" ~ "Geral",
-                           TRUE ~ "Subgrupo"))
+                            TRUE ~ "Não técnico"))
+
+remove(rotatividade_rais, rotatividade_caged_antigo, rotatividade_caged_novo)
+
+#rotatividade <- merge(rotatividade_rais,
+#                      rbind(rotatividade_caged_novo, 
+#                            rotatividade_caged_antigo), all.x = TRUE) |>
+#  mutate(admitidos = case_when(is.na(admitidos) ~ 0,
+#                               TRUE ~ admitidos),
+#         desligados = case_when(is.na(desligados) ~ 0,
+#                                TRUE ~ desligados),
+#         cbo_tecnica = case_when(cbo2002ocupacao %in% cbotec_em ~ "tec_em",
+#                                 cbo2002ocupacao %in% cbotec_sup ~ "tec_sup",
+#                                 TRUE ~ "nao_tec"),
+#         tipo = case_when(escolaridade == "Geral" & cbo_tecnica %in% c("tec_em", "tec_sup") ~ "Média dos trabalhadores técnicos",
+#                          escolaridade == "Geral" & cbo_tecnica == "nao_tec" ~ "Média dos trabalhadores não técnicos",
+#                          escolaridade %in% c("Analfabeto", "Médio incompleto", "Médio completo", "Superior completo") & cbo_tecnica == "tec_em" ~ "Técnicos de nível médio",
+#                          escolaridade %in% c("Analfabeto", "Médio incompleto", "Médio completo", "Superior completo") & cbo_tecnica == "tec_sup" ~ "Técnicos de nível superior",
+#                          escolaridade %in% c("Analfabeto", "Médio incompleto") & cbo_tecnica == "nao_tec" ~ "Até fundamental completo",
+#                          escolaridade == "Médio completo" & cbo_tecnica == "nao_tec" ~ "Médio completo",
+#                          escolaridade == "Superior completo" & cbo_tecnica == "nao_tec" ~ "Superior completo"),
+#         filtro = case_when(cbo_tecnica %in% c("tec_em", "tec_sup") ~ "Técnico",
+#                            TRUE ~ "Não técnico"),
+#         geral = case_when(escolaridade == "Geral" ~ "Geral",
+#                           TRUE ~ "Subgrupo"))
+
+## Cálculo da rotatividade ----
+
+#rotatividade <- rotatividade |>
+#  mutate(rotatividade = case_when(admitidos_anterior > desligados_anterior ~ desligados_anterior,
+#                                  TRUE ~ admitidos_anterior) / n_trabalhadores)
+
+rotatividade <- rotatividade |>
+  group_by(tipo, filtro, anodeclarado) |>
+  summarise(n_trabalhadores = sum(n_trabalhadores),
+            admitidos = sum(admitidos),
+            desligados = sum(desligados)) |>
+  mutate(rotatividade = (admitidos + desligados) / n_trabalhadores)
+
+rotatividade |>
+  ggplot(aes(x = anodeclarado, y = rotatividade, color = tipo, label = format(rotatividade * 100, digits = 3))) +
+  geom_line() +
+  geom_point() +
+  geom_text(vjust = -1,
+            check_overlap = T) +
+  labs(x = "",
+       y = "(%)") +
+  scale_x_continuous(n.breaks = 9) +
+  scale_y_continuous(label = scales::percent,
+                     n.breaks = 12) +
+  theme_minimal()
 
 ## Rotatividade média ----
 
