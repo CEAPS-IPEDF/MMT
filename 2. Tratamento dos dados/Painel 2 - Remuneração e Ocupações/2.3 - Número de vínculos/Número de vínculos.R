@@ -3,7 +3,6 @@
 
 library(tidyverse) # Manipulação dos dados
 library(imputeTS) # SUbstituir NA's
-library(stringr)
 
 `%notin%` <- Negate(`%in%`)           # Função de filtro
 options(readr.show_col_types = FALSE) # Omitir formato das colunas no console
@@ -65,28 +64,42 @@ base_tipo_emprego <- rbind(base_tec, base_nao_tec) |>
 
 # Gráficos ----
 
-base_tipo_emprego |>
-  filter(tipo != "Total") |>
-  group_by(tipo) |>
-  mutate(variacao = (vinculos / lag(vinculos, n = 1)) - 1) |>
-  filter(ano > 2011) |>
-  ggplot(aes(x = ano, y = variacao, fill = tipo, label = paste0(format(variacao * 100, digits = 2, big.mark = ".", decimal.mark = ","), "%"))) +
-  geom_col(position = position_dodge()) +
-  #geom_point() +
-  geom_hline(yintercept = 0) +
-  geom_text(position = position_dodge(width = .9),
-            vjust = -.5) +
-  labs(title = "Variação anual do número de vínculos",
-       x = "",
-       y = "",
-       fill = "") +
-  scale_y_continuous(labels = scales::percent,
-                     n.breaks = 15) +
-  scale_x_continuous(n.breaks = 9) +
-  theme_minimal(base_size = 15) +
-  theme(panel.grid = element_blank(),
-        legend.position = "bottom")
+#base_tipo_emprego |>
+#  filter(tipo != "Total") |>
+#  group_by(tipo) |>
+#  mutate(variacao = (vinculos / lag(vinculos, n = 1)) - 1) |>
+#  filter(ano > 2011) |>
+#  ggplot(aes(x = ano, y = variacao, fill = tipo, label = paste0(format(variacao * 100, digits = 2, big.mark = ".", decimal.mark = ","), "%"))) +
+#  geom_col(position = position_dodge()) +
+#  geom_hline(yintercept = 0) +
+#  geom_text(position = position_dodge(width = .9),
+#            vjust = -.5) +
+#  labs(title = "Variação anual do número de vínculos",
+#       x = "",
+#       y = "",
+#       fill = "") +
+#  scale_y_continuous(labels = scales::percent,
+#                     n.breaks = 15) +
+#  scale_x_continuous(n.breaks = 9) +
+#  theme_minimal(base_size = 15) +
+#  theme(panel.grid = element_blank(),
+#        legend.position = "bottom")
+
+#base_tipo_emprego |>
+#  ggplot(aes(x = ano, y = vinculos, color = tipo, label = paste0(format(vinculos, digits = 2, big.mark = ".", decimal.mark = ",")))) +
+#  geom_line() +
+#  geom_point() +
+#  geom_text(vjust = -.5) +
+#  labs(x = "",
+#       y = "",
+#       color = "") +
+#  scale_y_continuous(label = scales::comma,
+#                     n.breaks = 10) +
+#  scale_x_continuous(n.breaks = 10) +
+#  theme_minimal() +
+#  theme(panel.grid = element_blank(),
+#        legend.position = "bottom")
 
 # Exportar CSV ----
 
-write_excel_csv2(base_tipo_emprego, "Painel 2 - Remuneração e Ocupações/Resultados/2.2 - Remuneração média.csv")
+write_excel_csv2(base_tipo_emprego, "Painel 2 - Remuneração e Ocupações/Resultados/2.3 - Número de vínculos.csv")

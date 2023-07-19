@@ -288,49 +288,7 @@ rotatividade <- rotatividade |>
             desligados = sum(desligados)) |>
   mutate(rotatividade = (admitidos + desligados) / n_trabalhadores)
 
-rotatividade |>
-  ggplot(aes(x = anodeclarado, y = rotatividade, color = tipo, label = format(rotatividade * 100, digits = 3))) +
-  geom_line() +
-  geom_point() +
-  geom_text(vjust = -1,
-            check_overlap = T) +
-  labs(x = "",
-       y = "(%)") +
-  scale_x_continuous(n.breaks = 9) +
-  scale_y_continuous(label = scales::percent,
-                     n.breaks = 12) +
-  theme_minimal()
-
-## Rotatividade média ----
-
-rotatividade_media <- rotatividade %>% 
-  group_by(anodeclarado, tipo, filtro, geral) %>% 
-  summarise(rotatividade_media = mean(rotatividade, na.rm = T)) |>
-  filter(anodeclarado > 2011)
-
-(rotatividade_media |>
-  ggplot(aes(x = anodeclarado, y = rotatividade_media, col = tipo)) +
-  geom_line(linewidth = 1) + 
-  geom_point(size = 3.5) + 
-  scale_color_manual(values = c("#d92335","#bd3928","#064471","#f87d28","#0a78c7","#fb8e80","#2b597a")) +
-  labs(x = "", 
-       y = "Taxa de Rotatividade (%)",
-       col = "",
-       title = "PAINEL SOBRE TAXA DE ROTATIVIDADE NO DISTRITO FEDERAL", ) +
-  scale_y_continuous(label = scales::percent,
-                     breaks = seq(0, .7, by = .05)) +
-  scale_x_continuous(breaks = seq(2011, 2021, by = 1), expand = c(0.01,0.01)) +
-  theme_minimal(10)+
-    theme(legend.position = 'bottom',
-          legend.direction = "horizontal",  # Define a orientação como horizontal
-          legend.box = "horizontal",  # Permite que a legenda fique em várias linhas ou colunas
-          legend.box.just = "center",  # Centraliza a legenda horizontalmente
-          legend.spacing = unit(0.3, "cm"),
-          text=element_text(size=17,family = "Arial"),
-          panel.grid.major = element_blank())) |> 
-  plotly::ggplotly() |> 
-  plotly::layout(legend = list(x = 0.5, y = -0.2, orientation = 'h'))
 # Exportar CSV ----
 
-write_excel_csv2(rotatividade_media, "Dados/Rotatividade.csv")
+write_excel_csv2(rotatividade, "Painel 2 - Remuneração e Ocupações/Resultados/2.4 - Taxa de rotatividade.csv")
 

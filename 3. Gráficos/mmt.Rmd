@@ -8,13 +8,12 @@ output:
 ---
 
 ```{r setup, include=FALSE}
-library(tidyverse)
-library(plotly)
-library(htmltools)
+# Carregar pacotes ----
 
-ranking <- read.csv2("Dados/Ranking.csv")
-remun <- read.csv2("Dados/Remuneração média.csv")
-rotatividade <- read.csv2("Dados/Rotatividade.csv")
+library(tidyverse)
+library(readr)
+library(plotly)
+
 quebra <- function(coluna, numPalavras) {
   colunaNova <- character(length(coluna))  # Vetor vazio para armazenar os valores da coluna modificada
   
@@ -35,128 +34,364 @@ quebra <- function(coluna, numPalavras) {
   
   return(colunaNova)
 }
-formata <- function(x){paste0(format(round(x,3)*100,decimal.mark = ",",nsmall = 1),"%")}
+
+`%notin%` <- Negate(`%in%`)           # Função de filtro
+options(readr.show_col_types = FALSE) # Omitir formato das colunas no console
+
+# Importação dos dados ----
+
+dados <- lapply(paste0("../2. Tratamento dos dados/Painel 2 - Remuneração e Ocupações/Resultados/", dir("../2. Tratamento dos dados/Painel 2 - Remuneração e Ocupações/Resultados")), read.csv2)
+names(dados) <- c("ranking_CBO", "remun_media", "num_vinc", "rotatividade")
 
 ```
 
+## Ranking de CBOs
 
-```{r ranking, include=TRUE,echo=FALSE,warning=FALSE,results='asis',fig.align = 'center',fig.dim=c(10,6)}
+### Ganho de vínculos
 
-
-ranking$nome_cbo_ocupacao <- quebra(ranking$nome_cbo_ocupacao,4)
-
-graf_ranking_vinc <- ranking |> 
-    filter(!is.na(variacao_vinculos)) |> 
-    select(cbo = nome_cbo_ocupacao, var = variacao_vinculos) |>
-    mutate(var = var/100) |> 
-    arrange(desc(var)) |>
-    slice(1:10) %>%
-    ggplot(aes(x = reorder(cbo,var), y = var)) +
-    geom_col(fill = "#0f6bb5", width = 0.8) +
-    geom_text(aes(x = reorder(cbo,var), y = .06, 
-              label = scales::percent(round(var,3)), fontface = "bold"), 
-              show.legend = F, 
-              col = "white") +
-    labs(title = "RANKING - GANHO VÍNCULOS", x = "", y = "") +
-    scale_y_continuous(label = scales::percent) +
-    coord_flip() + theme_minimal(base_size = 10) +
-    theme(text=element_text(size=15,family = "Arial"),
-          panel.grid.major = element_blank())+ 
-    theme(panel.grid.major = element_blank(), 
-          panel.grid.minor = element_blank())
-
-plotly::ggplotly(graf_ranking_vinc)
-
-graf_ranking_vinc <- ranking |>
-    filter(!is.na(variacao_vinculos)) |> 
-    select(cbo = nome_cbo_ocupacao, var = variacao_vinculos) |>
-    mutate(var = var) |> 
-    arrange(var) |>
-    slice(1:10) %>%
-    ggplot(aes(x = reorder(cbo,-var), y = var)) +
-    geom_col(fill = "#f04933", width = 0.8) +
-    geom_text(aes(x = reorder(cbo,var), y = var+.09, 
-                  label = scales::percent(round(var,3)), fontface = "bold"), 
-              show.legend = F, 
-              col = "white",
-              hjust = "left") +
-    labs(title = "RANKING - PERDA VÍNCULOS", x = "", y = "") +
-    scale_y_continuous(label = scales::percent) +
-    coord_flip() + theme_minimal(base_size = 15) +
-    theme(text=element_text(size=17,family = "Arial"),
-          panel.grid.major = element_blank())+ 
-    theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
-
-plotly::ggplotly(graf_ranking_vinc)
-
+```{r, include=TRUE,echo=FALSE,warning=FALSE,results='asis',fig.align = 'center',fig.dim=c(10,6)}
+dados$ranking_CBO |>
+   mutate(nome_cbo_familia = quebra(nome_cbo_familia, 4)) |>
+   arrange(desc(variacao_vinculos)) |>
+   slice(1:10) |>
+   plot_ly(x = ~variacao_vinculos * 100) |>
+   add_trace(y = ~nome_cbo_familia,
+             type = "bar",
+             color = I("#176180")) |>
+   add_annotations(x = ~variacao_vinculos, 
+                   y = ~nome_cbo_familia,
+                   xanchor = "left",
+                   yanchor = "rigth",
+                   text = ~paste(round(variacao_vinculos * 100, 2), "%"),
+                   textposition = "middle",
+                   font = list(color = "white"),
+                   showarrow = FALSE) |>
+   config(displayModeBar = FALSE) |>
+   layout(hovermode = "y",
+          yaxis = list(title = "",
+                       showgrid = FALSE,
+                       showline = TRUE,
+                       categoryorder = "total ascending"),
+          xaxis = list(title = "",
+                       hoverformat = ".1f",
+                       showgrid = FALSE,
+                       showline = TRUE,
+                       ticksuffix = "%"),
+          legend = list(orientation = "h",
+                        title = list(text = "")),
+          barmode = "relative",
+          uniformtext = list(minsize = 8,
+                             mode = "hide"))
 ```
 
+### Perda de vínculos
 
-```{r salario, include=TRUE,echo=FALSE,warning=FALSE,results='asis',fig.align = 'center',fig.dim=c(10,6)}
-
-graf_remun <- remun |>
-  filter(geral == "Geral") |> 
-  ggplot(aes(x = factor(ano),y = salario_hora,fill= tipo)) +
-  geom_bar(stat = "identity",position = position_dodge2(0.9)) +
-  scale_fill_manual(values = c("#bd3928","#064471"))+
-  scale_y_continuous(breaks = seq(0, 40, by = 5))+
-  labs(title = "REMUNERAÇÃO MÉDIA POR HORA TRABALHADA NO DISTRITO FEDERAL", 
-       x = "", y = "Remuneração média/hora (R$)",
-       fill = "") +
-  # inverter eixos e remover eixos
-  theme_minimal(base_size = 15) +
-  # fontes do gráfico
-  theme(text=element_text(size=17,family = "Arial"),
-        panel.grid.major.x = element_blank(),
-        panel.grid.minor = element_blank())
-
-plotly::ggplotly(graf_remun)|> 
-  plotly::layout(legend = list(x = 0.5, y = -0.2, orientation = 'h'))
-
-graf_remun <- remun |>
-    ggplot(aes(x = factor(ano),y = salario_hora,fill= tipo)) +
-    geom_bar(stat = "identity",position = position_dodge2(0.9)) +
-    scale_fill_manual(values = c("#d92335","#bd3928","#064471","#f87d28","#fb8e80","#0a78c7","#2b597a"))+
-    scale_y_continuous(breaks = seq(0, 120, by = 20))+
-    labs(title = "REMUNERAÇÃO MÉDIA POR HORA TRABALHADA NO DISTRITO FEDERAL", 
-         x = "", y = "Remuneração média/hora (R$)",
-         fill = "") +
-    # inverter eixos e remover eixos
-    theme_minimal(base_size = 15) +
-    # fontes do gráfico
-    theme(text=element_text(size=17,family = "Arial"),
-          panel.grid.major.x = element_blank(),
-          panel.grid.minor = element_blank())
-
-plotly::ggplotly(graf_remun)|> 
-  plotly::layout(legend = list(x = 0.5, y = -0.2, orientation = 'h'))
-
+```{r, include=TRUE,echo=FALSE,warning=FALSE,results='asis',fig.align = 'center',fig.dim=c(10,6)}
+dados$ranking_CBO |>
+   mutate(nome_cbo_familia = quebra(nome_cbo_familia, 4)) |>
+   arrange(variacao_vinculos) |>
+   slice(1:10) |>
+   plot_ly(x = ~variacao_vinculos * 100) |>
+   add_trace(y = ~nome_cbo_familia,
+             type = "bar",
+             color = I("#f04933")) |>
+   add_annotations(x = ~variacao_vinculos, 
+                   y = ~nome_cbo_familia,
+                   xanchor = "right",
+                   yanchor = "rigth",
+                   text = ~paste(round(variacao_vinculos * 100, 2), "%"),
+                   textposition = "middle",
+                   font = list(color = "white"),
+                   showarrow = FALSE) |>
+   config(displayModeBar = FALSE) |>
+   layout(hovermode = "y",
+          yaxis = list(title = "",
+                       showgrid = FALSE,
+                       showline = TRUE,
+                       categoryorder = "total descending"),
+          xaxis = list(title = "",
+                       hoverformat = ".1f",
+                       showgrid = FALSE,
+                       showline = TRUE,
+                       ticksuffix = "%"),
+          legend = list(orientation = "h",
+                        title = list(text = "")),
+          barmode = "relative",
+          uniformtext = list(minsize = 8,
+                             mode = "hide"))
 ```
 
-```{r rotatividade, include=TRUE,echo=FALSE,warning=FALSE,results='asis',fig.align = 'center',fig.dim=c(15,6)}
+### Ganho salarial
 
-rotatividade <- rotatividade |>
-  ggplot(aes(x = anodeclarado, y = rotatividade_media, col = tipo)) +
-  geom_line(linewidth = 1) + 
-  geom_point(size = 3.5) + 
-  scale_color_manual(values = c("#d92335","#bd3928","#064471","#f87d28","#0a78c7","#fb8e80","#2b597a")) +
-  labs(x = "", 
-       y = "Taxa de Rotatividade (%)",
-       col = "",
-       title = "PAINEL SOBRE TAXA DE ROTATIVIDADE NO DISTRITO FEDERAL", ) +
-  scale_y_continuous(label = scales::percent,
-                     breaks = seq(0, .7, by = .05)) +
-  scale_x_continuous(breaks = seq(2011, 2021, by = 1), expand = c(0.01,0.01)) +
-  theme_minimal(10)+
-    theme(legend.position = 'bottom',
-          legend.direction = "horizontal",  # Define a orientação como horizontal
-          legend.box = "horizontal",  # Permite que a legenda fique em várias linhas ou colunas
-          legend.box.just = "center",  # Centraliza a legenda horizontalmente
-          legend.spacing = unit(0.3, "cm"),
-          text=element_text(size=17,family = "Arial"),
-          panel.grid.major = element_blank())
- 
-  plotly::ggplotly(rotatividade) |> 
-  plotly::layout(legend = list(x = 0.5, y = -0.2, orientation = 'h'))
+```{r, include=TRUE,echo=FALSE,warning=FALSE,results='asis',fig.align = 'center',fig.dim=c(10,6)}
+dados$ranking_CBO |>
+   mutate(nome_cbo_familia = quebra(nome_cbo_familia, 4)) |>
+   arrange(desc(variacao_rendimento)) |>
+   slice(1:10) |>
+   plot_ly(x = ~variacao_rendimento * 100) |>
+   add_trace(y = ~nome_cbo_familia,
+             type = "bar",
+             color = I("#176180")) |>
+   add_annotations(x = ~variacao_rendimento, 
+                   y = ~nome_cbo_familia,
+                   xanchor = "left",
+                   yanchor = "rigth",
+                   text = ~paste(round(variacao_rendimento * 100, 2), "%"),
+                   textposition = "middle",
+                   font = list(color = "white"),
+                   showarrow = FALSE) |>
+   config(displayModeBar = FALSE) |>
+   layout(hovermode = "y",
+          yaxis = list(title = "",
+                       showgrid = FALSE,
+                       showline = TRUE,
+                       categoryorder = "total ascending"),
+          xaxis = list(title = "",
+                       hoverformat = ".1f",
+                       showgrid = FALSE,
+                       showline = TRUE,
+                       ticksuffix = "%"),
+          legend = list(orientation = "h",
+                        title = list(text = "")),
+          barmode = "relative",
+          uniformtext = list(minsize = 8,
+                             mode = "hide"))
+```
 
+### Perda salarial
+
+```{r, include=TRUE,echo=FALSE,warning=FALSE,results='asis',fig.align = 'center',fig.dim=c(10,6)}
+dados$ranking_CBO |>
+   mutate(nome_cbo_familia = quebra(nome_cbo_familia, 4)) |>
+   arrange(variacao_rendimento) |>
+   slice(1:10) |>
+   plot_ly(x = ~variacao_rendimento * 100) |>
+   add_trace(y = ~nome_cbo_familia,
+             type = "bar",
+             color = I("#f04933")) |>
+   add_annotations(x = ~variacao_rendimento, 
+                   y = ~nome_cbo_familia,
+                   xanchor = "right",
+                   yanchor = "rigth",
+                   text = ~paste(round(variacao_rendimento * 100, 2), "%"),
+                   textposition = "middle",
+                   font = list(color = "white"),
+                   showarrow = FALSE) |>
+   config(displayModeBar = FALSE) |>
+   layout(hovermode = "y",
+          yaxis = list(title = "",
+                       showgrid = FALSE,
+                       showline = TRUE,
+                       categoryorder = "total descending"),
+          xaxis = list(title = "",
+                       hoverformat = ".1f",
+                       showgrid = FALSE,
+                       showline = TRUE,
+                       ticksuffix = "%"),
+          legend = list(orientation = "h",
+                        title = list(text = "")),
+          barmode = "relative",
+          uniformtext = list(minsize = 8,
+                             mode = "hide"))
+```
+
+## Remuneração mediana
+
+```{r, include=TRUE,echo=FALSE,warning=FALSE,results='asis',fig.align = 'center',fig.dim=c(10,6)}
+dados$remun_media |>
+   select(-c(salario_mes, filtro, geral)) |>
+   pivot_wider(names_from = tipo,
+               values_from = salario_hora) |>
+   plot_ly(x = ~ano) |>
+   add_trace(y = ~Analfabeto,
+             type = "bar",
+             name = "Analfabeto",
+             color = I("#d92335")) |>
+   add_trace(y = ~`Até fundamental completo`,
+             type = "bar",
+             name = "Até fundamental completo",
+             color = I("#064471")) |>
+   add_trace(y = ~`Até médio completo`,
+             type = "bar",
+             name = "Até médio completo",
+             color = I("#bd3928")) |>
+   add_trace(y = ~`Superior completo*`,
+             type = "bar",
+             name = "Superior completo",
+             color = I("#f87d28")) |>
+   add_trace(y = ~`Trabalhadores não técnicos`,
+             type = "bar",
+             name = "Trabalhadores não técnicos",
+             color = I("#0a78c7")) |>
+   add_trace(y = ~`Trabalhadores técnicos`,
+             type = "bar",
+             name = "Trabalhadores técnicos",
+             color = I("#fb8e80")) |>
+   add_trace(y = ~`Técnicos de nível médio`,
+             type = "bar",
+             name = "Técnicos de nível médio",
+             color = I("#818589")) |>
+   add_trace(y = ~`Técnicos de nível superior`,
+             type = "bar",
+             name = "Técnicos de nível superior",
+             color = I("#2b597a")) |>
+   config(displayModeBar = FALSE) %>%
+   layout(hovermode = "x",
+          yaxis = list(title = "",
+                       tickprefix = "R$", 
+                       hoverformat = '.1f',
+                       showgrid = FALSE,
+                       showline = TRUE),
+          xaxis = list(title = "",
+                       tickformat = "%Y",
+                       tickmode = "array",
+                       tickvals = c(min(dados$remun_media$ano):max(dados$remun_media$ano)),
+                       showgrid = FALSE,
+                       showline = TRUE),
+          legend = list(orientation = "h",
+                        title = list(text = "")),
+          barmode = "group")
+```
+
+## Número de vínculos
+
+### Número absoluto
+
+```{r, include=TRUE,echo=FALSE,warning=FALSE,results='asis',fig.align = 'center',fig.dim=c(10,6)}
+dados$num_vinc |>
+   pivot_wider(names_from = tipo,
+               values_from = vinculos) |>
+   plot_ly(x = ~ano) |>
+   add_trace(y = ~Total,
+             type = "scatter", 
+             mode = "lines+markers",
+             name = "Total",
+             color = I("#d92335")) |>
+   add_trace(y = ~`Trabalhadores técnicos`,
+             type = "scatter", 
+             mode = "lines+markers",
+             name = "Trabalhadores técnicos",
+             color = I("#064471")) |>
+   add_trace(y = ~`Trabalhadores não técnicos`,
+             type = "scatter", 
+             mode = "lines+markers",
+             name = "Trabalhadores não técnicos",
+             color = I("#bd3928")) |>
+config(displayModeBar = FALSE) |>
+   layout(hovermode = "x",
+          yaxis = list(title = "",
+                       hoverformat = ".0f",
+                       showgrid = FALSE,
+                       showline = TRUE),
+          xaxis = list(title = "",
+                       tickformat = "%Y",
+                       tickmode = "array",
+                       tickvals = c(min(dados$num_vinc$ano):max(dados$num_vinc$ano)),
+                       showgrid = FALSE,
+                       showline = TRUE),
+          legend = list(orientation = "h",
+                        title = list(text = "")),
+          barmode = "group")
+```
+
+### Taxa de variação
+
+```{r, include=TRUE,echo=FALSE,warning=FALSE,results='asis',fig.align = 'center',fig.dim=c(10,6)}
+dados$num_vinc |>
+   mutate(variacao = ((vinculos / lag(vinculos, n = 1)) - 1) * 100) |>
+   filter(ano > 2011) |>
+   pivot_wider(id_cols = -vinculos,
+               names_from = tipo,
+               values_from = variacao) |>
+   plot_ly(x = ~ano) |>
+   #add_trace(y = ~Total,
+   #          type = "bar",
+   #          name = "Total",
+   #          color = I("#d92335")) |>
+   add_trace(y = ~`Trabalhadores técnicos`,
+             type = "bar",
+             name = "Trabalhadores técnicos",
+             color = I("#064471")) |>
+   add_trace(y = ~`Trabalhadores não técnicos`,
+             type = "bar",
+             name = "Trabalhadores não técnicos",
+             color = I("#f87d28")) |>
+   config(displayModeBar = FALSE) %>%
+   layout(hovermode = "x",
+          yaxis = list(title = "",
+                       ticksuffix = "%", 
+                       hoverformat = '.2f',
+                       showgrid = FALSE,
+                       showline = TRUE),
+          xaxis = list(title = "",
+                       tickformat = "%Y",
+                       tickmode = "array",
+                       tickvals = c(min(dados$num_vinc$ano):max(dados$num_vinc$ano)),
+                       showgrid = FALSE,
+                       showline = TRUE),
+          legend = list(orientation = "h",
+                        title = list(text = "")),
+          barmode = "group")
+```
+
+## Taxa de rotatividade
+
+```{r, include=TRUE,echo=FALSE,warning=FALSE,results='asis',fig.align = 'center',fig.dim=c(10,6)}
+dados$rotatividade |>
+   select(-c(filtro, n_trabalhadores:desligados)) |>
+   mutate(rotatividade = rotatividade * 100) |>
+   pivot_wider(names_from = tipo,
+               values_from = rotatividade) |>
+   plot_ly(x = ~anodeclarado) |>
+   add_trace(y = ~`Até fundamental completo`,
+             type = "scatter", 
+             mode = "lines+markers",
+             name = "Até fundamental completo",
+             color = I("#d92335")) |>
+   add_trace(y = ~`Média dos trabalhadores não técnicos`,
+             type = "scatter", 
+             mode = "lines+markers",
+             name = "Média dos trabalhadores não técnicos",
+             color = I("#064471")) |>
+   add_trace(y = ~`Média dos trabalhadores técnicos`,
+             type = "scatter", 
+             mode = "lines+markers",
+             name = "Média dos trabalhadores técnicos",
+             color = I("#bd3928")) |>
+   add_trace(y = ~`Médio completo`,
+             type = "scatter", 
+             mode = "lines+markers",
+             name = "Médio completo",
+             color = I("#f87d28")) |>
+   add_trace(y = ~`Superior completo`,
+             type = "scatter", 
+             mode = "lines+markers",
+             name = "Superior completo",
+             color = I("#0a78c7")) |>
+   add_trace(y = ~`Técnicos de nível médio`,
+             type = "scatter", 
+             mode = "lines+markers",
+             name = "Técnicos de nível médio",
+             color = I("#fb8e80")) |>
+   add_trace(y = ~`Técnicos de nível superior`,
+             type = "scatter", 
+             mode = "lines+markers",
+             name = "Técnicos de nível superior",
+             color = I("#2b597a")) |>
+   config(displayModeBar = FALSE) |>
+   layout(hovermode = "x",
+          yaxis = list(title = "",
+                       ticksuffix = "%",
+                       hoverformat = ".2f",
+                       showgrid = FALSE,
+                       showline = TRUE),
+          xaxis = list(title = "",
+                       tickformat = "%Y",
+                       tickmode = "array",
+                       tickvals = c(min(dados$rotatividade$ano):max(dados$rotatividade$ano)),
+                       showgrid = FALSE,
+                       showline = TRUE),
+          legend = list(orientation = "h",
+                        title = list(text = "")),
+          barmode = "group")
 ```

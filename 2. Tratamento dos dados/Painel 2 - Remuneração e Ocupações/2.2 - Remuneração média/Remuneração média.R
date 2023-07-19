@@ -11,7 +11,7 @@ options(readr.show_col_types = FALSE) # Omitir formato das colunas no console
 
 ## RAIS ----
 
-rais <- readRDS("../1. Extração dos dados/RAIS/Dados/RAIS.RDS") |>
+rais <- readRDS("../1. Extração dos dados/Dados/RAIS.RDS") |>
   filter(tipovinculo == 1,       # Celetista
          referencia != 2011,
          !is.na(cboocupacao2002)) |>
@@ -28,23 +28,23 @@ rais <- readRDS("../1. Extração dos dados/RAIS/Dados/RAIS.RDS") |>
 
 ### Empregos técnicos ----
 
-base_tec_mean <- rais |>
+base_tec <- rais |>
   filter(tec == 1,
          salario_hora > 0,
          horas > 0) |> 
   mutate(tipo = case_when(tec_em == 1  ~ "Técnicos de nível médio",
                           tec_sup == 1 ~ "Técnicos de nível superior")) |>
   group_by(ano, tipo) |> 
-  summarise(salario_hora = mean(salario_hora, na.rm = T), 
-            salario_mes = mean(salario_dez_defl, na.rm = T),
+  summarise(salario_hora = median(salario_hora, na.rm = T), 
+            salario_mes = median(salario_dez_defl, na.rm = T),
             filtro = "Técnico") |>
   rbind(rais |> 
           filter(tec == 1,
                  salario_hora > 0,
                  horas > 0) |> 
           group_by(ano) |> 
-          summarise(salario_hora = mean(salario_hora, na.rm = T), 
-                    salario_mes = mean(salario_dez_defl, na.rm = T),
+          summarise(salario_hora = median(salario_hora, na.rm = T), 
+                    salario_mes = median(salario_dez_defl, na.rm = T),
                     tipo = "Trabalhadores técnicos",
                     filtro = "Técnico"))
 
