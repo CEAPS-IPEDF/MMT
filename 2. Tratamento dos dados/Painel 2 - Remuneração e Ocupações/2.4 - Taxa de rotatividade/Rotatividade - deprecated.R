@@ -253,7 +253,33 @@ rotatividade <- merge(rotatividade_rais_4,
 
 remove(rotatividade_rais_4, rotatividade_caged_antigo, rotatividade_caged_novo)
 
+#rotatividade <- merge(rotatividade_rais_4,
+#                      rbind(rotatividade_caged_novo, 
+#                            rotatividade_caged_antigo), all.x = TRUE) |>
+#  mutate(admitidos = case_when(is.na(admitidos) ~ 0,
+#                               TRUE ~ admitidos),
+#         desligados = case_when(is.na(desligados) ~ 0,
+#                                TRUE ~ desligados),
+#         cbo_tecnica = case_when(cbo2002ocupacao %in% cbotec_em ~ "tec_em",
+#                                 cbo2002ocupacao %in% cbotec_sup ~ "tec_sup",
+#                                 TRUE ~ "nao_tec"),
+#         tipo = case_when(escolaridade == "Geral" & cbo_tecnica %in% c("tec_em", "tec_sup") ~ "Média dos trabalhadores técnicos",
+#                          escolaridade == "Geral" & cbo_tecnica == "nao_tec" ~ "Média dos trabalhadores não técnicos",
+#                          escolaridade %in% c("Analfabeto", "Médio incompleto", "Médio completo", "Superior completo") & cbo_tecnica == "tec_em" ~ "Técnicos de nível médio",
+#                          escolaridade %in% c("Analfabeto", "Médio incompleto", "Médio completo", "Superior completo") & cbo_tecnica == "tec_sup" ~ "Técnicos de nível superior",
+#                          escolaridade %in% c("Analfabeto", "Médio incompleto") & cbo_tecnica == "nao_tec" ~ "Até fundamental completo",
+#                          escolaridade == "Médio completo" & cbo_tecnica == "nao_tec" ~ "Médio completo",
+#                          escolaridade == "Superior completo" & cbo_tecnica == "nao_tec" ~ "Superior completo"),
+#         filtro = case_when(cbo_tecnica %in% c("tec_em", "tec_sup") ~ "Técnico",
+#                            TRUE ~ "Não técnico"),
+#         geral = case_when(escolaridade == "Geral" ~ "Geral",
+#                           TRUE ~ "Subgrupo"))
+
 ## Cálculo da rotatividade ----
+
+#rotatividade <- rotatividade |>
+#  mutate(rotatividade = case_when(admitidos_anterior > desligados_anterior ~ desligados_anterior,
+#                                  TRUE ~ admitidos_anterior) / n_trabalhadores)
 
 rotatividade <- rotatividade |>
   group_by(tipo, filtro, anodeclarado) |>

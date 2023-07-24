@@ -11,7 +11,7 @@ options(readr.show_col_types = FALSE) # Omitir formato das colunas no console
 
 ## RAIS ----
 
-rais <- readRDS("../1. Extração dos dados/Dados/RAIS.RDS") |>
+rais_3 <- rais |>
   filter(tipovinculo == 1,       # Celetista
          #referencia != 2011,
          !is.na(cboocupacao2002)) |>
@@ -23,12 +23,12 @@ rais <- readRDS("../1. Extração dos dados/Dados/RAIS.RDS") |>
 
 ### Empregos técnicos ----
 
-#vinculos_total <- rais |>
+#vinculos_total <- rais_3 |>
 #  filter(ano == 2021) |>
 #  summarise(vinculos = n()) |>
 #  pull(vinculos)
 #
-#vinculos <- rais |>
+#vinculos <- rais_3 |>
 #  filter(ano == 2021) |>
 #  group_by(cboocupacao2002) |>
 #  summarise(vinculos = n(),
@@ -38,9 +38,9 @@ rais <- readRDS("../1. Extração dos dados/Dados/RAIS.RDS") |>
 #  filter(freq_acum <= .99) |>
 #  nrow()
 #
-#vinculos / length(unique(rais[rais$ano == 2021, which(names(rais) == "cbo")])) * 100
+#vinculos / length(unique(rais_3[rais_3$ano == 2021, which(names(rais_3) == "cbo")])) * 100
 
-base_tec <- rais |>
+base_tec <- rais_3 |>
   filter(tec == 1) |>
   group_by(ano) |> 
   summarise(vinculos = n(),
@@ -48,7 +48,7 @@ base_tec <- rais |>
 
 ### Empregos não técnicos ----
 
-base_nao_tec <-  rais |>
+base_nao_tec <-  rais_3 |>
   filter(tec == 0) |> 
   group_by(ano) |> 
   summarise(vinculos = n(),
@@ -103,3 +103,5 @@ base_tipo_emprego <- rbind(base_tec, base_nao_tec) |>
 # Exportar CSV ----
 
 write_excel_csv2(base_tipo_emprego, "Painel 2 - Remuneração e Ocupações/Resultados/2.3 - Número de vínculos.csv")
+
+remove(rais_3)

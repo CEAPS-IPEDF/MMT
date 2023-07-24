@@ -11,8 +11,6 @@ options(readr.show_col_types = FALSE) # Omitir formato das colunas no console
 
 # Importação dos dados ----
 
-rais <- readRDS("../1. Extração dos dados/Dados/RAIS.RDS")
-
 estrutura_cbo <- readRDS("../1. Extração dos dados/Dicionários/Dicionário CBO.RDS") |>
   select(cboocupacao2002, nome_cbo_ocupacao, 
          cbo_familia, nome_cbo_familia)
@@ -66,7 +64,7 @@ cbos_filtro <- c(4110, 5211, 5143, 4132, 5173, 3222, 5134, 5174, 4211, # Famíia
 
 ## Retirar 2011 da base ----
 
-rais <- rais |>
+rais_1 <- rais |>
   left_join(estrutura_cbo |>
               select(cboocupacao2002, cbo_familia)) |>
   filter(cbo_familia %in% cbos_filtro)
@@ -75,7 +73,7 @@ rais <- rais |>
 
 ### Vínculos ----
 
-dados_recente_vinculos <- rais |>
+dados_recente_vinculos <- rais_1 |>
   filter(tipovinculo == 1,                 # Celetista
          referencia == max(referencia)) |> # Filtar pelo ano mais recente
   group_by(cbo_familia) %>%
@@ -84,10 +82,10 @@ dados_recente_vinculos <- rais |>
 
 ### Salários ----
 
-dados_recente_salarios <- rais |>
+dados_recente_salarios <- rais_1 |>
   filter(tipovinculo == 1,              # Celetista
          referencia == max(referencia), # Filtar pelo ano mais recente
-         salario_hora != 0) |>
+         salario_hora > 0) |>
   group_by(cbo_familia) %>%
   summarise(referencia = max(referencia),
             mediana_rendimento_recente = median(salario_dez_defl, na.rm = TRUE), # Salário médio
@@ -102,7 +100,7 @@ remove(dados_recente_salarios, dados_recente_vinculos)
 
 ### Vínculos ----
 
-dados_base_vinculos <- rais |>
+dados_base_vinculos <- rais_1 |>
   filter(tipovinculo == 1,                     # Celetista
          referencia == max(referencia) - 1) |> # Período base - t-1 (2020)
   group_by(cbo_familia) |>
@@ -110,10 +108,10 @@ dados_base_vinculos <- rais |>
 
 ### Salários ----
 
-dados_base_salarios <- rais |>
+dados_base_salarios <- rais_1 |>
   filter(tipovinculo == 1,                  # Celetista
          referencia == max(referencia) - 1, # Período base - t-1 (2020)
-         salario_hora != 0) |>
+         salario_hora > 0) |>
   group_by(cbo_familia) |>
   summarise(mediana_rendimento_base = median(salario_dez_defl, na.rm = TRUE), # Salário médio
             mediana_salario_hora_base = median(salario_hora, na.rm = TRUE))   # Hora de trabalho média
@@ -137,3 +135,5 @@ dados <- dados_base |>
 # Exportar CSV ----
 
 write_excel_csv2(dados, "Painel 2 - Remuneração e Ocupações/Resultados/2.1 - Ranking de CBOs.csv")
+
+remove(rais_1)

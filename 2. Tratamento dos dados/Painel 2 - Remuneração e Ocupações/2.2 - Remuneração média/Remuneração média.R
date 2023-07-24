@@ -11,7 +11,7 @@ options(readr.show_col_types = FALSE) # Omitir formato das colunas no console
 
 ## RAIS ----
 
-rais <- readRDS("../1. Extração dos dados/Dados/RAIS.RDS") |>
+rais_2 <- rais |>
   filter(tipovinculo == 1,       # Celetista
          referencia != 2011,
          !is.na(cboocupacao2002)) |>
@@ -28,7 +28,7 @@ rais <- readRDS("../1. Extração dos dados/Dados/RAIS.RDS") |>
 
 ### Empregos técnicos ----
 
-base_tec <- rais |>
+base_tec <- rais_2 |>
   filter(tec == 1,
          salario_hora > 0,
          horas > 0) |> 
@@ -38,7 +38,7 @@ base_tec <- rais |>
   summarise(salario_hora = median(salario_hora, na.rm = T), 
             salario_mes = median(salario_dez_defl, na.rm = T),
             filtro = "Técnico") |>
-  rbind(rais |> 
+  rbind(rais_2 |> 
           filter(tec == 1,
                  salario_hora > 0,
                  horas > 0) |> 
@@ -50,7 +50,7 @@ base_tec <- rais |>
 
 ### Empregos não técnicos ----
 
-base_nao_tec <- rais |>
+base_nao_tec <- rais_2 |>
   filter(tec == 0,
          salario_hora > 0,
          horas > 0) |>
@@ -62,7 +62,7 @@ base_nao_tec <- rais |>
   summarise(filtro = "Não técnico",
             salario_hora = median(salario_hora, na.rm = T), 
             salario_mes = median(salario_dez_defl, na.rm = T)) |> 
-  rbind(rais |> 
+  rbind(rais_2 |> 
           filter(tec == 0,
                  salario_hora > 0,
                  horas > 0) |> 
@@ -82,3 +82,5 @@ base_tipo_emprego <- rbind(base_tec, base_nao_tec) |>
 # Exportar CSV ----
 
 write_excel_csv2(base_tipo_emprego, "Painel 2 - Remuneração e Ocupações/Resultados/2.2 - Remuneração média.csv")
+
+remove(rais_2)

@@ -22,6 +22,8 @@ foiAtualizado <- function(arquivo) {
 
 # Rodar scripts ----
 
+rais <- readRDS("../1. Extração dos dados/Dados/RAIS.RDS")
+
 ## 2.1 - Ranking de CBOs ----
 
 source("Painel 2 - Remuneração e Ocupações/2.1 - Ranking de CBOs/Ranking CBO.R")
