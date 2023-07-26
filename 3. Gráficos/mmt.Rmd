@@ -13,6 +13,7 @@ output:
 library(tidyverse)
 library(readr)
 library(plotly)
+library(treemapify)
 
 quebra <- function(coluna, numPalavras) {
   colunaNova <- character(length(coluna))  # Vetor vazio para armazenar os valores da coluna modificada
@@ -40,17 +41,21 @@ options(readr.show_col_types = FALSE) # Omitir formato das colunas no console
 
 # Importação dos dados ----
 
-dados <- lapply(paste0("../2. Tratamento dos dados/Painel 2 - Remuneração e Ocupações/Resultados/", dir("../2. Tratamento dos dados/Painel 2 - Remuneração e Ocupações/Resultados")), read.csv2)
-names(dados) <- c("ranking_CBO", "remun_media", "num_vinc", "rotatividade")
+dados_painel2 <- lapply(paste0("../2. Tratamento dos dados/Painel 2 - Remuneração e Ocupações/Resultados/", dir("../2. Tratamento dos dados/Painel 2 - Remuneração e Ocupações/Resultados")), read.csv2)
+names(dados_painel2) <- c("ranking_CBO", "remun_media", "num_vinc", "rotatividade")
 
+dados_painel3 <- lapply(paste0("../2. Tratamento dos dados/Painel 3 - Ocupações Técnicas/Resultados/", dir("../2. Tratamento dos dados/Painel 3 - Ocupações Técnicas/Resultados")), read.csv2)
+names(dados_painel3) <- c("ocup_cbo", "ocup_emp", "ocup_eixo", "vinc")
 ```
+
+# Painel 2 - remunerações e ocupações
 
 ## Ranking de CBOs
 
 ### Ganho de vínculos
 
 ```{r, include=TRUE,echo=FALSE,warning=FALSE,results='asis',fig.align = 'center',fig.dim=c(10,6)}
-dados$ranking_CBO |>
+dados_painel2$ranking_CBO |>
    mutate(nome_cbo_familia = quebra(nome_cbo_familia, 4)) |>
    arrange(desc(variacao_vinculos)) |>
    slice(1:10) |>
@@ -87,7 +92,7 @@ dados$ranking_CBO |>
 ### Perda de vínculos
 
 ```{r, include=TRUE,echo=FALSE,warning=FALSE,results='asis',fig.align = 'center',fig.dim=c(10,6)}
-dados$ranking_CBO |>
+dados_painel2$ranking_CBO |>
    mutate(nome_cbo_familia = quebra(nome_cbo_familia, 4)) |>
    arrange(variacao_vinculos) |>
    slice(1:10) |>
@@ -124,7 +129,7 @@ dados$ranking_CBO |>
 ### Ganho salarial
 
 ```{r, include=TRUE,echo=FALSE,warning=FALSE,results='asis',fig.align = 'center',fig.dim=c(10,6)}
-dados$ranking_CBO |>
+dados_painel2$ranking_CBO |>
    mutate(nome_cbo_familia = quebra(nome_cbo_familia, 4)) |>
    arrange(desc(variacao_rendimento)) |>
    slice(1:10) |>
@@ -161,7 +166,7 @@ dados$ranking_CBO |>
 ### Perda salarial
 
 ```{r, include=TRUE,echo=FALSE,warning=FALSE,results='asis',fig.align = 'center',fig.dim=c(10,6)}
-dados$ranking_CBO |>
+dados_painel2$ranking_CBO |>
    mutate(nome_cbo_familia = quebra(nome_cbo_familia, 4)) |>
    arrange(variacao_rendimento) |>
    slice(1:10) |>
@@ -198,7 +203,7 @@ dados$ranking_CBO |>
 ## Remuneração mediana
 
 ```{r, include=TRUE,echo=FALSE,warning=FALSE,results='asis',fig.align = 'center',fig.dim=c(10,6)}
-dados$remun_media |>
+dados_painel2$remun_media |>
    select(-c(salario_mes, filtro, geral)) |>
    pivot_wider(names_from = tipo,
                values_from = salario_hora) |>
@@ -245,7 +250,7 @@ dados$remun_media |>
           xaxis = list(title = "",
                        tickformat = "%Y",
                        tickmode = "array",
-                       tickvals = c(min(dados$remun_media$ano):max(dados$remun_media$ano)),
+                       tickvals = c(min(dados_painel2$remun_media$ano):max(dados_painel2$remun_media$ano)),
                        showgrid = FALSE,
                        showline = TRUE),
           legend = list(orientation = "h",
@@ -258,7 +263,7 @@ dados$remun_media |>
 ### Número absoluto
 
 ```{r, include=TRUE,echo=FALSE,warning=FALSE,results='asis',fig.align = 'center',fig.dim=c(10,6)}
-dados$num_vinc |>
+dados_painel2$num_vinc |>
    pivot_wider(names_from = tipo,
                values_from = vinculos) |>
    plot_ly(x = ~ano) |>
@@ -286,7 +291,7 @@ config(displayModeBar = FALSE) |>
           xaxis = list(title = "",
                        tickformat = "%Y",
                        tickmode = "array",
-                       tickvals = c(min(dados$num_vinc$ano):max(dados$num_vinc$ano)),
+                       tickvals = c(min(dados_painel2$num_vinc$ano):max(dados_painel2$num_vinc$ano)),
                        showgrid = FALSE,
                        showline = TRUE),
           legend = list(orientation = "h",
@@ -297,7 +302,7 @@ config(displayModeBar = FALSE) |>
 ### Taxa de variação
 
 ```{r, include=TRUE,echo=FALSE,warning=FALSE,results='asis',fig.align = 'center',fig.dim=c(10,6)}
-dados$num_vinc |>
+dados_painel2$num_vinc |>
    mutate(variacao = ((vinculos / lag(vinculos, n = 1)) - 1) * 100) |>
    filter(ano > 2011) |>
    pivot_wider(id_cols = -vinculos,
@@ -326,7 +331,7 @@ dados$num_vinc |>
           xaxis = list(title = "",
                        tickformat = "%Y",
                        tickmode = "array",
-                       tickvals = c(min(dados$num_vinc$ano):max(dados$num_vinc$ano)),
+                       tickvals = c(min(dados_painel2$num_vinc$ano):max(dados_painel2$num_vinc$ano)),
                        showgrid = FALSE,
                        showline = TRUE),
           legend = list(orientation = "h",
@@ -337,7 +342,7 @@ dados$num_vinc |>
 ## Taxa de rotatividade
 
 ```{r, include=TRUE,echo=FALSE,warning=FALSE,results='asis',fig.align = 'center',fig.dim=c(10,6)}
-dados$rotatividade |>
+dados_painel2$rotatividade |>
    select(-c(filtro, n_trabalhadores:desligados)) |>
    mutate(rotatividade = rotatividade * 100) |>
    pivot_wider(names_from = tipo,
@@ -388,10 +393,113 @@ dados$rotatividade |>
           xaxis = list(title = "",
                        tickformat = "%Y",
                        tickmode = "array",
-                       tickvals = c(min(dados$rotatividade$ano):max(dados$rotatividade$ano)),
+                       tickvals = c(min(dados_painel2$rotatividade$ano):max(dados_painel2$rotatividade$ano)),
                        showgrid = FALSE,
                        showline = TRUE),
           legend = list(orientation = "h",
                         title = list(text = "")),
           barmode = "group")
+```
+
+# Painel 3 - ocupações técnicas
+
+## Ocupações para empresas
+
+```{r, include=TRUE,echo=FALSE,warning=FALSE,results='asis',fig.align = 'center',fig.dim=c(10,6)}
+dados_painel3$ocup_cbo |>
+   filter(nome_cbo_ocupacao == sample(unique(dados_painel3$ocup_cbo$nome_cbo_ocupacao), 1)) |> 
+   mutate(label= paste0(nome_cnae_classe,": ",format(vinculos,big.mark = ".",decimal.mark = ","))) |> 
+   ggplot(aes(area = vinculos,
+              fill = setor_ibge,
+              subgroup = setor_ibge,
+              subgroup2 = cnae_divisao,
+              subgroup3 = cnae_grupo,
+              label = label)) +
+   geom_treemap() + theme_void()+
+   geom_treemap_text(colour = "white" ,size = 13, reflow = T) +
+   geom_treemap_subgroup_border(colour = "white", size = 3) +
+   geom_treemap_subgroup2_border(colour = "white", size = 1) +
+   geom_treemap_subgroup3_border(colour = "white", size = 1) +
+   theme(legend.position = "bottom") +
+   scale_fill_manual(values = c("#0a78c7","#2b597a","#fb8e80","#f87d28","#bd3928","#d92335")) +
+   labs(fill = "Grande Setor IBGE",title = paste("Gráfico para CBO:", sample(unique(dados_painel3$ocup_cbo$nome_cbo_ocupacao), 1)))
+```
+
+## Empresas para ocupações
+
+```{r, include=TRUE,echo=FALSE,warning=FALSE,results='asis',fig.align = 'center',fig.dim=c(10,6)}
+dados_painel3$ocup_emp |>
+  filter(nome_cnae_subclasse == sample(unique(dados_painel3$ocup_emp$nome_cnae_subclasse), 1)) |> 
+  mutate(label= paste0(nome_cbo_familia, ": ", format(vinculos,big.mark = ".", decimal.mark = ","))) |> 
+  ggplot(aes(area = vinculos,fill = nome_cbo_grandegrupo,
+             subgroup = nome_cbo_grandegrupo,
+             subgroup2 = cbo_subgrupo_principal,
+             subgroup3 = cbo_subgrupo, label = label)) +
+  treemapify::geom_treemap() + theme_void()+
+  treemapify::geom_treemap_text(colour = "white" ,size = 13, reflow = T) +
+  treemapify::geom_treemap_subgroup_border(colour = "white", size = 2) +
+  treemapify::geom_treemap_subgroup2_border(colour = "white", size = 1) +
+  treemapify::geom_treemap_subgroup3_border(colour = "white", size = .5) +
+  scale_fill_manual(values = c("#0a78c7","#2b597a","#fb8e80","#00980c",
+                               "#bd3928","#d92335","#f87d28","#064471",
+                               "#72879d","#e46874","#54a4dc","#e2ccc4","#808080"))+
+  labs(fill = "Grande Grupo CBO",title = paste("Gráfico para CBO:", sample(unique(dados_painel3$ocup_emp$nome_cnae_subclasse), 1)))
+```
+
+## Ocupações e eixos tecnológicos
+
+```{r, include=TRUE,echo=FALSE,warning=FALSE,results='asis',fig.align = 'center',fig.dim=c(10,6)}
+dados_painel3$ocup_eixo |>
+   mutate(label= paste0(nome_cbo_familia, ": ", format(vinculos,big.mark = ".", decimal.mark = ","))) |>
+   ggplot(aes(area = vinculos, 
+              fill = eixo, 
+              label = label, 
+              subgroup = eixo,
+              subgroup2 = nome_cbo_subgrupo_principal,
+              subgroup3 = nome_cbo_subgrupo)) +
+   geom_treemap() + 
+   geom_treemap_text(colour = "white", place = "bottomleft",
+                     size = 10, reflow = T) +
+   geom_treemap_subgroup_border(colour = "white", size = 2.1) +
+   geom_treemap_subgroup2_border(colour = "white", size = 1) +
+   geom_treemap_subgroup3_border(colour = "white", size = .5) +
+   scale_fill_manual(values = c("#0a78c7","#2b597a","#fb8e80","#00980c",
+                                "#bd3928","#d92335","#f87d28","#064471",
+                                "#72879d","#e46874","#54a4dc","#e2ccc4","#808080"))+
+   theme(legend.position = "bottom") +
+   labs(fill = "",
+        title = "Família de ocupações técnicas do DF por eixo tecnológico")
+```
+
+## Remuneração e vínculos
+
+```{r, include=TRUE,echo=FALSE,warning=FALSE,results='asis',fig.align = 'center',fig.dim=c(10,6)}
+dados_painel3$vinc |>
+   select(cbo_familia,nome_cbo_familia,
+          variacao_rendimento,
+          variacao_vinculos) |>
+   mutate(cat = case_when(variacao_vinculos > 0 & variacao_rendimento > 0 ~ "A",
+                          variacao_vinculos < 0 & variacao_rendimento < 0 ~ "B",
+                          TRUE ~ "C"),
+          variacao_vinculos = round(variacao_vinculos,3),
+          variacao_rendimento = round(variacao_rendimento,3)) |> 
+   filter(abs(variacao_vinculos) < 1,
+          abs(variacao_rendimento) < 1) |>
+   plot_ly(x = ~variacao_rendimento * 100,
+          y = ~variacao_vinculos * 100,
+          color = ~cat,
+          colors = c("#0a78c7","#d92335","#fb8e80"),
+          text = ~nome_cbo_familia, 
+          type = 'scatter', 
+          mode = 'markers',
+          marker = list(size = 25,opacity = 0.4)) |> 
+   config(displayModeBar = FALSE) |>
+   layout(yaxis = list(title = "Variação Vínculos",
+                       ticksuffix = "%",
+                       range=c(-50, 50)),
+          xaxis = list(title = "Variação Rendimentos",
+                       ticksuffix = "%",
+                       range=c(-50, 50)),
+          legend = list(orientation = "h",
+                        title = list(text = "")))
 ```

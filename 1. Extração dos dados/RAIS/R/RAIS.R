@@ -14,16 +14,17 @@ options(readr.show_col_types = FALSE) # Omitir formato das colunas no console
 
 ## CBOs técnicas ----
 
-cbotecnica_nivel_medio <- as.character(read_csv("Dados/cbotecnica_nivelmedio.csv")[[1]])       # Lista de CBOs de nível médio
-cbotecnica_nivel_superior <- as.character(read_csv("Dados/cbotecnica_nivelsuperior.csv")[[1]]) # Lista de CBOs de nível superior
-cbos_protegidas <- as.character(read_csv("Dados/ocupacoes_protegidas.csv")[[1]])               # Lista de CBOs protegidas (militares)
+cbotecnica_nivel_medio <- as.character(read_csv("../Dados/CBO Técnica - Nível médio.csv")[[1]])       # Lista de CBOs de nível médio
+cbotecnica_nivel_superior <- as.character(read_csv("../Dados/CBO Técnica - Nível superior.csv")[[1]]) # Lista de CBOs de nível superior
+cbos_protegidas <- as.character(read_csv("../Dados/CBOs protegidas.csv")[[1]])               # Lista de CBOs protegidas (militares)
 
 ## Eixos Técnológicos ----
 
 ### Leitura ----
 
-eixos <- lapply(paste0("Dados/Eixos - nível médio/", dir("Dados/Eixos - nível médio")[str_detect(dir("Dados/Eixos - nível médio"), "Eixo[0-9]{1,2}\\.")]), function(x) {read_delim(x, delim = ";", locale = locale(encoding = "UTF-8"))})
-eixos_superior <- lapply(paste0("Dados/Eixos - nível superior/", dir("Dados/Eixos - nível superior")[str_detect(dir("Dados/Eixos - nível superior"), "Eixo[0-9]{1,2}\\_")]), function(x) {read_delim(x, delim = ";", locale = locale(encoding = "ISO-8859-1"))})
+eixos <- lapply(paste0("../Dados/Eixos - nível médio/", dir("../Dados/Eixos - nível médio")[str_detect(dir("../Dados/Eixos - nível médio"), "Eixo[0-9]{1,2}\\.")]), function(x) {read_delim(x, delim = ";", locale = locale(encoding = "UTF-8"))})
+
+eixos_superior <- lapply(paste0("../Dados/Eixos - nível superior/", dir("../Dados/Eixos - nível superior")[str_detect(dir("../Dados/Eixos - nível superior"), "Eixo[0-9]{1,2}\\_")]), function(x) {read_delim(x, delim = ";", locale = locale(encoding = "ISO-8859-1"))})
 
 ### Padronização dos nomes ----
 
@@ -118,7 +119,7 @@ dados <- dados |>
 ### CBOs ----
 
 dados <- dados |>
-  mutate(cbo_tec_em_complet = case_when(cboocupacao2002 %in% cbotecnica_nivel_medio & escolaridade %in% 7:11 & tipovinculo != 55 ~ 1, TRUE ~ 0),
+  mutate(cbo_tec_em_complet = case_when(cboocupacao2002 %in% cbotecnica_nivel_medio & escolaridade %in% 7:8 & tipovinculo != 55 ~ 1, TRUE ~ 0), # Acredito que seja 7:8
          cbo_tec_sup = case_when(cboocupacao2002 %in% cbotecnica_nivel_superior & escolaridade %in% 9:11 & tipovinculo != 55 ~ 1, TRUE ~ 0),
          cbo_tec = case_when(cbo_tec_em_complet == 1 | cbo_tec_sup == 1 ~ 1, TRUE ~ 0))
 

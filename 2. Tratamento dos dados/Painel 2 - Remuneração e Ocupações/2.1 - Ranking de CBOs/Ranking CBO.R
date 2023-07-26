@@ -15,7 +15,7 @@ estrutura_cbo <- readRDS("../1. Extração dos dados/Dicionários/Dicionário CB
   select(cboocupacao2002, nome_cbo_ocupacao, 
          cbo_familia, nome_cbo_familia)
 
-cbos_filtro <- c(4110, 5211, 5143, 4132, 5173, 3222, 5134, 5174, 4211, # Famíias de CBOs que concentram 95% do tota de víncuos
+cbos_filtro <- c(4110, 5211, 5143, 4132, 5173, 3222, 5134, 5174, 4211, # Famíias de CBOs que concentram 95% do tota de vínculos
                  4221, 5142, 4141, 2124, 2235, 7170, 1423, 5132, 7823, 
                  2251, 2521, 5135, 1421, 4101, 7832, 7825, 5141, 4223, 
                  7824, 7152, 3541, 5112, 4131, 5171, 7842, 2523, 3132, 
