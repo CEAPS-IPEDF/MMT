@@ -88,8 +88,8 @@ dados_recente_salarios <- rais_1 |>
          salario_hora > 0) |>
   group_by(cbo_familia) %>%
   summarise(referencia = max(referencia),
-            mediana_rendimento_recente = median(salario_dez_defl, na.rm = TRUE), # Salário médio
-            mediana_salario_hora_recente = median(salario_hora, na.rm = TRUE))   # Hora de trabalho média
+            mediana_rendimento_recente = median(salario_dez_defl, na.rm = TRUE), # Salário mediano
+            mediana_salario_hora_recente = median(salario_hora, na.rm = TRUE))   # Hora de trabalho mediana
 
 dados_recente <- dados_recente_salarios |>
   left_join(dados_recente_vinculos)
@@ -113,8 +113,8 @@ dados_base_salarios <- rais_1 |>
          referencia == max(referencia) - 1, # Período base - t-1 (2020)
          salario_hora > 0) |>
   group_by(cbo_familia) |>
-  summarise(mediana_rendimento_base = median(salario_dez_defl, na.rm = TRUE), # Salário médio
-            mediana_salario_hora_base = median(salario_hora, na.rm = TRUE))   # Hora de trabalho média
+  summarise(mediana_rendimento_base = median(salario_dez_defl, na.rm = TRUE), # Salário mediano
+            mediana_salario_hora_base = median(salario_hora, na.rm = TRUE))   # Hora de trabalho mediana
 
 dados_base <- dados_base_salarios |>
   left_join(dados_base_vinculos)

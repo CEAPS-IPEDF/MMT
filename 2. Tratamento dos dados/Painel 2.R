@@ -7,6 +7,8 @@ library(imputeTS)  # SUbstituir NA's
 library(readxl)    # Leitura de Arquivos em .xlsx
 library(odbc)      # Conectar ao banco de dados
 
+`%notin%` <- Negate(`%in%`)
+
 foiAtualizado <- function(arquivo) {
   
   data <- Sys.Date()

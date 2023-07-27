@@ -5,7 +5,6 @@
 library(odbc)      # Conexão ao Banco de Dados
 library(tidyverse) # Manipulação dos dados
 library(sidrar)    # Extração de dados do INPC
-library(readxl)    # Leitura de Arquivos em .xlsx
 
 `%notin%` <- Negate(`%in%`)           # Função de filtro
 options(readr.show_col_types = FALSE) # Omitir formato das colunas no console
@@ -179,4 +178,5 @@ dados <- dados |>
   mutate(cnae20subclasse = as.character(cnae20subclasse))
 
 # Exportar RDS ----
+
 saveRDS(dados, file = "Dados/RAIS.RDS")
