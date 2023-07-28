@@ -346,13 +346,13 @@ foiAtualizado <- function(arquivo) {
 }
 ```
 
-O pacote `odbc` é necessário para realizar a conexão ao banco de dados `DB_CODEPLAN` e realizar a importação dos dados do CAGED para o ambiente `R`. O pacote `tidyverse` é responsável pela manipulação dos dados. O pacote `readxl` é responsável por ler arquivos `.xls` e `.xlsx`. A função `%notin%` funcionará como filtro para os dados. A função `foiAtualizado` retorna valores booleanos do tipo `TRUE` e `FALSE` e é utilizada para verificar se todos os painéis foram atualizados sem erros.
+O pacote `odbc` é necessário para realizar a conexão ao banco de dados `DB_CODEPLAN` e realizar a importação dos dados do CAGED para o ambiente `R`. O pacote `tidyverse` é responsável pela manipulação dos dados. O pacote `readxl` é responsável por ler arquivos `.xls` e `.xlsx`. O pacote `imputeTS` é utilizado para retirar `NAs` (números não disponíveis) da base. A função `%notin%` funcionará como filtro para os dados. A função `foiAtualizado` retorna valores booleanos do tipo `TRUE` e `FALSE` e é utilizada para verificar se todos os painéis foram atualizados sem erros.
 
-O objeto `RAIS.RDS` é importado nesse script e será fonte de dados de todos os scripts contidos na pasta **/Painel 2 - Remuneração e Ocupações**. 
+O objeto `RAIS.RDS` é importado nesse script e será fonte de dados de todos os scripts contidos na pasta **2. Tratamento dos dados/Painel 2 - Remuneração e Ocupações**. 
 
 ##### 2.1 - Ranking de CBOs
 
-O ranking de CBOs é o script responsável por gerar os dados do painel 2.1. Aqui são gerados os rankings das famílias de CBOs com a maior e menor variação de vínculos e de salários, além das tabelas com dados de vínculos e salários.
+O ranking de CBOs é o script responsável por gerar os dados do painel 2.1. Aqui são gerados os rankings das famílias de CBOs com a maior e menor variação de vínculos e de salários, além das tabelas com dados de vínculos e mediana de salários.
 
 O ranking é calculado utilizando como base dados do último ano disponível (período $t$) em comparação com o ano imediatamente anterior (período $t_{-1}$).
 
