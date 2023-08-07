@@ -214,26 +214,65 @@ dados$remun_media |>
 
 ### Número absoluto ----
 
+#### Por escolaridade ----
+
 dados$num_vinc |>
    pivot_wider(names_from = tipo,
                values_from = vinculos) |>
    plot_ly(x = ~ano) |>
-   add_trace(y = ~Total,
+   add_trace(y = ~Analfabeto,
              type = "scatter", 
              mode = "lines+markers",
-             name = "Total",
+             name = "Analfabeto",
              color = I("#d92335")) |>
-   add_trace(y = ~`Trabalhadores técnicos`,
+   add_trace(y = ~`Até fundamental completo`,
              type = "scatter", 
              mode = "lines+markers",
-             name = "Trabalhadores técnicos",
+             name = "Até fundamental completo",
              color = I("#064471")) |>
-   add_trace(y = ~`Trabalhadores não técnicos`,
+   add_trace(y = ~`Médio completo`,
              type = "scatter", 
              mode = "lines+markers",
-             name = "Trabalhadores não técnicos",
+             name = "Médio completo",
              color = I("#bd3928")) |>
-config(displayModeBar = FALSE) |>
+   add_trace(y = ~`Superior completo`,
+             type = "scatter", 
+             mode = "lines+markers",
+             name = "Superior completo",
+             color = I("#bdd928")) |>
+   config(displayModeBar = FALSE) |>
+   layout(hovermode = "x",
+          yaxis = list(title = "",
+                       hoverformat = ".0f",
+                       showgrid = FALSE,
+                       showline = TRUE),
+          xaxis = list(title = "",
+                       tickformat = "%Y",
+                       tickmode = "array",
+                       tickvals = c(min(dados$num_vinc$ano):max(dados$num_vinc$ano)),
+                       showgrid = FALSE,
+                       showline = TRUE),
+          legend = list(orientation = "h",
+                        title = list(text = "")),
+          barmode = "group")
+
+#### Por atividade ----
+
+dados$num_vinc |>
+   pivot_wider(names_from = tipo,
+               values_from = vinculos) |>
+   plot_ly(x = ~ano) |>
+   add_trace(y = ~`Técnico de nível médio`,
+             type = "scatter", 
+             mode = "lines+markers",
+             name = "Técnicos de nível médio",
+             color = I("#065411")) |>
+   add_trace(y = ~`Técnico de nível superior`,
+             type = "scatter", 
+             mode = "lines+markers",
+             name = "Técnicos de nível superior",
+             color = I("#cabd28")) |>
+   config(displayModeBar = FALSE) |>
    layout(hovermode = "x",
           yaxis = list(title = "",
                        hoverformat = ".0f",
@@ -346,3 +385,45 @@ dados$rotatividade |>
           legend = list(orientation = "h",
                         title = list(text = "")),
           barmode = "group")
+
+## Painel 3
+
+### Painel 3.1 - Ocupações para empresas
+
+cbo <- sample(unique(dados_painel3$ocup_cbo$nome_cbo_ocupacao), 1)
+
+dados_painel3$ocup_cbo |>
+   group_by(nome_cbo_ocupacao, nome_cnae_classe) |>
+   summarise(vinculos = sum(vinculos)) |>
+   ungroup() |>
+   arrange(desc(vinculos), nome_cbo_ocupacao) |>
+   filter(nome_cbo_ocupacao == "Bombeiro civil") |>
+   slice(1:15) |>
+   plot_ly(x = ~vinculos) |>
+   add_trace(y = ~nome_cnae_classe,
+             type = "bar",
+             color = I("#176180")) |>
+   add_annotations(x = ~vinculos, 
+                   y = ~nome_cnae_classe,
+                   xanchor = "left",
+                   yanchor = "rigth",
+                   text = ~round(vinculos, 1),
+                   textposition = "middle",
+                   font = list(color = "white"),
+                   showarrow = FALSE) |>
+   config(displayModeBar = FALSE) |>
+   layout(title = paste("Gráfico para CBO:", "Bombeiro civil"),
+          hovermode = "y",
+          yaxis = list(title = "",
+                       showgrid = FALSE,
+                       showline = TRUE,
+                       categoryorder = "total ascending"),
+          xaxis = list(title = "",
+                       hoverformat = ".1f",
+                       showgrid = FALSE,
+                       showline = TRUE),
+          legend = list(orientation = "h",
+                        title = list(text = "")),
+          barmode = "relative",
+          uniformtext = list(minsize = 8,
+                             mode = "hide"))

@@ -17,6 +17,8 @@ rais_3 <- rais |>
          !is.na(cboocupacao2002)) |>
   select(ano = referencia,
          tec = cbo_tec,
+         cbo_tec_em_complet,
+         cbo_tec_sup,
          escolaridade)
 
 ## Base por tipo de emprego ----
@@ -42,9 +44,25 @@ rais_3 <- rais |>
 
 base_tec <- rais_3 |>
   filter(tec == 1) |>
-  group_by(ano) |> 
-  summarise(vinculos = n(),
-            tipo = "Trabalhadores técnicos")
+  mutate(tipo = case_when(cbo_tec_em_complet == 1 ~ "Técnico de nível médio",
+                          cbo_tec_sup == 1 ~ "Técnico de nível superior")) |>
+  group_by(ano, tipo) |> 
+  summarise(vinculos = n()) |>
+  rbind(rais_3 |>
+          filter(tec == 1) |>
+          group_by(ano) |> 
+          summarise(vinculos = n(),
+                    tipo = "Trabalhadores técnicos"))
+
+### Por escolaridade ----
+
+base_escolaridade <- rais_3 |>
+  mutate(tipo = case_when(escolaridade == 1 ~ "Analfabeto",
+                                  escolaridade == 2 ~ "Até fundamental completo",
+                                  escolaridade == 3 ~ "Médio completo",
+                                  escolaridade == 4 ~ "Superior completo")) |>
+  group_by(ano, tipo) |>
+  summarise(vinculos = n())
 
 ### Empregos não técnicos ----
 
@@ -60,7 +78,8 @@ base_tipo_emprego <- rbind(base_tec, base_nao_tec) |>
   group_by(ano) |>
   summarise(vinculos = sum(vinculos),
             tipo = "Total") |>
-  rbind(base_tec, base_nao_tec)
+  rbind(base_tec, base_nao_tec, base_escolaridade) |>
+  arrange(tipo, ano)
 
 # Gráficos ----
 

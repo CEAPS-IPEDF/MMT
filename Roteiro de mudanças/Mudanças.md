@@ -73,15 +73,16 @@ Ressalte-se que os dados de emprego se referem apenas mercado formal de trabalho
 Além das pesquisas interativas, o usuário está livre para fazer o download dos dados e realizar suas próprias análises ao clicar nos ícones de nuvem ao lado das visualizações.
 
 ### Painel 2.1 - Ranking de CBOs
-![Painel 2.1 - Tipo de vínculo](Imagens\Painel 2.1 - Tipo de vínculo.png)
+![Painel 2.1 - Tipo de vínculo.png](https://github.com/CEAPS-IPEDF/MMT/blob/main/Roteiro%20de%20mudan%C3%A7as/Imagens/Painel%202.1%20-%20Tipo%20de%20v%C3%ADnculo.png?raw=true)
+
 - Retirar o filtro do tipo de vínculo.
-![Painel 2.1 - Ranking de ganho salarial](Imagens/Painel 2.1 - Ranking de ganho salarial.png)
+![Painel 2.1 - Ranking de ganho salarial.png](https://github.com/CEAPS-IPEDF/MMT/blob/main/Roteiro%20de%20mudan%C3%A7as/Imagens/Painel%202.1%20-%20Ranking%20de%20ganho%20salarial.png?raw=true)
 - Gráficos de ganho e perda salarial
   - trocar período para 2012 - 2021;
   - **fonte**: Dados corrigidos pelo INPC-DF com preços de 2022 como base.
   - **obs.**: As variações são calculadas por meio da comparação entre a mediana de remuneração atual com a mediana do ano anterior.
   - **obs. 2**: Apenas as CBOs que concentram 95% do total dos vínculos são apresentadas.
-  ![Painel 2.1 - Ranking de ganho de vínculos](Imagens\Painel 2.1 - Ranking de ganho de vínculos.png)
+  ![Painel 2.1 - Ranking de ganho de vínculos.png](https://github.com/CEAPS-IPEDF/MMT/blob/main/Roteiro%20de%20mudan%C3%A7as/Imagens/Painel%202.1%20-%20Ranking%20de%20ganho%20de%20v%C3%ADnculos.png?raw=true)
 - Gráfico de ganho e perda de vínculos
   - **título**: Ranking - ganho de vínculos;
   - trocar período para 2012 - 2021;
@@ -91,7 +92,7 @@ Além das pesquisas interativas, o usuário está livre para fazer o download do
 
 ### Painel 2.2 - Remuneração média
 - Trocar título do subpainel para *Remuneração mediana*.
-![Painel 2.2 - Remuneração mediana](Imagens\Painel 2.2 - Remuneração mediana.png)
+![Painel 2.2 - Remuneração mediana.png](https://github.com/CEAPS-IPEDF/MMT/blob/main/Roteiro%20de%20mudan%C3%A7as/Imagens/Painel%202.2%20-%20Remunera%C3%A7%C3%A3o%20mediana.png?raw=true)
 - Gráfico de remuneração mediana por hora trabalhada
   - **título**: Remuneração mediana por hora trabalhada;
   - **fonte**: Relação Anual de Informações Sociais - RAIS/Ministério do Trabalho e Emprego. Dados corrigidos pelo INPC-DF com preços de 2022 como base;
@@ -99,15 +100,15 @@ Além das pesquisas interativas, o usuário está livre para fazer o download do
 
 ### Painel 2.3 - Proporção vínculos
 - Trocar título para *Número de vínculos*.
-![Painel 2.3 - Número de vínculos](Imagens\Painel 2.3 - Número de vínculos.png)
+![Painel 2.3 - Número de vínculos.png](https://github.com/CEAPS-IPEDF/MMT/blob/main/Roteiro%20de%20mudan%C3%A7as/Imagens/Painel%202.3%20-%20N%C3%BAmero%20de%20v%C3%ADnculos.png?raw=true)
 - Retirar gráfico da *Evolução da proporção do número de vínculos no DF*.
 - Adicionar gráfico de *número absoluto de vínculos* ou *taxa de variação anual do número de vínculos*.
-  ![Painel 2.3 - Número absoluto de vínculos](Imagens\Painel 2.3 - Número absoluto de vínculos.png)
-  ![Painel 2.3 - Variação do número de vínculos](Imagens\Painel 2.3 - Variação do número de vínculos.png)
+  ![Painel 2.3 - Número absoluto de vínculos.png](https://github.com/CEAPS-IPEDF/MMT/blob/main/Roteiro%20de%20mudan%C3%A7as/Imagens/Painel%202.3%20-%20N%C3%BAmero%20absoluto%20de%20v%C3%ADnculos.png?raw=true)
+  ![Painel 2.3 - Variação do número de vínculos.png](https://github.com/CEAPS-IPEDF/MMT/blob/main/Roteiro%20de%20mudan%C3%A7as/Imagens/Painel%202.3%20-%20Varia%C3%A7%C3%A3o%20do%20n%C3%BAmero%20de%20v%C3%ADnculos.png?raw=true)
   - **fonte**: Relação Anual de Informações Sociais - RAIS/Ministério do Trabalho e Emprego. Dados corrigidos pelo INPC-DF com preços de 2022 como base;
 
 ### Painel 2.4 - Taxa de rotatividade
-![Painel 2.4 - Taxa de rotatividade](Imagens/Painel 2.4 - Taxa de rotatividade.png)
+![Painel 2.4 - Taxa de rotatividade.png](https://github.com/CEAPS-IPEDF/MMT/blob/main/Roteiro%20de%20mudan%C3%A7as/Imagens/Painel%202.4%20-%20Taxa%20de%20rotatividade.png?raw=true)
 - Gráfico da taxa de rotatividade no DF
   - **título**: Taxa de rotatividade no DF;
   - trocar período para 2012 - 2021;

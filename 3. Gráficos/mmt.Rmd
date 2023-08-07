@@ -200,7 +200,7 @@ dados_painel2$ranking_CBO |>
                              mode = "hide"))
 ```
 
-## Remuneração mediana
+## Remuneração mediana - por escolaridade
 
 ```{r, include=TRUE,echo=FALSE,warning=FALSE,results='asis',fig.align = 'center',fig.dim=c(10,6)}
 dados_painel2$remun_media |>
@@ -224,10 +224,32 @@ dados_painel2$remun_media |>
              type = "bar",
              name = "Superior completo",
              color = I("#f87d28")) |>
-   add_trace(y = ~`Trabalhadores não técnicos`,
-             type = "bar",
-             name = "Trabalhadores não técnicos",
-             color = I("#0a78c7")) |>
+   config(displayModeBar = FALSE) %>%
+   layout(hovermode = "x",
+          yaxis = list(title = "",
+                       tickprefix = "R$", 
+                       hoverformat = '.1f',
+                       showgrid = FALSE,
+                       showline = TRUE),
+          xaxis = list(title = "",
+                       tickformat = "%Y",
+                       tickmode = "array",
+                       tickvals = c(min(dados_painel2$remun_media$ano):max(dados_painel2$remun_media$ano)),
+                       showgrid = FALSE,
+                       showline = TRUE),
+          legend = list(orientation = "h",
+                        title = list(text = "")),
+          barmode = "group")
+```
+
+## Remuneração mediana - por vínculos
+
+```{r, include=TRUE,echo=FALSE,warning=FALSE,results='asis',fig.align = 'center',fig.dim=c(10,6)}
+dados_painel2$remun_media |>
+   select(-c(salario_mes, filtro, geral)) |>
+   pivot_wider(names_from = tipo,
+               values_from = salario_hora) |>
+   plot_ly(x = ~ano) |>
    add_trace(y = ~`Trabalhadores técnicos`,
              type = "bar",
              name = "Trabalhadores técnicos",
@@ -260,29 +282,34 @@ dados_painel2$remun_media |>
 
 ## Número de vínculos
 
-### Número absoluto
+### Número absoluto por escolaridade
 
 ```{r, include=TRUE,echo=FALSE,warning=FALSE,results='asis',fig.align = 'center',fig.dim=c(10,6)}
 dados_painel2$num_vinc |>
    pivot_wider(names_from = tipo,
                values_from = vinculos) |>
    plot_ly(x = ~ano) |>
-   add_trace(y = ~Total,
+   add_trace(y = ~Analfabeto,
              type = "scatter", 
              mode = "lines+markers",
-             name = "Total",
+             name = "Analfabeto",
              color = I("#d92335")) |>
-   add_trace(y = ~`Trabalhadores técnicos`,
+   add_trace(y = ~`Até fundamental completo`,
              type = "scatter", 
              mode = "lines+markers",
-             name = "Trabalhadores técnicos",
+             name = "Até fundamental completo",
              color = I("#064471")) |>
-   add_trace(y = ~`Trabalhadores não técnicos`,
+   add_trace(y = ~`Médio completo`,
              type = "scatter", 
              mode = "lines+markers",
-             name = "Trabalhadores não técnicos",
+             name = "Médio completo",
              color = I("#bd3928")) |>
-config(displayModeBar = FALSE) |>
+   add_trace(y = ~`Superior completo`,
+             type = "scatter", 
+             mode = "lines+markers",
+             name = "Superior completo",
+             color = I("#bdd928")) |>
+   config(displayModeBar = FALSE) |>
    layout(hovermode = "x",
           yaxis = list(title = "",
                        hoverformat = ".0f",
@@ -299,33 +326,27 @@ config(displayModeBar = FALSE) |>
           barmode = "group")
 ```
 
-### Taxa de variação
+### Número absoluto por atividade
 
 ```{r, include=TRUE,echo=FALSE,warning=FALSE,results='asis',fig.align = 'center',fig.dim=c(10,6)}
 dados_painel2$num_vinc |>
-   mutate(variacao = ((vinculos / lag(vinculos, n = 1)) - 1) * 100) |>
-   filter(ano > 2011) |>
-   pivot_wider(id_cols = -vinculos,
-               names_from = tipo,
-               values_from = variacao) |>
+   pivot_wider(names_from = tipo,
+               values_from = vinculos) |>
    plot_ly(x = ~ano) |>
-   #add_trace(y = ~Total,
-   #          type = "bar",
-   #          name = "Total",
-   #          color = I("#d92335")) |>
-   add_trace(y = ~`Trabalhadores técnicos`,
-             type = "bar",
-             name = "Trabalhadores técnicos",
-             color = I("#064471")) |>
-   add_trace(y = ~`Trabalhadores não técnicos`,
-             type = "bar",
-             name = "Trabalhadores não técnicos",
-             color = I("#f87d28")) |>
-   config(displayModeBar = FALSE) %>%
+   add_trace(y = ~`Técnico de nível médio`,
+             type = "scatter", 
+             mode = "lines+markers",
+             name = "Técnicos de nível médio",
+             color = I("#065411")) |>
+   add_trace(y = ~`Técnico de nível superior`,
+             type = "scatter", 
+             mode = "lines+markers",
+             name = "Técnicos de nível superior",
+             color = I("#cabd28")) |>
+   config(displayModeBar = FALSE) |>
    layout(hovermode = "x",
           yaxis = list(title = "",
-                       ticksuffix = "%", 
-                       hoverformat = '.2f',
+                       hoverformat = ".0f",
                        showgrid = FALSE,
                        showline = TRUE),
           xaxis = list(title = "",
@@ -407,22 +428,41 @@ dados_painel2$rotatividade |>
 
 ```{r, include=TRUE,echo=FALSE,warning=FALSE,results='asis',fig.align = 'center',fig.dim=c(10,6)}
 dados_painel3$ocup_cbo |>
-   filter(nome_cbo_ocupacao == sample(unique(dados_painel3$ocup_cbo$nome_cbo_ocupacao), 1)) |> 
-   mutate(label= paste0(nome_cnae_classe,": ",format(vinculos,big.mark = ".",decimal.mark = ","))) |> 
-   ggplot(aes(area = vinculos,
-              fill = setor_ibge,
-              subgroup = setor_ibge,
-              subgroup2 = cnae_divisao,
-              subgroup3 = cnae_grupo,
-              label = label)) +
-   geom_treemap() + theme_void()+
-   geom_treemap_text(colour = "white" ,size = 13, reflow = T) +
-   geom_treemap_subgroup_border(colour = "white", size = 3) +
-   geom_treemap_subgroup2_border(colour = "white", size = 1) +
-   geom_treemap_subgroup3_border(colour = "white", size = 1) +
-   theme(legend.position = "bottom") +
-   scale_fill_manual(values = c("#0a78c7","#2b597a","#fb8e80","#f87d28","#bd3928","#d92335")) +
-   labs(fill = "Grande Setor IBGE",title = paste("Gráfico para CBO:", sample(unique(dados_painel3$ocup_cbo$nome_cbo_ocupacao), 1)))
+   group_by(nome_cbo_ocupacao, nome_cnae_classe) |>
+   summarise(vinculos = sum(vinculos),
+             .groups = "keep") |>
+   ungroup() |>
+   arrange(desc(vinculos), nome_cbo_ocupacao) |>
+   filter(nome_cbo_ocupacao == "Bombeiro civil") |>
+   slice(1:15) |>
+   plot_ly(x = ~vinculos) |>
+   add_trace(y = ~nome_cnae_classe,
+             type = "bar",
+             color = I("#176180")) |>
+   add_annotations(x = ~vinculos,
+                   y = ~nome_cnae_classe,
+                   xanchor = "left",
+                   yanchor = "rigth",
+                   text = ~round(vinculos, 1),
+                   textposition = "middle",
+                   font = list(color = "white"),
+                   showarrow = FALSE) |>
+   config(displayModeBar = FALSE) |>
+   layout(title = paste("Gráfico para CBO:", "Bombeiro civil"),
+          hovermode = "y",
+          yaxis = list(title = "",
+                       showgrid = FALSE,
+                       showline = TRUE,
+                       categoryorder = "total ascending"),
+          xaxis = list(title = "",
+                       hoverformat = ".1f",
+                       showgrid = FALSE,
+                       showline = TRUE),
+          legend = list(orientation = "h",
+                        title = list(text = "")),
+          barmode = "relative",
+          uniformtext = list(minsize = 8,
+                             mode = "hide"))
 ```
 
 ## Empresas para ocupações

@@ -35,11 +35,11 @@ Este arquivo descreve detalhadamente todas as etapas para limpar o banco de dado
 
 #### RAIS
 
-O arquivo `RAIS.R` se encontra em **1. Extração dos dados/RAIS**.  Abra o projeto **RAIS.RProj** para executar o script corretamente.
+O arquivo `RAIS.R` se encontra em **1. Extração dos dados/RAIS**.  Abra o projeto **RAIS.RProj** para executar o *script* corretamente.
 
 ##### Pacotes e funções necessários
 
-Os pacotes, funções e configurações necessários para execução do script estão descritos abaixo:
+Os pacotes, funções e configurações necessários para execução do *script* estão descritos abaixo:
 
 ```R
 library(odbc)
@@ -225,7 +225,7 @@ A dummy de escolaridade agrupa os códigos de escolaridade em faixas. Os código
 - **8** - educação superior incompleta;
 - **9** - educação superior completa;
 - **10** - mestrado completo;
-- **11** - doutorado completo;
+- **11** - doutorado completo.
 
 As faixas que foram definidas são:
 
@@ -280,7 +280,7 @@ dados <- dados |>
          eixo_militar_sup        = case_when(cboocupacao2002 %in% eixos_superior$`Eixo Militar`[[2]] & cbo_tec_sup == 1 ~ 1, TRUE ~ 0))
 ```
 
-Por último, convertemos a coluna de CNAEs (`cnae20subclasse`) de `integer` para `character`.
+Por último, convertemos a classe da coluna de CNAEs (`cnae20subclasse`) de `integer` para `character`.
 
 ```R
 dados <- dados |>
@@ -297,7 +297,7 @@ saveRDS(dados, file = "Dados/RAIS.RDS")
 
 #### Dados
 
-A pasta **/Dados** armazena todos os dados necessários para a execução do script de atualização da RAIS. Estão contidos:
+A pasta **/Dados** armazena todos os dados necessários para a execução do *script* de atualização da RAIS. Estão contidos:
 
 - Os arquivos `.csv` dos 13 eixos tecnológicos de nível médio;
 - Os arquivos `.csv` dos 12 eixos tecnológicos de nível superior;
@@ -320,9 +320,9 @@ A pasta **/Dicionários** armazena todos os dicionários utilizados para a conve
 
 #### Painel 2 - Remunerações e ocupações
 
-Para atualizar todos os painéis do painel 2, basta acessar **2. Tratamento dos dados** e abrir o projeto **Painéis.RProj** para executar o script corretamente. Após, execute o script `Painel 2.R`.
+Para atualizar todos os painéis do painel 2, basta acessar **2. Tratamento dos dados** e abrir o projeto **Painéis.RProj** para executar o *script* corretamente. Após, execute o *script* `Painel 2.R`.
 
-Os pacotes, funções e configurações necessários para execução do script estão descritos abaixo:
+Os pacotes, funções e configurações necessários para execução do *script* estão descritos abaixo:
 
 ```R
 library(tidyverse)
@@ -348,17 +348,17 @@ foiAtualizado <- function(arquivo) {
 
 O pacote `odbc` é necessário para realizar a conexão ao banco de dados `DB_CODEPLAN` e realizar a importação dos dados do CAGED para o ambiente `R`. O pacote `tidyverse` é responsável pela manipulação dos dados. O pacote `readxl` é responsável por ler arquivos `.xls` e `.xlsx`. O pacote `imputeTS` é utilizado para retirar `NAs` (números não disponíveis) da base. A função `%notin%` funcionará como filtro para os dados. A função `foiAtualizado` retorna valores booleanos do tipo `TRUE` e `FALSE` e é utilizada para verificar se todos os painéis foram atualizados sem erros.
 
-O objeto `RAIS.RDS` é importado nesse script e será fonte de dados de todos os scripts contidos na pasta **2. Tratamento dos dados/Painel 2 - Remuneração e Ocupações**. 
+O objeto `RAIS.RDS` é importado nesse *script* e será fonte de dados de todos os *scripts* contidos na pasta **2. Tratamento dos dados/Painel 2 - Remuneração e Ocupações**. 
 
 ##### 2.1 - Ranking de CBOs
 
-O ranking de CBOs é o script responsável por gerar os dados do painel 2.1. Aqui são gerados os rankings das famílias de CBOs com a maior e menor variação de vínculos e de salários, além das tabelas com dados de vínculos e mediana de salários.
+O ranking de CBOs é o *script* responsável por gerar os dados do painel 2.1. Aqui são gerados os rankings das famílias de CBOs com a maior e menor variação de vínculos e de salários, além das tabelas com dados de vínculos e mediana de salários.
 
 O ranking é calculado utilizando como base dados do último ano disponível (período $t$) em comparação com o ano imediatamente anterior (período $t_{-1}$).
 
 ###### Importação
 
-O dicionário de CBOs é importado e são selecionadas as colunas de interesse. Logo após, é criado um vetor com os códigos das famílias de CBOs que concentram 95% do total de vínculos. Esse vetor será utilizado para realizar um filtro na base.
+O dicionário de CBOs é importado e são selecionadas as colunas de interesse. Logo após, é criado um vetor com os códigos das famílias de CBOs que concentram 99% do total de vínculos. Esse vetor será utilizado para realizar um filtro na base.
 
 ```R
 estrutura_cbo <- readRDS("../1. Extração dos dados/Dicionários/Dicionário CBO.RDS") |>
@@ -401,7 +401,7 @@ cbos_filtro <- c(4110, 5211, 5143, 4132, 5173, 3222, 5134, 5174, 4211,
 
 ###### Tratamento
 
-O tratamento dos dados começa agrupando os dados da RAIS com o dicionário de CBOs e deixando apenas as CBOs que constituem 95% do total de vínculos na base.
+O tratamento dos dados começa agrupando os dados da RAIS com o dicionário de CBOs e deixando apenas as CBOs que constituem 99% do total de vínculos na base.
 
 ```R
 rais_1 <- rais |>
@@ -441,19 +441,21 @@ remove(dados_recente_salarios, dados_recente_vinculos)
 
 Após realizar o cálculo para os dois períodos, agrupamos as duas bases, junto com o dicionário de CBOs e calculamos a variação de rendimentos e de vínculos com as seguintes fórmula para rendimentos e vínculos:
 $$
-rendimento=\frac{\textit{mediana do rendimento em t}}{\textit{mediana do rendimento em } t_{-1}}-1
+rendimento=\frac{\textit{mediana do rendimento}_t}{\textit{mediana do rendimento}_{t_{-1}}}-1
 $$
 e
 $$
-vínculos=\frac{\textit{total de vínculos em t}}{\textit{total de vínculos em } t_{-1}}-1
+vínculos=\frac{\textit{total de vínculos}_t}{\textit{total de vínculos}_{t_{-1}}}-1
 $$
+
+O código que aplicará essas fórmulas está descrito abaixo:
 
 ```R
 dados <- dados_base |>
   left_join(dados_recente, by = "cbo_familia") |>
   left_join(estrutura_cbo |>
               select(cbo_familia, nome_cbo_familia),
-            by = "cbo_familia") |>
+              by = "cbo_familia") |>
   mutate(variacao_rendimento = (mediana_rendimento_recente / mediana_rendimento_base) - 1,
          variacao_vinculos = (vinculos_recente / vinculos_base) - 1) |>
   distinct_all()
@@ -462,31 +464,521 @@ dados <- dados_base |>
 
 ###### Exportação
 
-Após a importação, organização e tratamento dos dados, é exportado um arquivo `.csv` para a pasta **2. Tratamento dos dados/Painel 2 - Remuneração e Ocupações/Resultados ** com o nome de `Painel 2 - Remuneração e Ocupações/Resultados/2.1 - Ranking de CBOs.csv`.
+Após a importação, organização e tratamento dos dados, é exportado um arquivo `.csv` para a pasta **2. Tratamento dos dados/Painel 2 - Remuneração e Ocupações/Resultados ** com o nome de `2.1 - Ranking de CBOs.csv`.
+
+```R
+write_excel_csv2(dados, "Painel 2 - Remuneração e Ocupações/Resultados/2.1 - Ranking de CBOs.csv")
+```
 
 ##### 2.2 - Remuneração mediana
 
-###### Pacotes e funções necessários
+A remuneração mediana é o *script* responsável por gerar os dados do painel 2.2. Aqui são gerados os valores da mediana de salário por hora trabalhada e salário mensal dividido por ano, faixas de escolaridade e agregado por trabalhadores técnicos e não técnicos.
 
 ###### Importação
 
+A RAIS é importada com alguns filtros e os nomes de algumas colunas é substituído.
+
+```R
+rais_2 <- rais |>
+  filter(tipovinculo == 1,       # Celetista
+         referencia != 2011,
+         !is.na(cboocupacao2002)) |>
+  select(ano = referencia,
+         horas = horas_mensais,
+         salario_hora,
+         salario_dez_defl,
+         tec = cbo_tec, 
+         tec_em = cbo_tec_em_complet,
+         tec_sup = cbo_tec_sup,
+         escolaridade)
+```
+
+O filtro `tipovinculo == 1` é para deixar apenas celetistas na base. O ano de 2011 e todas as linhas da coluna que contém os códigos das CBOs que são `NA` são retirados.
+
 ###### Tratamento
 
+O tratamento dos dados começa separando a base em empregos técnicos e empregos não técnicos. Realizamos um filtro para deixar apenas trabalhadores técnicos e outro para retirar trabalhadores que estão listados com salários e horas trabalhadas iguais a 0.
+
+Agrupamos os dados por ano e tipo de trabalhador técnico (de nível médio ou de nível superior) para calcular a mediana do salário hora e do salário mensal. Após, realizamos o cálculo novamente, mas apenas por ano, e com um `rbind()` juntamos todos os dados.
+
+```R
+base_tec <- rais_2 |>
+  filter(tec == 1,
+         salario_hora > 0,
+         horas > 0) |> 
+  mutate(tipo = case_when(tec_em == 1  ~ "Técnicos de nível médio",
+                          tec_sup == 1 ~ "Técnicos de nível superior")) |>
+  group_by(ano, tipo) |> 
+  summarise(salario_hora = median(salario_hora, na.rm = T), 
+            salario_mes = median(salario_dez_defl, na.rm = T),
+            filtro = "Técnico") |>
+  rbind(rais_2 |> 
+          filter(tec == 1,
+                 salario_hora > 0,
+                 horas > 0) |> 
+          group_by(ano) |> 
+          summarise(salario_hora = median(salario_hora, na.rm = T), 
+                    salario_mes = median(salario_dez_defl, na.rm = T),
+                    tipo = "Trabalhadores técnicos",
+                    filtro = "Técnico"))
+```
+
+Para a base de trabalhadores não técnicos, a coluna `tipo` passa a utilizar dados de escolaridade, porém, a estrutura do cálculo se mantém a mesma.
+
+```R
+base_nao_tec <- rais_2 |>
+  filter(tec == 0,
+         salario_hora > 0,
+         horas > 0) |>
+  mutate(tipo = case_when(escolaridade == 1 ~"Analfabeto",
+                          escolaridade == 2 ~"Até fundamental completo",
+                          escolaridade == 3 ~"Até médio completo",
+                          escolaridade == 4 ~"Superior completo*")) |> 
+  group_by(ano, tipo) |> 
+  summarise(filtro = "Não técnico",
+            salario_hora = median(salario_hora, na.rm = T), 
+            salario_mes = median(salario_dez_defl, na.rm = T)) |> 
+  rbind(rais_2 |> 
+          filter(tec == 0,
+                 salario_hora > 0,
+                 horas > 0) |> 
+          group_by(ano) |> 
+          summarise(tipo =  "Trabalhadores não técnicos",
+                    filtro = "Não técnico",
+                    salario_hora = median(salario_hora, na.rm = T), 
+                    salario_mes = median(salario_dez_defl, na.rm = T)))
+```
+
+O último passo do tratamento dos dados é juntar as base de trabalhadores técnicos e trabalhadores não técnicos. Empilhamos as duas bases e criamos uma nova coluna de filtro.
+
+```R
+base_tipo_emprego <- rbind(base_tec, base_nao_tec) |>
+  mutate(geral = case_when(tipo %in% c("Trabalhadores técnicos", "Trabalhadores não técnicos") ~ "Geral",
+                           TRUE ~ "Subgrupo")) |>
+  arrange(tipo, ano)
+```
+
 ###### Exportação
+
+Após a importação, organização e tratamento dos dados, é exportado um arquivo `.csv` para a pasta **2. Tratamento dos dados/Painel 2 - Remuneração e Ocupações/Resultados ** com o nome de `2.2 - Remuneração mediana.csv`.
+
+```R
+write_excel_csv2(base_tipo_emprego, "Painel 2 - Remuneração e Ocupações/Resultados/2.2 - Remuneração mediana.csv")
+```
 
 ##### 2.3 - Número de vínculos
 
-###### Pacotes e funções necessários
+O número de vínculos é o *script* responsável por gerar os dados do painel 2.3. Aqui são gerados o número absoluto de vínculos por escolaridade e por nível técnico agrupados por ano. 
 
 ###### Importação
 
+A RAIS é importada com alguns filtros e os nomes de algumas colunas é substituído.
+
+```R
+rais_3 <- rais |>
+  filter(tipovinculo == 1,       # Celetista
+         !is.na(cboocupacao2002)) |>
+  select(ano = referencia,
+         tec = cbo_tec,
+         cbo_tec_em_complet,
+         cbo_tec_sup,
+         escolaridade)
+```
+
+O filtro `tipovinculo == 1` é para deixar apenas celetistas na base. Todas as linhas da coluna que contém os códigos das CBOs que são `NA` são retirados. As colunas `cbo_tec_em_complet` e `cbo_tec_sup` são variáveis do tipo *dummy* para identificar se o trabalhador é de uma CBO técnica de nível médio ou de nível superior, enquanto que a coluna `tec` apenas identifica se o trabalhador é de uma CBO técnica, sem distinção de nível.
+
 ###### Tratamento
 
+O tratamento dos dados começa aplicando o filtro `tec == 1` para deixar apenas CBOs técnicas na base. Criamos a variável `tipo` para informar se o trabalhador é técnico de nível médio ou de nível superior.
+
+Os dados são agrupados por ano e por tipo de trabalhador para após ser calculado o número de vínculos. Empilhamos os dados agrupando apenas por ano para gerar o número total de vínculos de trabalhadores técnicos, seja de nível médio ou superior.
+
+```R
+base_tec <- rais_3 |>
+  filter(tec == 1) |>
+  mutate(tipo = case_when(cbo_tec_em_complet == 1 ~ "Técnico de nível médio",
+                          cbo_tec_sup == 1 ~ "Técnico de nível superior")) |>
+  group_by(ano, tipo) |> 
+  summarise(vinculos = n()) |>
+  rbind(rais_3 |>
+          filter(tec == 1) |>
+          group_by(ano) |> 
+          summarise(vinculos = n(),
+                    tipo = "Trabalhadores técnicos"))
+```
+
+O próximo passo consiste na realização do mesmo cálculo, porém, agrupado por escolaridade. Criamos a variável `tipo` para informar o nível de escolaridade do trabalhador. Para essa operação, não é aplicado o filtro de trabalhadores técnicos.
+
+```R
+base_escolaridade <- rais_3 |>
+  mutate(tipo = case_when(escolaridade == 1 ~ "Analfabeto",
+                                  escolaridade == 2 ~ "Até fundamental completo",
+                                  escolaridade == 3 ~ "Médio completo",
+                                  escolaridade == 4 ~ "Superior completo")) |>
+  group_by(ano, tipo) |>
+  summarise(vinculos = n())
+```
+
+O penúltimo passo consiste no cálculo agrupado por ano aplicando o filtro para deixar apenas trabalhadores não técnicos.
+
+```R
+base_nao_tec <-  rais_3 |>
+  filter(tec == 0) |> 
+  group_by(ano) |> 
+  summarise(vinculos = n(),
+            tipo = "Trabalhadores não técnicos")
+```
+
+Com todas as variáveis devidamente calculadas, empilhamos as base em um único `data.frame`. Juntamos as base de trabalhadores técnicos e trabalhadores não técnicos para calcular o total de vínculos e após, empilhamos todas as bases (número de vínculos de trabalhadores técnicos, trabalhadores não técnicos e por escolaridade).
+
+```R
+base_tipo_emprego <- rbind(base_tec, base_nao_tec) |>
+  group_by(ano) |>
+  summarise(vinculos = sum(vinculos),
+            tipo = "Total") |>
+  rbind(base_tec, base_nao_tec, base_escolaridade) |>
+  arrange(tipo, ano)
+```
+
 ###### Exportação
+
+Após a importação, organização e tratamento dos dados, é exportado um arquivo `.csv` para a pasta **2. Tratamento dos dados/Painel 2 - Remuneração e Ocupações/Resultados ** com o nome de `2.3 - Número de vínculos.csv`.
+
+```R
+write_excel_csv2(base_tipo_emprego, "Painel 2 - Remuneração e Ocupações/Resultados/2.3 - Número de vínculos.csv")
+```
 
 ##### 2.4 - Taxa de rotatividade
 
-###### Pacotes e funções necessários
+A taxa de rotatividade é o *script* responsável por gerar os dados do painel 2.4. Aqui são gerados os números da taxa de rotatividade por faixas de escolaridade e por tipo de trabalhador (técnico ou não).
+
+A taxa de rotatividade pode ser definida como o movimento recorrente de substituição de parte da força de trabalho utilizada em cada ciclo produtivo anual, através de demissões e admissões de trabalhadores que são realizadas dentro de um país e/ou unidade da federação. Tal movimento de substituição é medido por meio da taxa de rotatividade. 
+
+Os pacotes, funções e configurações necessários para execução do *script* estão descritos abaixo:
+
+```R
+library(odbc)
+library(tidyverse)
+library(readxl)
+
+`%notin%` <- Negate(`%in%`)
+```
+O pacote `odbc` é necessário para realizar a conexão ao banco de dados `DB_CODEPLAN` e realizar a importação dos dados do CAGED para o ambiente `R.` O pacote `tidyverse` é responsável pela manipulação dos dados. O pacote `readxl` será necessário para ler arquivos `.xlsx` e `.xlsx` . E, por fim, a função `%notin%` funcionará como filtro para os dados.
+
+###### Importação
+Para realizar a importação do CAGED, realizamos a conexão ao banco de dados `DB_CODEPLAN` e, posteriormente, realizamos a importação, ano a ano, com as seguintes colunas selecionadas filtrando para dados apenas do DF:
+
+- **anodeclarado** - ano declarado dos dados;
+- **competencia** - competência (mês/ano) em que a movimentação foi declarada;
+- **cbo2002ocupacao** - Classificação Brasileira de Ocupações;
+- **graudeinstrucao** - grau de instrução;
+- **racacor** - raça do trabalhador;
+- **sexo** - sexo do trabalhor;
+- **idade** - idade do trabalhador;
+- **indtrabintermitente** - contrato intermitente
+- **indaprendiz** - referente a contrato de aprendizagem
+- **salariomensal** - salário mensal do indivíduo;
+- **tipomovdesagregado** - tipo de movimentação;
+- **admitidosdesligados** - capta se se o trabalhador foi admitido ou desligado;
+- **saldomov** - saldo de movimentação.
+```R
+### Novo CAGED ----
+
+novo_caged <- DBI::dbGetQuery(db, 
+"SELECT
+  CAST(SUBSTRING(CAST(competencia AS CHAR(6)), 1, 4) AS INT) AS anodeclarado,
+  CAST(SUBSTRING(CAST(competencia AS CHAR(6)), 5, 2) AS INT) AS mesdeclarado,
+  competencia,
+  cbo2002ocupacao,
+  graudeinstrucao AS grauinstrucao,
+  racacor,
+  sexo,
+  idade,
+  indtrabintermitente,
+  indicadoraprendiz AS indaprendiz,
+  CAST(REPLACE(valorsalariofixo, ',', '.') AS FLOAT) AS salariomensal,
+  tipomovimentacao AS tipomovdesagregado,
+  CASE WHEN saldo = 1 THEN 1 ELSE 2 END AS admitidosdesligados,
+  saldo AS saldomov,
+  'dp' AS tipo
+FROM
+  caged.caged_202001_atual_MOV
+WHERE
+  UF = 53
+UNION ALL
+SELECT
+  CAST(SUBSTRING(CAST(competencia AS CHAR(6)), 1, 4) AS INT) AS anodeclarado,
+  CAST(SUBSTRING(CAST(competencia AS CHAR(6)), 5, 2) AS INT) AS mesdeclarado,
+  competencia,
+  cbo2002ocupacao,
+  graudeinstrucao AS grauinstrucao,
+  racacor,
+  sexo,
+  idade,
+  indtrabintermitente,
+  indicadoraprendiz AS indaprendiz,
+  CAST(REPLACE(valorsalariofixo, ',', '.') AS FLOAT) AS salariomensal,
+  tipomovimentacao AS tipomovdesagregado,
+  CASE WHEN saldo = 1 THEN 1 ELSE 2 END AS admitidosdesligados,
+  saldo AS saldomov,
+  'fp' AS tipo
+FROM
+  caged.caged_202002_atual_FOR
+WHERE
+  UF = 53") |>
+  left_join(data.frame(anodeclarado = c(2011:2023),
+                       vl_sm = c(545, 622, 678, 724, 788, 880, 937, 954, 998, 1045, 1100, 1212, 1320)))
+
+### CAGED ----
+
+caged <- DBI::dbGetQuery(db, 
+"SELECT
+  CAST(SUBSTRING(CAST(competenciadeclarada AS CHAR(6)), 1, 4) AS INT) AS anodeclarado,
+  CAST(SUBSTRING(CAST(competenciadeclarada AS CHAR(6)), 5, 2) AS INT) AS mesdeclarado,
+  competenciadeclarada AS competencia,
+  cbo2002ocupacao,
+  grauinstrucao,
+  racacor,
+  sexo,
+  idade,
+  indtrabintermitente,
+  indaprendiz,
+  salariomensal,
+  tipomovdesagregado,
+  admitidosdesligados,
+  saldomov,
+  'dp' AS tipo
+FROM
+  caged.caged_200701_atual_DP
+WHERE
+  UF = 53 AND competenciadeclarada > 201001
+UNION ALL
+SELECT
+  CAST(SUBSTRING(CAST(competenciamovimentacao AS CHAR(6)), 1, 4) AS INT) AS anodeclarado,
+  CAST(SUBSTRING(CAST(competenciamovimentacao AS CHAR(6)), 5, 2) AS INT) AS mesdeclarado,
+  competenciamovimentacao AS competencia,
+  cbo2002ocupacao,
+  grauinstrucao,
+  CAST(NULL AS INT) AS racacor,
+  sexo,
+  idade,
+  indtrabintermitente,
+  indaprendiz,
+  salariomensal,
+  tipomovdesagregado,
+  admitidosdesligados,
+  saldomov,
+  'fp' AS tipo
+FROM
+  caged.caged_200701_atual_fp
+WHERE
+  UF = 53 AND competenciamovimentacao >= 201001") |>
+  left_join(data.frame(anodeclarado = c(2011:2023),
+                       vl_sm = c(545, 622, 678, 724, 788, 880, 937, 954, 998, 1045, 1100, 1212, 1320)))
+
+dbDisconnect(db)        
+```
+
+A próxima etapa do *script* carrega a variável de grau de instrução da RAIS, aqui são considerados as seguintes faixas de estudo:
+
+- **1** - Analfabeto;
+- **2** - Ensino médio incompleto;
+- **3** - Ensino médio completo;
+- **4** - Superior completo.
+
+```R
+rais_4 <- rais |>
+  mutate(escolaridade = case_when(escolaridade == 1 ~ "Analfabeto",
+                                  escolaridade == 2 ~ "Médio incompleto",
+                                  escolaridade == 3 ~ "Médio completo",
+                                  escolaridade == 4 ~ "Superior completo"))
+```
+As CBOs (técnicas de nível médio e superior) são importadas para o ambiente `.R` com o comando abaixo:
+
+
+```R
+cbotec_em <- as.character(read_csv("../1. Extração dos dados/Dados/CBO Técnica - Nível médio.csv")[[1]])
+cbotec_sup <- as.character(read_csv("../1. Extração dos dados/Dados/CBO Técnica - Nível superior.csv")[[1]])
+```
+
+###### Tratamento
+Após a finalização de importação, passamos para a etapa de tratamento dos dados. O primeiro passo é o cálculo do número de trabalhadores da RAIS agrupado por ano e por CBO (a escolaridade é considerada como **geral**). Depois, realizamos o mesmo cálculo, porém, agrupado também por escolaridade.
+
+```
+rotatividade_rais_4 <- rbind(rais_4 |>
+                             group_by(referencia, cboocupacao2002) |>
+                             summarise(n_trabalhadores = n(),
+                                       escolaridade = "Geral"),
+                           rais_4 |>
+                             group_by(referencia, cboocupacao2002, escolaridade) |>
+                             summarise(n_trabalhadores = n())) |>
+  mutate(cboocupacao2002 = as.character(cboocupacao2002)) |>
+  rename(anodeclarado = referencia,
+         cbo2002ocupacao = cboocupacao2002)
+```
+
+Partindo para as bases do CAGED antigo, o código abaixo adiciona a etiqueta para a variável `admitidosdesligados`:
+
+- **1** - admitidos
+- **2** - desligados
+
+Para a variável de escolaridade são considerados as seguintes faixas de estudo:
+
+- **1** - analfabeto;
+- Entre **2** e **6** - ensino médio incompleto;
+- Entre **7** e **8** - ensino médio completo;
+- Entre **9** e **11** - superior completo;
+- **99** - `NA`.
+
+```R
+rotatividade_caged <- caged |>
+  mutate(cbo2002ocupacao = as.character(cbo2002ocupacao),
+         admitidosdesligados = case_when(admitidosdesligados == 1 ~ "admitidos",
+                                         admitidosdesligados == 2 ~ "desligados"),
+         escolaridade = case_when(grauinstrucao == 1 ~ "Analfabeto",
+                                  grauinstrucao %in% 2:6 ~ "Médio incompleto",
+                                  grauinstrucao %in% 7:8 ~ "Médio completo",
+                                  grauinstrucao %in% 9:11 ~ "Superior completo",
+                                  grauinstrucao == 99 ~ NA))
+```
+
+Para o cálculo da rotatividade da base do CAGED antigo, filtramos a coluna do tipo de movimentação para apenas os seguintes casos:
+
+- **1** - Admissão por primeiro emprego;
+- **2** - Admissão por reemprego;
+- **4** - Desligamento por demissão sem justa causa;
+- **5** - Desligamento por demissão com justa causa;
+- **10** - Admissão por reintegração;
+- **11** - Desligamento por término de contrato;
+- **25** - Contrato trabalho prazo determinado;
+- **43** - Término contrato trabalho prazo determinado;
+- **90** - Desligamento por acordo empregado e empregador.
+
+Da mesma forma que foi realizado na RAIS, ocorre o cálculo do número de trabalhadores agrupado por ano, CBO e o número de admitidos e desligados. Depois, repetimos o mesmo cálculo, porém, agrupado também por escolaridade. O último passo consiste na transformação do formato longo (*long*) para formato amplo (*wide*), com uma coluna para cada valor de `admitidosdesligados` e o valor correspondente de `rotacao`, que corresponde ao número de trabalhadores, resultando em um `data.frame` informando por ano, CBO e escolaridade, o número de trabalhadores admitidos e desligados.
+
+```R
+rotatividade_caged_antigo <- rbind(rotatividade_caged |>
+                                     filter(tipomovdesagregado %in% c(1, 2, 4, 5, 10, 11, 25, 43, 90)) |>
+                                     group_by(anodeclarado, cbo2002ocupacao, admitidosdesligados) |>
+                                     summarise(rotacao = n(),
+                                               escolaridade = "Geral"),
+                                   rotatividade_caged |>
+                                     filter(tipomovdesagregado %in% c(1, 2, 4, 5, 10, 11, 25, 43, 90)) |>
+                                     group_by(anodeclarado, cbo2002ocupacao, admitidosdesligados, escolaridade) |>
+                                     summarise(rotacao = n())) |>
+  pivot_wider(names_from = admitidosdesligados,
+              values_from = rotacao) |>
+  arrange(anodeclarado, cbo2002ocupacao)
+```
+
+O cálculo realizado acima é válido tanto para o CAGED antigo quanto para o CAGED novo, com uma diferença nos códigos do filtro do tipo de movimentação:
+
+- **10** - Admissão por primeiro emprego;
+- **20** - Admissão por reemprego;
+- **25** - Admissão por contrato de trabalho com prazo determinado;
+- **31** - Desligamento por demissão sem justa causa;
+- **32** - Desligamento por demissão com justa causa;
+- **35** - Admissão por reintegração;
+- **43** - Término do contrato de trabalho com prazo determinado;
+- **45** - Desligamento por término de contrato;
+- **90** - Desligamento por acordo entre empregado e empregador;
+- **97** - Admissão de tipo ignorado;
+- **98** - Desligamento de tipo ignorado.
+
+Após o tratamento em todas as três bases para deixá-las na mesma estrutura de colunas, é possível realizar o agrupamento dessas bases. Realizamos um tratamento para substituir os valores de `NA` por 0 nas colunas `admitidos` e `desligados` e criamos uma nova coluna para identificar se a CBO corresponde à uma CBO técnica de nível médio ou de nível superior.
+
+A coluna `tipo` agrega as informações de escolaridade e trabalho técnico com as seguintes categorias:
+
+- **Média dos trabalhadores técnicos** - engloba escolaridade **geral** e trabalhadores em CBOS técnicas;
+- **Média dos trabalhadores não técnicos** - engloba escolaridade **geral** e trabalhadores em CBOS não técnicas;
+- **Técnicos de nível médio** - engloba todas as escolaridades e trabalhadores em CBOS técnicas de nível médio;
+- **Técnicos de nível superior** - engloba todas as escolaridades e trabalhadores em CBOS técnicas de nível superior;
+- **Até fundamental completo** - engloba trabalhadores analfabetos (código **1**) e trabalhadores com até o ensino médio incompleto (código **2**);
+- **Ensino médio completo** - engloba trabalhadores com ensino médio completo;
+- **Ensino superior completo** - engloba trabalhadores com ensino superior completo, mestrado e doutorado.
+
+A última variável de filtro criada serve para identificar se os trabalhadores são de CBOs técnicas ou não.
+
+
+```R
+rotatividade <- merge(rotatividade_rais_4,
+                      rbind(rotatividade_caged_novo, 
+                            rotatividade_caged_antigo), all.x = TRUE) |>
+  mutate(admitidos = case_when(is.na(admitidos) ~ 0,
+                               TRUE ~ admitidos),
+         desligados = case_when(is.na(desligados) ~ 0,
+                                TRUE ~ desligados),
+         cbo_tecnica = case_when(cbo2002ocupacao %in% cbotec_em ~ "tec_em",
+                                 cbo2002ocupacao %in% cbotec_sup ~ "tec_sup",
+                                 TRUE ~ "nao_tec"),
+         tipo = case_when(escolaridade == "Geral" & cbo_tecnica %in% c("tec_em", "tec_sup") ~ "Média dos trabalhadores técnicos",
+                          escolaridade == "Geral" & cbo_tecnica == "nao_tec" ~ "Média dos trabalhadores não técnicos",
+                          escolaridade %in% c("Analfabeto", "Médio incompleto", "Médio completo", "Superior completo") & cbo_tecnica == "tec_em" ~ "Técnicos de nível médio",
+                          escolaridade %in% c("Analfabeto", "Médio incompleto", "Médio completo", "Superior completo") & cbo_tecnica == "tec_sup" ~ "Técnicos de nível superior",
+                          escolaridade %in% c("Analfabeto", "Médio incompleto") & cbo_tecnica == "nao_tec" ~ "Até fundamental completo",
+                          escolaridade == "Médio completo" & cbo_tecnica == "nao_tec" ~ "Médio completo",
+                          escolaridade == "Superior completo" & cbo_tecnica == "nao_tec" ~ "Superior completo"),
+         filtro = case_when(cbo_tecnica %in% c("tec_em", "tec_sup") ~ "Técnico",
+                            TRUE ~ "Não técnico"))
+```
+
+Finalizado a parte do tratamento, pode-se realizar o cálculo da taxa de rotatividade, conforme método proposto por Silva Filho e Silva (2014)[^1]:  
+
+$$
+R= \frac{\sum(admitidos_t,desligados_t)}{\textit{total da força de trabalho}_t}
+$$
+
+O código que aplicará essa fórmula está descrito abaixo:
+
+```R
+rotatividade <- rotatividade |>
+  group_by(tipo, filtro, anodeclarado) |>
+  summarise(n_trabalhadores = sum(n_trabalhadores),
+            admitidos = sum(admitidos),
+            desligados = sum(desligados)) |>
+  mutate(rotatividade = (admitidos + desligados) / n_trabalhadores)
+```
+###### Exportação
+Após a importação, organização e tratamento dos dados, é exportado um arquivo `.csv` para a pasta **2. Tratamento dos dados/Painel 2 - Remuneração e Ocupações/Resultados ** com o nome de `2.4 - Taxa de rotatividade.csv`.
+
+```R
+write_excel_csv2(base_tipo_emprego, "Painel 2 - Remuneração e Ocupações/Resultados/2.4 - Taxa de rotatividade.csv")
+```
+
+#### Painel 3 - Ocupações técnicas
+
+Para atualizar todos os painéis do painel 3, basta acessar **2. Tratamento dos dados** e abrir o projeto **Painéis.RProj** para executar o *script* corretamente. Após, execute o *script* `Painel 3.R`.
+
+Os pacotes, funções e configurações necessários para execução do *script* estão descritos abaixo:
+
+```R
+library(tidyverse)
+library(imputeTS)
+library(readxl)
+library(stringr)
+library(treemapify)
+
+`%notin%` <- Negate(`%in%`)
+
+foiAtualizado <- function(arquivo) {
+  
+  data <- Sys.Date()
+  data_arquivo <- as.Date(file.info(paste0("Painel 2 - Remuneração e Ocupações/Resultados/", arquivo, ".csv"))$mtime)
+  
+  if (data >= data_arquivo) {
+    return(TRUE)
+  } else {
+    return(FALSE)
+  }
+  
+}
+```
+
+O pacote `tidyverse` é responsável pela manipulação dos dados. O pacote `readxl` é responsável por ler arquivos `.xls` e `.xlsx`. O pacote `imputeTS` é utilizado para retirar `NAs` (números não disponíveis) da base. O pacote `stringr` é utilizado para a manipulação de vetores de texto. O pacote `treemapify` é utilizado para gerar os gráficos de árvore. A função `%notin%` funcionará como filtro para os dados. A função `foiAtualizado` retorna valores booleanos do tipo `TRUE` e `FALSE` e é utilizada para verificar se todos os painéis foram atualizados sem erros.
+
+O objeto `RAIS.RDS` é importado nesse *script* e será fonte de dados de todos os *scripts* contidos na pasta **2. Tratamento dos dados/Painel 3 - Ocupações Técnicas**. 
+
+##### 3.1 - Ocupações para empresas
 
 ###### Importação
 
@@ -494,12 +986,28 @@ Após a importação, organização e tratamento dos dados, é exportado um arqu
 
 ###### Exportação
 
-#### Painel 3 - Ocupações técnicas
-
-##### 3.1 - Ocupações para empresas
-
 ##### 3.2 - Empresas para ocupações
+
+###### Importação
+
+###### Tratamento
+
+###### Exportação
 
 ##### 3.3 - Ocupações e eixos tecnológicos
 
+###### Importação
+
+###### Tratamento
+
+###### Exportação
+
 ##### 3.4 - Remuneração e vínculos
+
+###### Importação
+
+###### Tratamento
+
+###### Exportação
+
+[^1]: da Silva Filho, L. A., & dos Santos, J. M. (2014). O que Determina a Rotatividade no Mercado de Trabalho Brasileiro?. RDE - Revista de Desenvolvimento Econômico, 15(28).

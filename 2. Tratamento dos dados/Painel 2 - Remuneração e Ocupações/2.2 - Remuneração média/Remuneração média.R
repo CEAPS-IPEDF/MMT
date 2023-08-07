@@ -81,6 +81,6 @@ base_tipo_emprego <- rbind(base_tec, base_nao_tec) |>
 
 # Exportar CSV ----
 
-write_excel_csv2(base_tipo_emprego, "Painel 2 - Remuneração e Ocupações/Resultados/2.2 - Remuneração média.csv")
+write_excel_csv2(base_tipo_emprego, "Painel 2 - Remuneração e Ocupações/Resultados/2.2 - Remuneração mediana.csv")
 
 remove(rais_2)
