@@ -426,6 +426,8 @@ dados_painel2$rotatividade |>
 
 ## Ocupações para empresas
 
+### Exemplo 1: Bombeiro Civil
+
 ```{r, include=TRUE,echo=FALSE,warning=FALSE,results='asis',fig.align = 'center',fig.dim=c(10,6)}
 dados_painel3$ocup_cbo |>
    group_by(nome_cbo_ocupacao, nome_cnae_classe) |>
@@ -465,51 +467,255 @@ dados_painel3$ocup_cbo |>
                              mode = "hide"))
 ```
 
+### Exemplo 2: Diretor comercial
+
+```{r, include=TRUE,echo=FALSE,warning=FALSE,results='asis',fig.align = 'center',fig.dim=c(10,6)}
+dados_painel3$ocup_cbo |>
+   group_by(nome_cbo_ocupacao, nome_cnae_classe) |>
+   summarise(vinculos = sum(vinculos),
+             .groups = "keep") |>
+   ungroup() |>
+   arrange(desc(vinculos), nome_cbo_ocupacao) |>
+   filter(nome_cbo_ocupacao == "Diretor comercial") |>
+   slice(1:15) |>
+   plot_ly(x = ~vinculos) |>
+   add_trace(y = ~nome_cnae_classe,
+             type = "bar",
+             color = I("#176180")) |>
+   add_annotations(x = ~vinculos,
+                   y = ~nome_cnae_classe,
+                   xanchor = "left",
+                   yanchor = "rigth",
+                   text = ~round(vinculos, 1),
+                   textposition = "middle",
+                   font = list(color = "white"),
+                   showarrow = FALSE) |>
+   config(displayModeBar = FALSE) |>
+   layout(title = paste("Gráfico para CBO:", "Diretor comercial"),
+          hovermode = "y",
+          yaxis = list(title = "",
+                       showgrid = FALSE,
+                       showline = TRUE,
+                       categoryorder = "total ascending"),
+          xaxis = list(title = "",
+                       hoverformat = ".1f",
+                       showgrid = FALSE,
+                       showline = TRUE),
+          legend = list(orientation = "h",
+                        title = list(text = "")),
+          barmode = "relative",
+          uniformtext = list(minsize = 8,
+                             mode = "hide"))
+```
+
+
+### Exemplo 3: Assistente administrativo
+
+```{r, include=TRUE,echo=FALSE,warning=FALSE,results='asis',fig.align = 'center',fig.dim=c(10,6)}
+dados_painel3$ocup_cbo |>
+   group_by(nome_cbo_ocupacao, nome_cnae_classe) |>
+   summarise(vinculos = sum(vinculos),
+             .groups = "keep") |>
+   ungroup() |>
+   arrange(desc(vinculos), nome_cbo_ocupacao) |>
+   filter(nome_cbo_ocupacao == "Assistente administrativo") |>
+   slice(1:15) |>
+   plot_ly(x = ~vinculos) |>
+   add_trace(y = ~nome_cnae_classe,
+             type = "bar",
+             color = I("#176180")) |>
+   add_annotations(x = ~vinculos,
+                   y = ~nome_cnae_classe,
+                   xanchor = "left",
+                   yanchor = "rigth",
+                   text = ~round(vinculos, 1),
+                   textposition = "middle",
+                   font = list(color = "white"),
+                   showarrow = FALSE) |>
+   config(displayModeBar = FALSE) |>
+   layout(title = paste("Gráfico para CBO:", "Assistente administrativo"),
+          hovermode = "y",
+          yaxis = list(title = "",
+                       showgrid = FALSE,
+                       showline = TRUE,
+                       categoryorder = "total ascending"),
+          xaxis = list(title = "",
+                       hoverformat = ".1f",
+                       showgrid = FALSE,
+                       showline = TRUE),
+          legend = list(orientation = "h",
+                        title = list(text = "")),
+          barmode = "relative",
+          uniformtext = list(minsize = 8,
+                             mode = "hide"))
+```
+
 ## Empresas para ocupações
+
+### Exemplo 1: Administração pública em geral
 
 ```{r, include=TRUE,echo=FALSE,warning=FALSE,results='asis',fig.align = 'center',fig.dim=c(10,6)}
 dados_painel3$ocup_emp |>
-  filter(nome_cnae_subclasse == sample(unique(dados_painel3$ocup_emp$nome_cnae_subclasse), 1)) |> 
-  mutate(label= paste0(nome_cbo_familia, ": ", format(vinculos,big.mark = ".", decimal.mark = ","))) |> 
-  ggplot(aes(area = vinculos,fill = nome_cbo_grandegrupo,
-             subgroup = nome_cbo_grandegrupo,
-             subgroup2 = cbo_subgrupo_principal,
-             subgroup3 = cbo_subgrupo, label = label)) +
-  treemapify::geom_treemap() + theme_void()+
-  treemapify::geom_treemap_text(colour = "white" ,size = 13, reflow = T) +
-  treemapify::geom_treemap_subgroup_border(colour = "white", size = 2) +
-  treemapify::geom_treemap_subgroup2_border(colour = "white", size = 1) +
-  treemapify::geom_treemap_subgroup3_border(colour = "white", size = .5) +
-  scale_fill_manual(values = c("#0a78c7","#2b597a","#fb8e80","#00980c",
-                               "#bd3928","#d92335","#f87d28","#064471",
-                               "#72879d","#e46874","#54a4dc","#e2ccc4","#808080"))+
-  labs(fill = "Grande Grupo CBO",title = paste("Gráfico para CBO:", sample(unique(dados_painel3$ocup_emp$nome_cnae_subclasse), 1)))
+   group_by(nome_cnae_subclasse, nome_cbo_familia) |>
+   summarise(vinculos = sum(vinculos),
+             .groups = "keep") |>
+   ungroup() |>
+   arrange(desc(vinculos), nome_cbo_familia) |>
+   filter(nome_cnae_subclasse == "Administração pública em geral") |>
+   slice(1:15) |>
+   plot_ly(x = ~vinculos) |>
+   add_trace(y = ~nome_cbo_familia,
+             type = "bar",
+             color = I("#176180")) |>
+   add_annotations(x = ~vinculos,
+                   y = ~nome_cbo_familia,
+                   xanchor = "left",
+                   yanchor = "rigth",
+                   text = ~round(vinculos, 1),
+                   textposition = "middle",
+                   font = list(color = "white"),
+                   showarrow = FALSE) |>
+   config(displayModeBar = FALSE) |>
+   layout(title = paste("Gráfico para CNAE:", "Administração pública em geral"),
+          hovermode = "y",
+          yaxis = list(title = "",
+                       showgrid = FALSE,
+                       showline = TRUE,
+                       categoryorder = "total ascending"),
+          xaxis = list(title = "",
+                       hoverformat = ".1f",
+                       showgrid = FALSE,
+                       showline = TRUE),
+          legend = list(orientation = "h",
+                        title = list(text = "")),
+          barmode = "relative",
+          uniformtext = list(minsize = 8,
+                             mode = "hide"))
+```
+
+### Exemplo 2: Restaurantes e similares
+
+```{r, include=TRUE,echo=FALSE,warning=FALSE,results='asis',fig.align = 'center',fig.dim=c(10,6)}
+dados_painel3$ocup_emp |>
+   group_by(nome_cnae_subclasse, nome_cbo_familia) |>
+   summarise(vinculos = sum(vinculos),
+             .groups = "keep") |>
+   ungroup() |>
+   arrange(desc(vinculos), nome_cbo_familia) |>
+   filter(nome_cnae_subclasse == "Restaurantes e similares") |>
+   slice(1:15) |>
+   plot_ly(x = ~vinculos) |>
+   add_trace(y = ~nome_cbo_familia,
+             type = "bar",
+             color = I("#176180")) |>
+   add_annotations(x = ~vinculos,
+                   y = ~nome_cbo_familia,
+                   xanchor = "left",
+                   yanchor = "rigth",
+                   text = ~round(vinculos, 1),
+                   textposition = "middle",
+                   font = list(color = "white"),
+                   showarrow = FALSE) |>
+   config(displayModeBar = FALSE) |>
+   layout(title = paste("Gráfico para CNAE:", "Restaurantes e similares"),
+          hovermode = "y",
+          yaxis = list(title = "",
+                       showgrid = FALSE,
+                       showline = TRUE,
+                       categoryorder = "total ascending"),
+          xaxis = list(title = "",
+                       hoverformat = ".1f",
+                       showgrid = FALSE,
+                       showline = TRUE),
+          legend = list(orientation = "h",
+                        title = list(text = "")),
+          barmode = "relative",
+          uniformtext = list(minsize = 8,
+                             mode = "hide"))
+```
+
+### Exemplo 3: Frigorífico - abate de bovinos
+
+```{r, include=TRUE,echo=FALSE,warning=FALSE,results='asis',fig.align = 'center',fig.dim=c(10,6)}
+
+
+dados_painel3$ocup_emp |>
+   group_by(nome_cnae_subclasse, nome_cbo_familia) |>
+   summarise(vinculos = sum(vinculos),
+             .groups = "keep") |>
+   ungroup() |>
+   arrange(desc(vinculos), nome_cbo_familia) |>
+   filter(nome_cnae_subclasse == "Frigorífico - abate de bovinos") |>
+   slice(1:15) |>
+   plot_ly(x = ~vinculos) |>
+   add_trace(y = ~nome_cbo_familia,
+             type = "bar",
+             color = I("#176180")) |>
+   add_annotations(x = ~vinculos,
+                   y = ~nome_cbo_familia,
+                   xanchor = "left",
+                   yanchor = "rigth",
+                   text = ~round(vinculos, 1),
+                   textposition = "middle",
+                   font = list(color = "white"),
+                   showarrow = FALSE) |>
+   config(displayModeBar = FALSE) |>
+   layout(title = paste("Gráfico para CNAE:", "Frigorífico - abate de bovinos"),
+          hovermode = "y",
+          yaxis = list(title = "",
+                       showgrid = FALSE,
+                       showline = TRUE,
+                       categoryorder = "total ascending"),
+          xaxis = list(title = "",
+                       hoverformat = ".1f",
+                       showgrid = FALSE,
+                       showline = TRUE),
+          legend = list(orientation = "h",
+                        title = list(text = "")),
+          barmode = "relative",
+          uniformtext = list(minsize = 8,
+                             mode = "hide"))
 ```
 
 ## Ocupações e eixos tecnológicos
 
-```{r, include=TRUE,echo=FALSE,warning=FALSE,results='asis',fig.align = 'center',fig.dim=c(10,6)}
-dados_painel3$ocup_eixo |>
-   mutate(label= paste0(nome_cbo_familia, ": ", format(vinculos,big.mark = ".", decimal.mark = ","))) |>
-   ggplot(aes(area = vinculos, 
-              fill = eixo, 
-              label = label, 
-              subgroup = eixo,
-              subgroup2 = nome_cbo_subgrupo_principal,
-              subgroup3 = nome_cbo_subgrupo)) +
-   geom_treemap() + 
-   geom_treemap_text(colour = "white", place = "bottomleft",
-                     size = 10, reflow = T) +
-   geom_treemap_subgroup_border(colour = "white", size = 2.1) +
-   geom_treemap_subgroup2_border(colour = "white", size = 1) +
-   geom_treemap_subgroup3_border(colour = "white", size = .5) +
-   scale_fill_manual(values = c("#0a78c7","#2b597a","#fb8e80","#00980c",
-                                "#bd3928","#d92335","#f87d28","#064471",
-                                "#72879d","#e46874","#54a4dc","#e2ccc4","#808080"))+
-   theme(legend.position = "bottom") +
-   labs(fill = "",
-        title = "Família de ocupações técnicas do DF por eixo tecnológico")
+```{r, include=TRUE,echo=FALSE,warning=FALSE,results='asis',fig.align = 'center',fig.dim=c(15,40)}
+
+plots <- list()
+
+for (i in 1:13) {
+   dados_filtrados <- dados_painel3$ocup_eixo %>%
+       mutate(nome_cbo_familia = quebra(nome_cbo_familia,4)) %>%
+       filter(eixo == unique(dados_painel3$ocup_eixo$eixo)[i]) %>%
+       arrange(desc(vinculos), nome_cbo_familia) %>%
+       slice(1:10)
+   
+   plot <- plot_ly(dados_filtrados, x = ~vinculos, y = ~nome_cbo_familia, type = "bar", color = I("#62a69c")) %>%
+       layout(title = paste("Gráfico para Eixo:", unique(dados_painel3$ocup_eixo$eixo)[i]),
+              hovermode = "y",
+              yaxis = list(title = "",
+                           showgrid = FALSE,
+                           showline = TRUE,
+                           categoryorder = "total ascending"),
+              xaxis = list(title = "",
+                           hoverformat = ".1f",
+                           showgrid = FALSE,
+                           showline = TRUE),
+              legend = list(orientation = "h",
+                            title = list(text = "")),
+              barmode = "relative",
+              uniformtext = list(minsize = 8,
+                                 mode = "hide"))
+   
+   plots[[i]] <- plot
+}
+
+subplot(plots, 
+        nrows = 7,
+        margin = c(.1,.1,.01,.01))
 ```
+
+
 
 ## Remuneração e vínculos
 

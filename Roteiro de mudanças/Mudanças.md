@@ -44,7 +44,7 @@ O painel Remuneração Média permite a visualização e análise de dados desde
 
 O painel Taxa de Rotatividade permite observar o comportamento da taxa de rotatividade profissional de acordo com o nível de escolaridade do profissional do Distrito Federal. Os dados de remuneração foram corrigidos pela inflação (INPC-DF) até dezembro de 2020, com objetivo de se obter comparações adequadas.
 
-Nos painéis Remuneração média, Proporção Vínculos e Taxa de Rotatividade, é possível filtrar os resultados para os vínculos técnicos (aqueles relacionados com os cursos profissionais técnicos) e não técnicos (outros tipos de vínculos), conforme metodologia definida no estudo Panorama da Capacitação do Distrito Federal.
+Nos painéis Remuneração média, Proporção Vínculos e Taxa de Rotatividade, é possível filtrar os resultados para os vínculos técnicos (aqueles relacionados com os cursos profissionais técnicos) e não técnicos (outros tipos de vínculos), conforme metodologia definida no estudo [Panorama da Capacitação do Distrito Federal](https://www.ipe.df.gov.br/wp-content/uploads/2022/10/NT-Panorama-da-Capacitac%CC%A7a%CC%83o-no-Distrito-Federal.pdf).
 
 Ressalte-se que os dados de emprego se referem apenas mercado formal de trabalho. E que vínculo empregatício diz respeito ao contrato de trabalho entre um trabalhador e um empregador. O número de vínculos é sempre maior que o número de trabalhadores, já que um trabalhador pode ter mais de um vínculo empregatício.
 
@@ -66,7 +66,7 @@ O método escolhido para realizar o calculo da rotatividade é o fornecido por S
 $$
 R:\frac{\sum(Admitidos_t,Desligados_t)}{\textit{Total da força de trabalho}_t}
 $$
-Nos painéis Remuneração média, Proporção Vínculos e Taxa de Rotatividade, é possível filtrar os resultados para os vínculos técnicos (aqueles relacionados com os cursos profissionais técnicos) e não técnicos (outros tipos de vínculos), conforme metodologia definida no estudo Panorama da Capacitação do Distrito Federal.
+Nos painéis Remuneração média, Proporção Vínculos e Taxa de Rotatividade, é possível filtrar os resultados para os vínculos técnicos (aqueles relacionados com os cursos profissionais técnicos) e não técnicos (outros tipos de vínculos), conforme metodologia definida no estudo [Panorama da Capacitação do Distrito Federal](https://www.ipe.df.gov.br/wp-content/uploads/2022/10/NT-Panorama-da-Capacitac%CC%A7a%CC%83o-no-Distrito-Federal.pdf).
 
 Ressalte-se que os dados de emprego se referem apenas mercado formal de trabalho. E que vínculo empregatício diz respeito ao contrato de trabalho entre um trabalhador e um empregador. O número de vínculos é sempre maior que o número de trabalhadores, já que um trabalhador pode ter mais de um vínculo empregatício.
 
@@ -92,27 +92,42 @@ Além das pesquisas interativas, o usuário está livre para fazer o download do
 
 ### Painel 2.2 - Remuneração média
 - Trocar título do subpainel para *Remuneração mediana*.
-![Painel 2.2 - Remuneração mediana.png](https://github.com/CEAPS-IPEDF/MMT/blob/main/Roteiro%20de%20mudan%C3%A7as/Imagens/Painel%202.2%20-%20Remunera%C3%A7%C3%A3o%20mediana.png?raw=true)
-- Gráfico de remuneração mediana por hora trabalhada
-  - **título**: Remuneração mediana por hora trabalhada;
-  - **fonte**: Relação Anual de Informações Sociais - RAIS/Ministério do Trabalho e Emprego. Dados corrigidos pelo INPC-DF com preços de 2022 como base;
-- Retirar gráfico de Estatutário.
+- Substituir gráfico atual por dois novos gráficos
+- Substituição dos gráficos por dois novos gráficos:
+   - Um gráfico agrupará as escolaridades (para RAIS em geral) na estrutura:
+
+      - Analfabetos;
+      - Até fundamental completo;
+      - Até médio completo;
+      - Superior Completo;
+
+   - O segundo gráfico terá as informações referentes a:
+
+      - Média dos Trabalhadores Técnicos;
+      - Técnicos de nível médio;
+      - Técnicos de nível superior;
+
+![Painel 2.1 - Ranking de ganho de vínculos.png](https://github.com/CEAPS-IPEDF/MMT/blob/main/Roteiro%20de%20mudan%C3%A7as/Imagens/Painel%202.1%20-%20Ranking%20de%20ganho%20de%20v%C3%ADnculos.png?raw=true)
+- Gráfico de ganho e perda de vínculos
+
+- **título**: Remuneração mediana por hora trabalhada;
+- **fonte**: Relação Anual de Informações Sociais - RAIS/Ministério do Trabalho e Emprego. Dados corrigidos pelo INPC-DF com preços de 2022 como base;
 
 ### Painel 2.3 - Proporção vínculos
 - Trocar título para *Número de vínculos*.
 ![Painel 2.3 - Número de vínculos.png](https://github.com/CEAPS-IPEDF/MMT/blob/main/Roteiro%20de%20mudan%C3%A7as/Imagens/Painel%202.3%20-%20N%C3%BAmero%20de%20v%C3%ADnculos.png?raw=true)
 - Retirar gráfico da *Evolução da proporção do número de vínculos no DF*.
-- Adicionar gráfico de *número absoluto de vínculos* ou *taxa de variação anual do número de vínculos*.
+- Adicionar gráfico de *número absoluto de vínculos* ;
   ![Painel 2.3 - Número absoluto de vínculos.png](https://github.com/CEAPS-IPEDF/MMT/blob/main/Roteiro%20de%20mudan%C3%A7as/Imagens/Painel%202.3%20-%20N%C3%BAmero%20absoluto%20de%20v%C3%ADnculos.png?raw=true)
-  ![Painel 2.3 - Variação do número de vínculos.png](https://github.com/CEAPS-IPEDF/MMT/blob/main/Roteiro%20de%20mudan%C3%A7as/Imagens/Painel%202.3%20-%20Varia%C3%A7%C3%A3o%20do%20n%C3%BAmero%20de%20v%C3%ADnculos.png?raw=true)
-  - **fonte**: Relação Anual de Informações Sociais - RAIS/Ministério do Trabalho e Emprego. Dados corrigidos pelo INPC-DF com preços de 2022 como base;
+
+- **fonte**: Relação Anual de Informações Sociais - RAIS/Ministério do Trabalho e Emprego. Dados corrigidos pelo INPC-DF com preços de 2022 como base;
 
 ### Painel 2.4 - Taxa de rotatividade
 ![Painel 2.4 - Taxa de rotatividade.png](https://github.com/CEAPS-IPEDF/MMT/blob/main/Roteiro%20de%20mudan%C3%A7as/Imagens/Painel%202.4%20-%20Taxa%20de%20rotatividade.png?raw=true)
 - Gráfico da taxa de rotatividade no DF
-  - **título**: Taxa de rotatividade no DF;
-  - trocar período para 2012 - 2021;
-  - **fonte**: Relação Anual de Informações Sociais - RAIS e Cadastro Geral de Empregados e Desempregados - CAGED/Ministério do Trabalho e Emprego. Dados corrigidos pelo INPC-DF com preços de 2022 como base.
+  - **título**: Taxa de rotatividade no DF;  
+  - trocar período para 2012 - 2021;  
+  - **fonte**: Relação Anual de Informações Sociais - RAIS e Cadastro Geral de Empregados e Desempregados - CAGED/Ministério do Trabalho e Emprego. Dados corrigidos pelo INPC-DF com preços de 2022 como base.  
   - **obs.**: A taxa de rotatividade é uma medida que captura a contratação e a demissão de trabalhadores. Ela é maior em períodos de fortes contratações e também em períodos de fortes demissões. Interpreta-se que menores rotatividades indicam maior estabilidade das ocupações.
   - **obs. 2**: Os dados se referem apenas aos vínculos celetistas.
 
@@ -127,3 +142,30 @@ No painel "Ocupações para Empresas", é possível selecionar uma ocupação es
 Já no painel "Empresas para Ocupações", é permitido selecionar uma atividade econômica e, a partir disso, analisar um gráfico contendo informações sobre as ocupações relacionadas a essa atividade.
 
 Além disso, o painel "Ocupações e Eixos Tecnológicos" exibe gráficos que demonstram as ocupações técnicas e seus respectivos eixos tecnológicos. É importante destacar que os eixos tecnológicos são elementos fundamentais na estrutura da educação profissional e tecnológica, pois organizam diversos cursos com o objetivo de orientar seus projetos pedagógicos.
+
+### Painel 3.1 - Ocupações para empresas
+
+- O gráfico de árvores será substituído por um gráfico de barras contendo os valores com os 15 maiores percentuais;
+
+(Imagem aqui)
+
+
+- O restante dos dados será apresentado em uma tablea, semelhante ao que acontece no Painel 2.1
+
+### Painel 3.2 - Empresas para Ocupações
+
+- O gráfico de árvores será substituído por um gráfico de barras contendo os valores com os 15 maiores percentuais;
+
+
+- O restante dos dados será apresentado em uma tablea, semelhante ao que acontece no Painel 2.1
+
+### Painel 3.3 - Ocupações e Eixos Tecnológicos
+
+- O gráfico de árvores será substituído por uma série de gráficos de barras contendo os valores com os 10 maiores percentuais em cada eixo;
+
+- Uma caixa de seleção deve ser inserida à direita do gráfico, Permitindo que se selecione o eixo da visualização do gráfico;
+
+- O restante dos dados será apresentado em uma tabela, semelhante ao que acontece no Painel 2.1;
+
+
+
