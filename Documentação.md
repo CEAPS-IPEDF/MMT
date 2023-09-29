@@ -237,8 +237,8 @@ As faixas que foram definidas são:
 ```R
 dados <- dados |>
   mutate(escolaridade = case_when(escolaridade == 1 ~ 1,       # Analfabeto - 1
-                                  escolaridade %in% 2:6 ~ 2,   # Médio incompleto - 2
-                                  escolaridade %in% 7:8 ~ 3,   # Médio completo - 3
+                                  escolaridade %in% 2:6 ~ 2,   # Fundamental completo e incompleto - 2
+                                  escolaridade %in% 7:8 ~ 3,   # Médio completo e incompleto - 3
                                   escolaridade %in% 9:11 ~ 4)) # Superior completo - 4
 ```
 
@@ -531,8 +531,8 @@ base_nao_tec <- rais_2 |>
          salario_hora > 0,
          horas > 0) |>
   mutate(tipo = case_when(escolaridade == 1 ~"Analfabeto",
-                          escolaridade == 2 ~"Até fundamental completo",
-                          escolaridade == 3 ~"Até médio completo",
+                          escolaridade == 2 ~"Fundamental completo e incompleto",
+                          escolaridade == 3 ~"Médio completo e incompleto",
                           escolaridade == 4 ~"Superior completo*")) |> 
   group_by(ano, tipo) |> 
   summarise(filtro = "Não técnico",
@@ -612,9 +612,9 @@ O próximo passo consiste na realização do mesmo cálculo, porém, agrupado po
 ```R
 base_escolaridade <- rais_3 |>
   mutate(tipo = case_when(escolaridade == 1 ~ "Analfabeto",
-                                  escolaridade == 2 ~ "Até fundamental completo",
-                                  escolaridade == 3 ~ "Médio completo",
-                                  escolaridade == 4 ~ "Superior completo")) |>
+                          escolaridade == 2 ~ "Fundamental completo e incompleto",
+                          escolaridade == 3 ~ "Médio completo e incompleto",
+                          escolaridade == 4 ~ "Superior completo")) |>
   group_by(ano, tipo) |>
   summarise(vinculos = n())
 ```
@@ -789,8 +789,8 @@ A próxima etapa do *script* carrega a variável de grau de instrução da RAIS,
 ```R
 rais_4 <- rais |>
   mutate(escolaridade = case_when(escolaridade == 1 ~ "Analfabeto",
-                                  escolaridade == 2 ~ "Médio incompleto",
-                                  escolaridade == 3 ~ "Médio completo",
+                                  escolaridade == 2 ~ "Fundamental completo e incompleto",
+                                  escolaridade == 3 ~ "Médio completo e incompleto",
                                   escolaridade == 4 ~ "Superior completo"))
 ```
 As CBOs (técnicas de nível médio e superior) são importadas para o ambiente `.R` com o comando abaixo:
@@ -804,7 +804,7 @@ cbotec_sup <- as.character(read_csv("../1. Extração dos dados/Dados/CBO Técni
 ###### Tratamento
 Após a finalização de importação, passamos para a etapa de tratamento dos dados. O primeiro passo é o cálculo do número de trabalhadores da RAIS agrupado por ano e por CBO (a escolaridade é considerada como **geral**). Depois, realizamos o mesmo cálculo, porém, agrupado também por escolaridade.
 
-```
+```R
 rotatividade_rais_4 <- rbind(rais_4 |>
                              group_by(referencia, cboocupacao2002) |>
                              summarise(n_trabalhadores = n(),
@@ -836,8 +836,8 @@ rotatividade_caged <- caged |>
          admitidosdesligados = case_when(admitidosdesligados == 1 ~ "admitidos",
                                          admitidosdesligados == 2 ~ "desligados"),
          escolaridade = case_when(grauinstrucao == 1 ~ "Analfabeto",
-                                  grauinstrucao %in% 2:6 ~ "Médio incompleto",
-                                  grauinstrucao %in% 7:8 ~ "Médio completo",
+                                  grauinstrucao %in% 2:6 ~ "Fundamental completo e incompleto",
+                                  grauinstrucao %in% 7:8 ~ "Médio completo e incompleto",
                                   grauinstrucao %in% 9:11 ~ "Superior completo",
                                   grauinstrucao == 99 ~ NA))
 ```
@@ -893,8 +893,9 @@ A coluna `tipo` agrega as informações de escolaridade e trabalho técnico com 
 - **Média dos trabalhadores não técnicos** - engloba escolaridade **geral** e trabalhadores em CBOS não técnicas;
 - **Técnicos de nível médio** - engloba todas as escolaridades e trabalhadores em CBOS técnicas de nível médio;
 - **Técnicos de nível superior** - engloba todas as escolaridades e trabalhadores em CBOS técnicas de nível superior;
-- **Até fundamental completo** - engloba trabalhadores analfabetos (código **1**) e trabalhadores com até o ensino médio incompleto (código **2**);
-- **Ensino médio completo** - engloba trabalhadores com ensino médio completo;
+- **Analfabeto** - engloba trabalhadores analfabetos (código **1**);
+- **Fundamental completo e incompleto** -  engloba trabalhadores com até o ensino médio incompleto (código **2**);
+- **Ensino médio completo e incompleto** - engloba trabalhadores com ensino médio completo;
 - **Ensino superior completo** - engloba trabalhadores com ensino superior completo, mestrado e doutorado.
 
 A última variável de filtro criada serve para identificar se os trabalhadores são de CBOs técnicas ou não.
@@ -913,10 +914,11 @@ rotatividade <- merge(rotatividade_rais_4,
                                  TRUE ~ "nao_tec"),
          tipo = case_when(escolaridade == "Geral" & cbo_tecnica %in% c("tec_em", "tec_sup") ~ "Média dos trabalhadores técnicos",
                           escolaridade == "Geral" & cbo_tecnica == "nao_tec" ~ "Média dos trabalhadores não técnicos",
-                          escolaridade %in% c("Analfabeto", "Médio incompleto", "Médio completo", "Superior completo") & cbo_tecnica == "tec_em" ~ "Técnicos de nível médio",
-                          escolaridade %in% c("Analfabeto", "Médio incompleto", "Médio completo", "Superior completo") & cbo_tecnica == "tec_sup" ~ "Técnicos de nível superior",
-                          escolaridade %in% c("Analfabeto", "Médio incompleto") & cbo_tecnica == "nao_tec" ~ "Até fundamental completo",
-                          escolaridade == "Médio completo" & cbo_tecnica == "nao_tec" ~ "Médio completo",
+                          escolaridade %in% c("Analfabeto", "Fundamental completo e incompleto", "Médio completo e incompleto", "Superior completo") & cbo_tecnica == "tec_em" ~ "Técnicos de nível médio",
+                          escolaridade %in% c("Analfabeto", "Fundamental completo e incompleto", "Médio completo e incompleto", "Superior completo") & cbo_tecnica == "tec_sup" ~ "Técnicos de nível superior",
+                          escolaridade == "Analfabeto" & cbo_tecnica == "nao_tec" ~ "Analfabeto",
+                          escolaridade == "Fundamental completo e incompleto" & cbo_tecnica == "nao_tec" ~ "Fundamental completo e incompleto",
+                          escolaridade == "Médio completo e incompleto" & cbo_tecnica == "nao_tec" ~ "Médio completo e incompleto",
                           escolaridade == "Superior completo" & cbo_tecnica == "nao_tec" ~ "Superior completo"),
          filtro = case_when(cbo_tecnica %in% c("tec_em", "tec_sup") ~ "Técnico",
                             TRUE ~ "Não técnico"))

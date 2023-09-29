@@ -54,10 +54,10 @@ base_nao_tec <- rais_2 |>
   filter(tec == 0,
          salario_hora > 0,
          horas > 0) |>
-  mutate(tipo = case_when(escolaridade == 1 ~"Analfabeto",
-                          escolaridade == 2 ~"Até fundamental completo",
-                          escolaridade == 3 ~"Até médio completo",
-                          escolaridade == 4 ~"Superior completo*")) |> 
+  mutate(tipo = case_when(escolaridade == 1 ~ "Analfabeto",
+                          escolaridade == 2 ~ "Fundamental completo e incompleto",
+                          escolaridade == 3 ~ "Médio completo e incompleto",
+                          escolaridade == 4 ~ "Superior completo*")) |> 
   group_by(ano, tipo) |> 
   summarise(filtro = "Não técnico",
             salario_hora = median(salario_hora, na.rm = T), 

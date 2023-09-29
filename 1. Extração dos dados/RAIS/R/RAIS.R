@@ -134,8 +134,8 @@ dados <- dados |>
 
 dados <- dados |>
   mutate(escolaridade = case_when(escolaridade == 1 ~ 1,       # Analfabeto - 1
-                                  escolaridade %in% 2:6 ~ 2,   # Médio incompleto - 2
-                                  escolaridade %in% 7:8 ~ 3,   # Médio completo - 3
+                                  escolaridade %in% 2:6 ~ 2,   # Fundamental completo e incompleto - 2
+                                  escolaridade %in% 7:8 ~ 3,   # Médio completo e incompleto - 3
                                   escolaridade %in% 9:11 ~ 4)) # Superior completo - 4
 
 ### Eixos - nível médio ----

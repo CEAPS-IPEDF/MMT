@@ -116,8 +116,8 @@ dbDisconnect(db)
 
 rais_4 <- rais |>
   mutate(escolaridade = case_when(escolaridade == 1 ~ "Analfabeto",
-                                  escolaridade == 2 ~ "Médio incompleto",
-                                  escolaridade == 3 ~ "Médio completo",
+                                  escolaridade == 2 ~ "Fundamental completo e incompleto",
+                                  escolaridade == 3 ~ "Médio completo e incompleto",
                                   escolaridade == 4 ~ "Superior completo"))
 
 ### CBOs técnicas ----
@@ -164,8 +164,8 @@ rotatividade_caged <- caged |>
          admitidosdesligados = case_when(admitidosdesligados == 1 ~ "admitidos",
                                          admitidosdesligados == 2 ~ "desligados"),
          escolaridade = case_when(grauinstrucao == 1 ~ "Analfabeto",
-                                  grauinstrucao %in% 2:6 ~ "Médio incompleto",
-                                  grauinstrucao %in% 7:8 ~ "Médio completo",
+                                  grauinstrucao %in% 2:6 ~ "Fundamental completo e incompleto",
+                                  grauinstrucao %in% 7:8 ~ "Médio completo e incompleto",
                                   grauinstrucao %in% 9:11 ~ "Superior completo",
                                   grauinstrucao == 99 ~ NA))
 
@@ -208,8 +208,8 @@ rotatividade_novo <- novo_caged |>
          admitidosdesligados = case_when(admitidosdesligados == 1 ~ "admitidos",
                                          admitidosdesligados == 2 ~ "desligados"),
          escolaridade = case_when(grauinstrucao == 1 ~ "Analfabeto",
-                                  grauinstrucao %in% 2:6 ~ "Médio incompleto",
-                                  grauinstrucao %in% 7:8 ~ "Médio completo",
+                                  grauinstrucao %in% 2:6 ~ "Fundamental completo e incompleto",
+                                  grauinstrucao %in% 7:8 ~ "Médio completo e incompleto",
                                   grauinstrucao %in% 9:11 ~ "Superior completo",
                                   grauinstrucao == 99 ~ NA))
 
@@ -243,10 +243,11 @@ rotatividade <- merge(rotatividade_rais_4,
                                  TRUE ~ "nao_tec"),
          tipo = case_when(escolaridade == "Geral" & cbo_tecnica %in% c("tec_em", "tec_sup") ~ "Média dos trabalhadores técnicos",
                           escolaridade == "Geral" & cbo_tecnica == "nao_tec" ~ "Média dos trabalhadores não técnicos",
-                          escolaridade %in% c("Analfabeto", "Médio incompleto", "Médio completo", "Superior completo") & cbo_tecnica == "tec_em" ~ "Técnicos de nível médio",
-                          escolaridade %in% c("Analfabeto", "Médio incompleto", "Médio completo", "Superior completo") & cbo_tecnica == "tec_sup" ~ "Técnicos de nível superior",
-                          escolaridade %in% c("Analfabeto", "Médio incompleto") & cbo_tecnica == "nao_tec" ~ "Até fundamental completo",
-                          escolaridade == "Médio completo" & cbo_tecnica == "nao_tec" ~ "Médio completo",
+                          escolaridade %in% c("Analfabeto", "Fundamental completo e incompleto", "Médio completo e incompleto", "Superior completo") & cbo_tecnica == "tec_em" ~ "Técnicos de nível médio",
+                          escolaridade %in% c("Analfabeto", "Fundamental completo e incompleto", "Médio completo e incompleto", "Superior completo") & cbo_tecnica == "tec_sup" ~ "Técnicos de nível superior",
+                          escolaridade == "Analfabeto" & cbo_tecnica == "nao_tec" ~ "Analfabeto",
+                          escolaridade == "Fundamental completo e incompleto" & cbo_tecnica == "nao_tec" ~ "Fundamental completo e incompleto",
+                          escolaridade == "Médio completo e incompleto" & cbo_tecnica == "nao_tec" ~ "Médio completo e incompleto",
                           escolaridade == "Superior completo" & cbo_tecnica == "nao_tec" ~ "Superior completo"),
          filtro = case_when(cbo_tecnica %in% c("tec_em", "tec_sup") ~ "Técnico",
                             TRUE ~ "Não técnico"))

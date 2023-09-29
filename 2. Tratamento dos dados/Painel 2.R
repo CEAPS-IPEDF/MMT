@@ -45,7 +45,7 @@ source("Painel 2 - Remuneração e Ocupações/2.4 - Taxa de rotatividade/Rotati
 # Checar se foi atualizado ----
 
 arquivos <- c("2.1 - Ranking de CBOs",
-              "2.2 - Remuneração média",
+              "2.2 - Remuneração mediana",
               "2.3 - Número de vínculos",
               "2.4 - Taxa de rotatividade")
 

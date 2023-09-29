@@ -79,57 +79,88 @@ Além das pesquisas interativas, o usuário está livre para fazer o download do
 ![Painel 2.1 - Ranking de ganho salarial.png](https://github.com/CEAPS-IPEDF/MMT/blob/main/Roteiro%20de%20mudan%C3%A7as/Imagens/Painel%202.1%20-%20Ranking%20de%20ganho%20salarial.png?raw=true)
 - Gráficos de ganho e perda salarial
   - trocar período para 2012 - 2021;
-  - **fonte**: Dados corrigidos pelo INPC-DF com preços de 2022 como base.
+  - **fonte**: Relação Anual de Informações Sociais - RAIS/Ministério do Trabalho e Emprego. Dados corrigidos pelo INPC-DF com preços de 2022 como base.
   - **obs.**: As variações são calculadas por meio da comparação entre a mediana de remuneração atual com a mediana do ano anterior.
-  - **obs. 2**: Apenas as CBOs que concentram 95% do total dos vínculos são apresentadas.
+  - **obs. 2**: Apenas as CBOs que concentram 99% do total dos vínculos são apresentadas.
   ![Painel 2.1 - Ranking de ganho de vínculos.png](https://github.com/CEAPS-IPEDF/MMT/blob/main/Roteiro%20de%20mudan%C3%A7as/Imagens/Painel%202.1%20-%20Ranking%20de%20ganho%20de%20v%C3%ADnculos.png?raw=true)
 - Gráfico de ganho e perda de vínculos
-  - **título**: Ranking - ganho de vínculos;
+  - **título**: Ranking - ganho de vínculos/Ranking - perda de vínculos;
   - trocar período para 2012 - 2021;
-  - **fonte**: Dados corrigidos pelo INPC-DF com preços de 2022 como base.
+  - **fonte**: Relação Anual de Informações Sociais - RAIS/Ministério do Trabalho e Emprego. Dados corrigidos pelo INPC-DF com preços de 2022 como base.
   - **obs.**: As variações são calculadas por meio da comparação entre o número de vínculos atual com o número de vínculos do ano anterior.
-  - **obs. 2**: Apenas as CBOs que concentram 95% do total dos vínculos são apresentadas.
+  - **obs. 2**: Apenas as CBOs que concentram 99% do total dos vínculos são apresentadas.
 
 ### Painel 2.2 - Remuneração média
 - Trocar título do subpainel para *Remuneração mediana*.
+
 - Substituir gráfico atual por dois novos gráficos
+
 - Substituição dos gráficos por dois novos gráficos:
    - Um gráfico agrupará as escolaridades (para RAIS em geral) na estrutura:
 
       - Analfabetos;
-      - Até fundamental completo;
-      - Até médio completo;
+      - Fundamental completo e incompleto;
+      - Médio completo e incompleto;
       - Superior Completo;
-
    - O segundo gráfico terá as informações referentes a:
-
+   
       - Média dos Trabalhadores Técnicos;
       - Técnicos de nível médio;
       - Técnicos de nível superior;
 
-![Painel 2.1 - Ranking de ganho de vínculos.png](https://github.com/CEAPS-IPEDF/MMT/blob/main/Roteiro%20de%20mudan%C3%A7as/Imagens/Painel%202.1%20-%20Ranking%20de%20ganho%20de%20v%C3%ADnculos.png?raw=true)
-- Gráfico de ganho e perda de vínculos
+- O primeiro gráfico apresentará:
+  - **título**: Remuneração mediana - por escolaridade;
+  - **fonte**: Relação Anual de Informações Sociais - RAIS/Ministério do Trabalho e Emprego. Dados corrigidos pelo INPC-DF com preços de 2022 como base.
 
-- **título**: Remuneração mediana por hora trabalhada;
-- **fonte**: Relação Anual de Informações Sociais - RAIS/Ministério do Trabalho e Emprego. Dados corrigidos pelo INPC-DF com preços de 2022 como base;
+![image-20230822082812466](C:\Users\alexandre.sanches\AppData\Roaming\Typora\typora-user-images\image-20230822082812466.png)
+
+- O segundo gráfico apresentará:
+  - **título**: Remuneração mediana - por tipo de vínculo técnico;
+  - **fonte**: Relação Anual de Informações Sociais - RAIS/Ministério do Trabalho e Emprego. Dados corrigidos pelo INPC-DF com preços de 2022 como base.
+
+![image-20230822082839790](C:\Users\alexandre.sanches\AppData\Roaming\Typora\typora-user-images\image-20230822082839790.png)
 
 ### Painel 2.3 - Proporção vínculos
-- Trocar título para *Número de vínculos*.
+- Trocar título do subpainel para *Número absoluto de vínculos*.
 ![Painel 2.3 - Número de vínculos.png](https://github.com/CEAPS-IPEDF/MMT/blob/main/Roteiro%20de%20mudan%C3%A7as/Imagens/Painel%202.3%20-%20N%C3%BAmero%20de%20v%C3%ADnculos.png?raw=true)
 - Retirar gráfico da *Evolução da proporção do número de vínculos no DF*.
-- Adicionar gráfico de *número absoluto de vínculos* ;
-  ![Painel 2.3 - Número absoluto de vínculos.png](https://github.com/CEAPS-IPEDF/MMT/blob/main/Roteiro%20de%20mudan%C3%A7as/Imagens/Painel%202.3%20-%20N%C3%BAmero%20absoluto%20de%20v%C3%ADnculos.png?raw=true)
+- O primeiro gráfico apresentará:
+  - **título**: Número absoluto de vínculos - por escolaridade;
+  - **fonte**: Relação Anual de Informações Sociais - RAIS/Ministério do Trabalho e Emprego.
 
-- **fonte**: Relação Anual de Informações Sociais - RAIS/Ministério do Trabalho e Emprego. Dados corrigidos pelo INPC-DF com preços de 2022 como base;
+![image-20230822083234225](C:\Users\alexandre.sanches\AppData\Roaming\Typora\typora-user-images\image-20230822083234225.png)
+
+- O segundo gráfico apresentará:
+  - **título**: Número absoluto de vínculos - por tipo de vínculo técnico;
+  - **fonte**: Relação Anual de Informações Sociais - RAIS/Ministério do Trabalho e Emprego.
+
+![image-20230822083258729](C:\Users\alexandre.sanches\AppData\Roaming\Typora\typora-user-images\image-20230822083258729.png)
 
 ### Painel 2.4 - Taxa de rotatividade
 ![Painel 2.4 - Taxa de rotatividade.png](https://github.com/CEAPS-IPEDF/MMT/blob/main/Roteiro%20de%20mudan%C3%A7as/Imagens/Painel%202.4%20-%20Taxa%20de%20rotatividade.png?raw=true)
-- Gráfico da taxa de rotatividade no DF
-  - **título**: Taxa de rotatividade no DF;  
-  - trocar período para 2012 - 2021;  
-  - **fonte**: Relação Anual de Informações Sociais - RAIS e Cadastro Geral de Empregados e Desempregados - CAGED/Ministério do Trabalho e Emprego. Dados corrigidos pelo INPC-DF com preços de 2022 como base.  
+- O primeiro gráfico apresentará:
+  - trocar período para 2012 - 2021;
+  - **título**: Taxa de rotatividade - por escolaridade;
+  - **fonte**: Relação Anual de Informações Sociais - RAIS/Ministério do Trabalho e Emprego.
   - **obs.**: A taxa de rotatividade é uma medida que captura a contratação e a demissão de trabalhadores. Ela é maior em períodos de fortes contratações e também em períodos de fortes demissões. Interpreta-se que menores rotatividades indicam maior estabilidade das ocupações.
   - **obs. 2**: Os dados se referem apenas aos vínculos celetistas.
+  
+
+![image-20230822083526202](C:\Users\alexandre.sanches\AppData\Roaming\Typora\typora-user-images\image-20230822083526202.png)
+
+- O segundo gráfico apresentará:
+
+  - trocar período para 2012 - 2021;
+
+  - **título**: Taxa de rotatividade - por tipo de vínculo técnico;
+
+  - **fonte**: Relação Anual de Informações Sociais - RAIS/Ministério do Trabalho e Emprego.
+
+  - **obs.**: A taxa de rotatividade é uma medida que captura a contratação e a demissão de trabalhadores. Ela é maior em períodos de fortes contratações e também em períodos de fortes demissões. Interpreta-se que menores rotatividades indicam maior estabilidade das ocupações.
+
+  - **obs. 2**: Os dados se referem apenas aos vínculos celetistas.
+
+![image-20230822083617132](C:\Users\alexandre.sanches\AppData\Roaming\Typora\typora-user-images\image-20230822083617132.png)
 
 ## Painel 3 - Ocupações técnicas
 

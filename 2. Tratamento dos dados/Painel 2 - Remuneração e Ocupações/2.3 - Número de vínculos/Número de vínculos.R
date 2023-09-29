@@ -58,9 +58,9 @@ base_tec <- rais_3 |>
 
 base_escolaridade <- rais_3 |>
   mutate(tipo = case_when(escolaridade == 1 ~ "Analfabeto",
-                                  escolaridade == 2 ~ "Até fundamental completo",
-                                  escolaridade == 3 ~ "Médio completo",
-                                  escolaridade == 4 ~ "Superior completo")) |>
+                          escolaridade == 2 ~ "Fundamental completo e incompleto",
+                          escolaridade == 3 ~ "Médio completo e incompleto",
+                          escolaridade == 4 ~ "Superior completo")) |>
   group_by(ano, tipo) |>
   summarise(vinculos = n())
 
