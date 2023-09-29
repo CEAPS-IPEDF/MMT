@@ -328,37 +328,59 @@ dados$num_vinc |>
    
 ## Taxa de rotatividade ----
 
+#### Por escolaridade ----
+
 dados$rotatividade |>
    select(-c(filtro, n_trabalhadores:desligados)) |>
    mutate(rotatividade = rotatividade * 100) |>
    pivot_wider(names_from = tipo,
                values_from = rotatividade) |>
    plot_ly(x = ~anodeclarado) |>
-   add_trace(y = ~`Até fundamental completo`,
+   add_trace(y = ~`Analfabeto`,
              type = "scatter", 
              mode = "lines+markers",
-             name = "Até fundamental completo",
+             name = "Analfabeto",
+             color = I("#AFE1AF")) |>
+   add_trace(y = ~`Fundamental completo e incompleto`,
+             type = "scatter", 
+             mode = "lines+markers",
+             name = "Fundamental completo e incompleto",
              color = I("#d92335")) |>
-   add_trace(y = ~`Média dos trabalhadores não técnicos`,
+   add_trace(y = ~`Médio completo e incompleto`,
              type = "scatter", 
              mode = "lines+markers",
-             name = "Média dos trabalhadores não técnicos",
-             color = I("#064471")) |>
-   add_trace(y = ~`Média dos trabalhadores técnicos`,
-             type = "scatter", 
-             mode = "lines+markers",
-             name = "Média dos trabalhadores técnicos",
-             color = I("#bd3928")) |>
-   add_trace(y = ~`Médio completo`,
-             type = "scatter", 
-             mode = "lines+markers",
-             name = "Médio completo",
+             name = "Médio completo e incompleto",
              color = I("#f87d28")) |>
    add_trace(y = ~`Superior completo`,
              type = "scatter", 
              mode = "lines+markers",
              name = "Superior completo",
              color = I("#0a78c7")) |>
+   config(displayModeBar = FALSE) |>
+   layout(hovermode = "x",
+          yaxis = list(title = "",
+                       ticksuffix = "%",
+                       hoverformat = ".2f",
+                       showgrid = FALSE,
+                       showline = TRUE),
+          xaxis = list(title = "",
+                       tickformat = "%Y",
+                       tickmode = "array",
+                       tickvals = c(min(dados$rotatividade$ano):max(dados$rotatividade$ano)),
+                       showgrid = FALSE,
+                       showline = TRUE),
+          legend = list(orientation = "h",
+                        title = list(text = "")),
+          barmode = "group")
+
+#### Por atividade ----
+
+dados$rotatividade |>
+   select(-c(filtro, n_trabalhadores:desligados)) |>
+   mutate(rotatividade = rotatividade * 100) |>
+   pivot_wider(names_from = tipo,
+               values_from = rotatividade) |>
+   plot_ly(x = ~anodeclarado) |>
    add_trace(y = ~`Técnicos de nível médio`,
              type = "scatter", 
              mode = "lines+markers",
